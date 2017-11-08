@@ -1,0 +1,6 @@
+# Target folders
+**/target
+
+# Project files
+.idea
+**/*.iml
