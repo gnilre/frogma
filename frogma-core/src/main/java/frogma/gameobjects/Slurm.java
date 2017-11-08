@@ -171,7 +171,7 @@ public class Slurm extends DynamicObject {
             //this.newY = dce.getAffNewY();
             boolean topHit = (dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOM);
             /*
-			boolean topHit = (
+            boolean topHit = (
 						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOM ||
 						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOMLEFT ||
 						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT

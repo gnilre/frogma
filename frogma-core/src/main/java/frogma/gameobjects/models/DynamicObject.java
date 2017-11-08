@@ -232,7 +232,7 @@ public abstract class DynamicObject implements BasicGameObject {
         this.velY = velY;
     }
 
-    public void addVelocity(int dvx, int dvy){
+    public void addVelocity(int dvx, int dvy) {
         this.velX += dvx;
         this.velY += dvy;
     }

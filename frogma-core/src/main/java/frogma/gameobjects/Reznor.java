@@ -80,7 +80,7 @@ public class Reznor extends DynamicObject {
      */
 
 	/*public Reznor(GameEngine referrer, Integer objIndex, Integer[] param){
-		this(12,12,referrer,referrer.imgLoader.get(Const.IMG_MMONSTER),subType.intValue());
+        this(12,12,referrer,referrer.imgLoader.get(Const.IMG_MMONSTER),subType.intValue());
 		this.objIndex = objIndex.intValue();
 		this.param = Misc.unwrapIntegerArray(param);
 	}*/

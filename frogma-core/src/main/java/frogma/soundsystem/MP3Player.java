@@ -7,13 +7,12 @@ import javax.media.bean.playerbean.*;
 import javax.media.rtp.*;
 import javax.media.rtp.event.*;*/
 
-public class MP3Player{
-	//MediaPlayer mPlayer;
-	
-	public MP3Player(){
-		// Her kommer det nok noe etter hvert!
-	}
-	
-	
-	
+public class MP3Player {
+    //MediaPlayer mPlayer;
+
+    public MP3Player() {
+        // Her kommer det nok noe etter hvert!
+    }
+
+
 }

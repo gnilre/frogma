@@ -89,7 +89,7 @@ public class Hearts extends DynamicObject {
      * when it's moving.
      */
     public void calcNewPos() {
-		/* Do nothing */
+        /* Do nothing */
     }
 
     public String getName() {

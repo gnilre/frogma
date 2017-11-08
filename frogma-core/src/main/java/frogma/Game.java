@@ -155,7 +155,7 @@ public class Game {
      * Reads the data about a level, which the user selected by typing a password,
      * from a file and returns true if a level is successfully prepared.
      *
-     * @param    password    the password the user typed.
+     * @param password the password the user typed.
      * @return returns true if the level is successfully prepared, false if there are no
      * more levels or if the password was incorrect.
      */
@@ -189,7 +189,7 @@ public class Game {
     /**
      * Sets a level from a filename, for use in leveleditor.
      *
-     * @param    level    The level file
+     * @param level The level file
      */
     public boolean setLevel(File level) {
         levelReader = new FilLeser(level);
@@ -465,7 +465,7 @@ public class Game {
 
         // Load the tileset images:
         /*fgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+fgTileSet));
-		bgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+bgTileSet));
+        bgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+bgTileSet));
 		rfgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+rfgTileSet));
 
 		MediaTracker mt=new MediaTracker(new java.awt.Label());
