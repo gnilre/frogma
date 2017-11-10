@@ -13,8 +13,31 @@
         <module>frogma-core</module>
         <module>frogma-leveleditor</module>
         <module>frogma-resources</module>
-        <module>frogma</module>
+        <module>frogma-distribution</module>
         <module>micromod</module>
     </modules>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
