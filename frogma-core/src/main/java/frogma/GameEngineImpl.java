@@ -112,7 +112,7 @@ public final class GameEngineImpl implements GameEngine {
 	/*  This is the standard constructor of GameEngine.
 	 */
 
-    public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean safeMode) {
+    public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean runWindowed) {
 
         System.setProperty("sun.java2d.translaccel", "true");
         System.setProperty("sun.java2d.accthreshold", "0");
@@ -131,7 +131,7 @@ public final class GameEngineImpl implements GameEngine {
         input.addKey(KeyEvent.VK_W, "w");
         input.addKey(KeyEvent.VK_Q, "q");
 
-        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, input, this, safeMode);
+        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, input, this, runWindowed);
 
         imgLoader = Const.createStandardImageLoader(gfxEng, false);
         imgLoader.load(Const.IMG_LOGO);
@@ -852,13 +852,13 @@ public final class GameEngineImpl implements GameEngine {
      */
     public static void main(String[] args) {
 
-        boolean safeMode = false;
+        boolean runWindowed = true;
         int sW = 640;
         int sH = 480;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("safemode")) {
-                safeMode = true;
+                runWindowed = true;
                 System.out.println("safemode");
             } else if (args[i].equals("res=0")) {
                 // 640x480
@@ -878,7 +878,7 @@ public final class GameEngineImpl implements GameEngine {
             }
         }
 
-        GameEngineImpl gEng = new GameEngineImpl(sW, sH, 50, safeMode); // 40 FPS
+        GameEngineImpl gEng = new GameEngineImpl(sW, sH, 50, runWindowed); // 40 FPS
         Runtime.getRuntime().traceInstructions(TRACE_INSTRUCTIONS);
         Runtime.getRuntime().traceMethodCalls(TRACE_METHODCALLS);
 
