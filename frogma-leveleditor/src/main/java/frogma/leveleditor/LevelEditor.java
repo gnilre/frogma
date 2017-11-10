@@ -282,8 +282,8 @@ public class LevelEditor extends JFrame implements ActionListener {
         iLoader.remove(Const.IMG_GAMEOVER);
 
         // Add custom images:
-        iLoader.add("src/main/resources/images/all.png", 300, false, false);
-        iLoader.add("src/main/resources/images/sky.png", 301, false, false);
+        iLoader.add("/images/all.png", 300, false, false);
+        iLoader.add("/images/sky.png", 301, false, false);
 
         // Load all the images:
         iLoader.loadAll();
@@ -1184,9 +1184,9 @@ public class LevelEditor extends JFrame implements ActionListener {
         this.tileSetString[1] = fgTileSetString;
         this.tileSetString[0] = bgTileSetString;
         this.tileSetString[2] = rfgTileSetString;
-        tileSetImage[1] = Toolkit.getDefaultToolkit().createImage("src/main/resources/images/" + fgTileSetString);
-        tileSetImage[0] = Toolkit.getDefaultToolkit().createImage("src/main/resources/images/" + bgTileSetString);
-        tileSetImage[2] = Toolkit.getDefaultToolkit().createImage("src/main/resources/images/" + rfgTileSetString);
+        tileSetImage[1] = Toolkit.getDefaultToolkit().createImage("/images/" + fgTileSetString);
+        tileSetImage[0] = Toolkit.getDefaultToolkit().createImage("/images/" + bgTileSetString);
+        tileSetImage[2] = Toolkit.getDefaultToolkit().createImage("/images/" + rfgTileSetString);
         repaint();
     }
 
@@ -3467,8 +3467,8 @@ public class LevelEditor extends JFrame implements ActionListener {
             this.setSize(160, 325);
 
             iLoader = new ImageLoader(this.lEdit);
-            iLoader.add("LevelEditor/layerlock.png", 0, false, false);
-            iLoader.add("LevelEditor/layervisible.png", 1, false, false);
+            iLoader.add("/leveleditor/layerlock.png", 0, false, false);
+            iLoader.add("/leveleditor/layervisible.png", 1, false, false);
             iLoader.loadAll();
             imgLayerLock = iLoader.get(0);
             imgLayerVisible = iLoader.get(1);

@@ -214,7 +214,7 @@ public final class GameEngineImpl implements GameEngine {
         playSfx = true;
 
         // Initialize Game Object:
-        gameLevel = new Game(gfxEng, "levels/game.gam");
+        gameLevel = new Game(gfxEng, "/levels/game.gam");
 
         // Initialize music if it's to be played during game play:
         if (PLAY_BGM) {

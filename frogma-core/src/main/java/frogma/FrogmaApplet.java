@@ -94,7 +94,7 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
         imgLoader.remove(Const.IMG_GAMEOVER);
         imgLoader.loadAll();
 
-        gameLevel = new Game(this, "levels/game.gam");
+        gameLevel = new Game(this, "/levels/game.gam");
         gfxEng = new AppletGfxEng(screenW, screenH);
 
         if (getJavaVersion() >= 140) {
@@ -291,7 +291,7 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
                 if (stateFrameCounter == 0) {
                     if (enableSound) {
                         mPlayer.stopPlaying();
-                        mPlayer.init("/src/main/resources/bgm/gra3cp.mid");
+                        mPlayer.init("/bgm/gra3cp.mid");
                         mPlayer.startPlaying(0);
                         mPlayer.initFade(0, 0.4D, frameCountCloseLevel);
                         mPlayer.fade();
@@ -768,7 +768,7 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
             System.out.println("Game finished. No more levels! This will be replaced sometime..");
             if (enableSound) {
                 mPlayer.stopPlaying();
-                mPlayer.init("/src/main/resources/bgm/chrono_trigger.mid");
+                mPlayer.init("/bgm/chrono_trigger.mid");
                 mPlayer.startPlaying(0);
                 mPlayer.setVolume(1D);
             }

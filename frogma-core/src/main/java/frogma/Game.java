@@ -483,8 +483,8 @@ public class Game {
 		};*/
 
         ImageLoader iLoad = new ImageLoader(2, this.user);
-        iLoad.add("src/main/resources/images/" + fgTileSet, 0, false, false);
-        iLoad.add("src/main/resources/images/" + bgTileSet, 1, false, false);
+        iLoad.add("/images/" + fgTileSet, 0, false, false);
+        iLoad.add("/images/" + bgTileSet, 1, false, false);
         //iLoad.add("images/"+rfgTileSet,2,false,false);
 
         //System.out.println("Fetching images..");
@@ -817,8 +817,7 @@ public class Game {
         if (!alphaTablesEnabled) {
             return;
         }
-        String alphaFileName = "src/main/resources/images/" + fgTileSet.substring(0, fgTileSet.length() - 3) + "atf";
-        File alphaFile = new File(alphaFileName);
+        String alphaFileName = "/images/" + fgTileSet.substring(0, fgTileSet.length() - 3) + "atf";
         FilLeser alphaReader;
         boolean fail_fg = false;
         boolean fail_bg = false;
@@ -840,7 +839,7 @@ public class Game {
 
         if (!fail_fg) {
             try {
-                alphaReader = new FilLeser(alphaFile);
+                alphaReader = new FilLeser(alphaFileName);
                 fgAlphaTable = new byte[tileCount];
                 fgTileColor = new int[tileCount];
                 for (int i = 0; i < tileCount; i++) {
@@ -859,8 +858,7 @@ public class Game {
 
         // BG Alpha:
         //------------------------------------------------------------------------
-        alphaFileName = "src/main/resources/images/" + bgTileSet.substring(0, bgTileSet.length() - 3) + "atf";
-        alphaFile = new File(alphaFileName);
+        alphaFileName = "/images/" + bgTileSet.substring(0, bgTileSet.length() - 3) + "atf";
         tileCount = (int) (bgTileImage.getWidth(null) / bgTileImage.getHeight(null));
 
         if (tileCount < 1) {
@@ -876,7 +874,7 @@ public class Game {
 
         if (!fail_bg) {
             try {
-                alphaReader = new FilLeser(alphaFile);
+                alphaReader = new FilLeser(alphaFileName);
                 bgAlphaTable = new byte[tileCount];
                 bgTileColor = new int[tileCount];
                 for (int i = 0; i < tileCount; i++) {

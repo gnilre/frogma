@@ -168,7 +168,7 @@ public class SoundFX {
         URL sndURL = null;
         try {
             //System.out.println("userdir: "+System.getProperty("user.dir"));
-            sndURL = getClass().getResource("src/main/resources/sounds/" + sndFile);
+            sndURL = getClass().getResource("/sounds/" + sndFile);
         } catch (Exception exc) {
             System.out.println("MALFORMED SOUND FILE URL..");
         }

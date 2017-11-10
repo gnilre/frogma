@@ -153,7 +153,7 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
             // Play the level finished music:
             MidiPlayer bgm = referrer.getBgmSystem();
             if (bgm != null && referrer.musicAllowed()) {
-                bgm.init("/src/main/resources/bgm/courseclear.mid");
+                bgm.init("/bgm/courseclear.mid");
                 bgm.addListener(this);
                 bgm.setLooping(false);
                 bgm.stopPlaying();

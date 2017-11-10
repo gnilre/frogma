@@ -207,8 +207,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         this.windowBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
         this.setIgnoreRepaint(true);
 
-        this.healthBar = Toolkit.getDefaultToolkit().createImage(getClass().getResource("src/main/resources/images/healthbar.png"));
-        this.life = Toolkit.getDefaultToolkit().createImage(getClass().getResource("src/main/resources/images/heart.png"));
+        this.healthBar = Toolkit.getDefaultToolkit().createImage(getClass().getResource("/images/healthbar.png"));
+        this.life = Toolkit.getDefaultToolkit().createImage(getClass().getResource("/images/heart.png"));
         this.heartImg = this.life; // It's the same image..
         myEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         myDevice = myEnvironment.getDefaultScreenDevice();
