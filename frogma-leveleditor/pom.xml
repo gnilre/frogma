@@ -19,6 +19,11 @@
             <artifactId>frogma-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>frogma</groupId>
+            <artifactId>frogma-resources</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
