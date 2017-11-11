@@ -26,7 +26,7 @@ public final class GameEngineImpl implements GameEngine {
     public ImageLoader imgLoader;
     private Input input;
     public GraphicsEngineImpl gfxEng;
-    private NativeTimer timer;
+    private Timer timer;
     private GameMenu menu;
     private GameMenu pauseMenu;
     private CollDetect collDet;
@@ -110,7 +110,7 @@ public final class GameEngineImpl implements GameEngine {
 
 
 	/*  This is the standard constructor of GameEngine.
-	 */
+     */
 
     public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean runWindowed) {
 
@@ -125,7 +125,7 @@ public final class GameEngineImpl implements GameEngine {
         this.screenW = screenWidth;
         this.screenH = screenHeight;
         System.out.println("Creating native timer..");
-        this.timer = new NativeTimer();
+        this.timer = new Timer();
         this.cheat = new Cheat(this);
         this.input = new Input(this, this.cheat);
         input.addKey(KeyEvent.VK_W, "w");
@@ -147,7 +147,7 @@ public final class GameEngineImpl implements GameEngine {
 
         // Load some images & track 'em:
         // -------------------------------------
-		
+
 		/*imgLoader.add(Const.IMGPATH_LOGO,Const.IMG_LOGO,true,true);
 		imgLoader.add(Const.IMGPATH_LOADING,Const.IMG_LOADING,true,true);
 		imgLoader.add(Const.IMGPATH_PLAYER,Const.IMG_PLAYER,false,false);
@@ -200,7 +200,6 @@ public final class GameEngineImpl implements GameEngine {
             loadLevImg = imgLoader.get(Const.IMG_LOADING);
             gameOverImg = imgLoader.get(Const.IMG_GAMEOVER);
             playerImg = imgLoader.get(Const.IMG_PLAYER);
-            gfxEng.imageLoaderReady();
         } else {
             //Failure. Some images weren't loaded.
             System.out.println("GameEngine: Failed to load all needed images.");
@@ -255,7 +254,7 @@ public final class GameEngineImpl implements GameEngine {
 
                 // stateTime1 has been set earlier.
                 stateTime2 = timer.getCurrentTime();
-                if (timer.getMilliSecDifference(stateTime1, stateTime2) >= 100 || input.key("enter").pressed()) {
+                if ((stateTime2 - stateTime1) >= 100 || input.key("enter").pressed()) {
                     // Switch state to Main Menu:
                     this.setState(STATE_MAIN_MENU);
                 }
@@ -270,7 +269,7 @@ public final class GameEngineImpl implements GameEngine {
 
                 // stateTime1 has been set earlier.
                 stateTime2 = timer.getCurrentTime();
-                if (timer.getMilliSecDifference(stateTime1, stateTime2) >= 10) {
+                if ((stateTime2 - stateTime1) >= 10) {
                     // Switch state to Main Menu:
                     this.setState(STATE_PLAYING);
                 }
@@ -401,28 +400,9 @@ public final class GameEngineImpl implements GameEngine {
                     renderY = gameLevel.getSolidHeight() * 8 - screenH;
 
                 if (!startOver) {
-                    // Set position in GraphicsEngine, & Draw:
-                    //dbgt1 = timer.getCurrentTime();
-                    if (gameLevel.isMap()) {
-                        if (mapPlayer == null) {
-                            System.out.println("MapPlayer = NULL");
-                        }
-                        gfxEng.setPosition(mapPlayer, objs);
-                    } else {
-                        gfxEng.setPosition(thePlayer, objs);
-                    }
+                    gfxEng.setMonsters(objs);
                     gfxEng.draw();
-                    //dbgt2 = timer.getCurrentTime();
-                    //System.out.println("Frame Render: "+timer.getMicroSecDifference(dbgt1,dbgt2));
                 }
-
-                // Check if it's time to compact object array:
-				/*compactCycle++;
-				if(compactCycle>=cyclesBeforeCompact){
-					compactCycle=0;
-					compactObjectArray();
-					objCount = objs.length;
-				}*/
 
                 if (finishedLevel) {
                     finishedLevel = false;
@@ -430,24 +410,13 @@ public final class GameEngineImpl implements GameEngine {
                     nextLevel();
                 }
                 frameTimer2 = timer.getCurrentTime(); // Get time at end of frame.
-                //System.out.println("Total frame time: "+timer.getMicroSecDifference(frameTimer1,frameTimer2));
-
-                //dbgt1 = timer.getCurrentTime();
 
                 // Frame Timing:
                 if (TIME_FPS) {
-                    //System.out.println("Frametime = "+frameTime);
-                    if (timer.getMilliSecDifference(frameTimer1, frameTimer2) < frameTime) {
-                        timer.waitMilli(frameTime - timer.getMilliSecDifference(frameTimer1, frameTimer2), true);
+                    if ((frameTimer2 - frameTimer1) < frameTime) {
+                        timer.waitMillis(frameTime - (frameTimer2 - frameTimer1));
                     } else {
-                        //if(((frameTimer2-frameTimer1)-frameTime)<10){
-                        //if(timer.getMilliSecDifference(frameTimer1,frameTimer2)-frameTime < 5){
-                        //try{
-                        //	myThread.sleep(1);
-                        //}catch(InterruptedException intExc){}
-                        //System.out.println("too much time used on frame!");
-                        timer.waitMilli(1, true);
-                        //}
+                        timer.waitMillis(1);
                     }
                 }
 
@@ -510,7 +479,7 @@ public final class GameEngineImpl implements GameEngine {
             // ----------------------------------------------
             if (CALC_AVERAGE_FPS) {
                 fpsTimer2 = timer.getCurrentTime();
-                fpsFrameTime[fpsArrPos] = (int) (timer.getMilliSecDifference(fpsTimer1, fpsTimer2));
+                fpsFrameTime[fpsArrPos] = (int) (fpsTimer2 - fpsTimer1);
                 fpsArrPos++;
                 if (fpsArrPos == (fpsAverageInterval - 1)) {
                     fpsArrPos = 0;
@@ -818,7 +787,7 @@ public final class GameEngineImpl implements GameEngine {
         return this.input;
     }
 
-    public NativeTimer getNativeTimer() {
+    public Timer getNativeTimer() {
         return this.timer;
     }
 

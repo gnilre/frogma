@@ -1,7 +1,7 @@
 package frogma.soundsystem;
 
 import frogma.GameEngine;
-import frogma.NativeTimer;
+import frogma.Timer;
 
 import javax.sound.midi.*;
 import java.io.File;
@@ -47,7 +47,7 @@ public class MidiPlayer extends Thread {
     private int sequenceIndex;
 
     private GameEngine gEng;
-    private NativeTimer timer;
+    private Timer timer;
 
 
     /**

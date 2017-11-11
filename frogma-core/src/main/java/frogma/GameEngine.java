@@ -26,7 +26,7 @@ public interface GameEngine {
     static final int Z_PLAYER_FG = 2;        // Between player and foreground
     static final int Z_ABOVE_FG = 3;        // Above foreground
 
-    public NativeTimer getNativeTimer();
+    public Timer getNativeTimer();
 
     public SoundFX getSndFX();
 

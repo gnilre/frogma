@@ -26,7 +26,7 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
     CollDetect collDet;
     ImageLoader imgLoader;
     AppletGfxEng gfxEng;
-    NativeTimer nTimer;
+    Timer nTimer;
     SoundFX sndFX;
     Input playerInput;
     Player player;
@@ -795,7 +795,7 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
         return imgLoader.get(Const.IMG_LOADING);
     }
 
-    public NativeTimer getNativeTimer() {
+    public Timer getNativeTimer() {
         return nTimer;
     }
 
