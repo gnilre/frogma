@@ -689,10 +689,6 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
 
     }
 
-    public StatusData getStatusStore() {
-        return stData;
-    }
-
     // GameEngine Interface Implementation:
     // ------------------------------------------------------------
 
@@ -791,10 +787,6 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
         return 0;
     }
 
-    public Image getLoadingImg() {
-        return imgLoader.get(Const.IMG_LOADING);
-    }
-
     public Timer getNativeTimer() {
         return nTimer;
     }
@@ -882,20 +874,12 @@ public class FrogmaApplet extends Applet implements GameEngine, Runnable {
         return renderY;
     }
 
-    public boolean isApplet() {
-        return true;
-    }
-
     public boolean levelIsMap() {
         return false;
     }
 
     public int getLevelTime() {
         return levelTime;
-    }
-
-    public void setLevelTime(int newTime) {
-        levelTime = newTime;
     }
 
     // ------------------------------------------------------------

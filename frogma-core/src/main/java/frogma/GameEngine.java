@@ -10,97 +10,89 @@ import java.awt.*;
 public interface GameEngine {
 
     // State Constants:
-    public final static byte STATE_LOADING = 0;
-    public final static byte STATE_PLAYING = 1;
-    public final static byte STATE_PAUSE = 2;
-    public final static byte STATE_MAIN_MENU = 3;
-    public final static byte STATE_INGAME_MENU = 4;
-    public final static byte STATE_GAMEOVER = 5;
-    public final static byte STATE_CREDITS = 6;
-    public final static byte STATE_QUIT = 7;
-    public final static byte STATE_LOADING_LEVEL = 8;
+    byte STATE_LOADING = 0;
+    byte STATE_PLAYING = 1;
+    byte STATE_PAUSE = 2;
+    byte STATE_MAIN_MENU = 3;
+    byte STATE_INGAME_MENU = 4;
+    byte STATE_GAMEOVER = 5;
+    byte STATE_CREDITS = 6;
+    byte STATE_QUIT = 7;
+    byte STATE_LOADING_LEVEL = 8;
 
     // Z Position constants:
-    static final int Z_BG_MG = 0;            // Between background and middle ground
-    static final int Z_MG_PLAYER = 1;        // Between middle ground and player (normal objects)
-    static final int Z_PLAYER_FG = 2;        // Between player and foreground
-    static final int Z_ABOVE_FG = 3;        // Above foreground
+    int Z_BG_MG = 0;            // Between background and middle ground
+    int Z_MG_PLAYER = 1;        // Between middle ground and player (normal objects)
+    int Z_PLAYER_FG = 2;        // Between player and foreground
+    int Z_ABOVE_FG = 3;        // Above foreground
 
-    public Timer getNativeTimer();
+    Timer getNativeTimer();
 
-    public SoundFX getSndFX();
+    SoundFX getSndFX();
 
-    public void stopBgm();
+    void stopBgm();
 
-    public CollDetect getCollDetect();
+    CollDetect getCollDetect();
 
-    public void addObjects(BasicGameObject[] obj);
+    void addObjects(BasicGameObject[] obj);
 
-    public void gameOver();
+    void gameOver();
 
-    public void startOver();
+    void startOver();
 
-    public byte getState();
+    byte getState();
 
-    public byte getPrevState();
+    byte getPrevState();
 
-    public void setState(byte newState);
+    void setState(byte newState);
 
-    public GameMenu getMenu();
+    GameMenu getMenu();
 
-    public GameMenu getPauseMenu();
+    GameMenu getPauseMenu();
 
-    public void setObjUpdateState(int index, boolean value);
+    void setObjUpdateState(int index, boolean value);
 
-    public Cheat getCheat();
+    Cheat getCheat();
 
-    public Player getPlayer();
+    Player getPlayer();
 
-    public MapPlayer getMapPlayer();
+    MapPlayer getMapPlayer();
 
-    public GraphicsEngine getGfx();
+    GraphicsEngine getGfx();
 
-    public ImageLoader getImgLoader();
+    ImageLoader getImgLoader();
 
-    public ObjectProducer getObjProducer();
+    ObjectProducer getObjProducer();
 
-    public MidiPlayer getBgmSystem();
+    MidiPlayer getBgmSystem();
 
-    public Image getLoadingImg();
+    void setNextLevel();
 
-    public void setNextLevel();
+    BasicGameObject getObjectFromID(int id);
 
-    public BasicGameObject getObjectFromID(int id);
+    Input getPlayerInput();
 
-    public Input getPlayerInput();
+    BasicGameObject[] getObjects();
 
-    public BasicGameObject[] getObjects();
+    Game getCurrentLevel();
 
-    public Game getCurrentLevel();
+    int getScreenWidth();
 
-    public int getScreenWidth();
+    int getScreenHeight();
 
-    public int getScreenHeight();
+    int getLevelRenderX();
 
-    public int getLevelRenderX();
+    int getLevelRenderY();
 
-    public int getLevelRenderY();
+    int getCycleCount();
 
-    public boolean isApplet();
+    boolean levelIsMap();
 
-    public int getCycleCount();
+    boolean musicAllowed();
 
-    public StatusData getStatusStore();
+    void levelFinished();
 
-    public boolean levelIsMap();
+    int getLevelTime();
 
-    public boolean musicAllowed();
-
-    public void levelFinished();
-
-    public int getLevelTime();
-
-    public void setLevelTime(int newTime);
-
-    public Component getComponent();
+    Component getComponent();
 }
