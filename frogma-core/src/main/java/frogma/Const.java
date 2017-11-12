@@ -5,7 +5,6 @@ import java.awt.*;
 public class Const {
 
     // Object Parameter Type constants:
-    public static final int PARAM_TYPE_NONE = 0;
     public static final int PARAM_TYPE_OBJECT_REFERENCE = 1;
     public static final int PARAM_TYPE_VALUE = 2;
     public static final int PARAM_TYPE_COMBO = 3;
