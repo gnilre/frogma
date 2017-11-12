@@ -21,7 +21,7 @@ public class ByteBuffer {
         hasBeenErrors = false;
     }
 
-    public ByteBuffer(byte[] content) {
+    ByteBuffer(byte[] content) {
         try {
             buf = new short[content.length];
             for (int i = 0; i < content.length; i++) {
@@ -35,7 +35,7 @@ public class ByteBuffer {
         }
     }
 
-    public void setExpandable(boolean exp) {
+    void setExpandable(boolean exp) {
         expandable = exp;
     }
 
@@ -59,45 +59,15 @@ public class ByteBuffer {
         return hasBeenErrors;
     }
 
-    public void clear() {
-        for (int i = 0; i < size; i++) {
-            buf[i] = 0;
-        }
-    }
-
-    public void fill(byte value) {
-        for (int i = 0; i < size; i++) {
-            buf[i] = value;
-        }
-    }
-
-    public boolean fillRange(int start, int length, byte value) {
-        if (inRange(start, length)) {
-            for (int i = start; i < (start + length); i++) {
-                buf[i] = value;
-            }
-            return true;
-        } else {
-            error();
-            return false;
-        }
-    }
-
-    public void resize(int newSize) {
+    private void resize(int newSize) {
         short[] newBuf = new short[newSize];
-        for (int i = 0; i < Math.min(buf.length, newSize); i++) {
-            newBuf[i] = buf[i];
-        }
+        System.arraycopy(buf, 0, newBuf, 0, Math.min(buf.length, newSize));
         buf = newBuf;
         size = newSize;
     }
 
-    public void goTo(int position) {
-        if (position >= 0 && position < size) {
-            curPos = position;
-        } else {
-            error();
-        }
+    void gotoStart() {
+        curPos = 0;
     }
 
     public void move(int howFar) {
@@ -110,7 +80,7 @@ public class ByteBuffer {
         }
     }
 
-    public boolean inRange(int pos) {
+    private boolean inRange(int pos) {
         if (expandable) {
             if (pos < 0) {
                 return false;
@@ -125,7 +95,7 @@ public class ByteBuffer {
         }
     }
 
-    public boolean inRange(int pos, int length) {
+    private boolean inRange(int pos, int length) {
         if (expandable) {
             if (pos < 0 || length <= 0) {
                 return false;
@@ -140,38 +110,25 @@ public class ByteBuffer {
         }
     }
 
-    public boolean putByte(short var) {
+    public void putByte(short var) {
         if (inRange(curPos, 1)) {
             buf[curPos] = var;
             move(1);
-            return true;
         } else {
             error();
-            return false;
         }
     }
 
-    public boolean putByte(short var, int pos) {
-        if (inRange(pos, 1)) {
-            buf[pos] = var;
-            return true;
-        } else {
-            error();
-            return false;
-        }
-    }
-
-    public boolean putShort(short var) {
+    public void putShort(short var) {
         boolean ret = putShort(var, curPos);
         if (ret) {
             move(2);
         }
-        return ret;
     }
 
-    public boolean putShort(short var, int pos) {
+    private boolean putShort(short var, int pos) {
         if (inRange(pos, 2)) {
-            buf[pos + 0] = (short) ((var >> 8) & 255);
+            buf[pos] = (short) ((var >> 8) & 255);
             buf[pos + 1] = (short) ((var) & 255);
             return true;
         } else {
@@ -180,17 +137,16 @@ public class ByteBuffer {
         }
     }
 
-    public boolean putInt(int var) {
+    public void putInt(int var) {
         boolean ret = putInt(var, curPos);
         if (ret) {
             move(4);
         }
-        return ret;
     }
 
-    public boolean putInt(int var, int pos) {
+    private boolean putInt(int var, int pos) {
         if (inRange(pos, 4)) {
-            buf[pos + 0] = (short) ((var >> 24) & 255);
+            buf[pos] = (short) ((var >> 24) & 255);
             buf[pos + 1] = (short) ((var >> 16) & 255);
             buf[pos + 2] = (short) ((var >> 8) & 255);
             buf[pos + 3] = (short) ((var) & 255);
@@ -201,21 +157,20 @@ public class ByteBuffer {
         }
     }
 
-    public boolean putString(String var) {
+    void putString(String var) {
         boolean ret = putString(var, curPos);
         if (ret) {
             move(2 * var.length());
         }
-        return ret;
     }
 
-    public boolean putString(String var, int pos) {
+    private boolean putString(String var, int pos) {
         char[] charArr = var.toCharArray();
         short theChar;
         if (inRange(pos, var.length() * 2)) {
             for (int i = 0; i < var.length(); i++) {
                 theChar = (short) (charArr[i]);
-                buf[pos + 0] = (short) ((theChar >> 8) & 255);
+                buf[pos] = (short) ((theChar >> 8) & 255);
                 buf[pos + 1] = (short) ((theChar) & 255);
                 pos += 2;
             }
@@ -226,53 +181,14 @@ public class ByteBuffer {
         }
     }
 
-    public boolean putChar(char var) {
-        boolean ret = putChar(var, curPos);
-        if (ret) {
-            move(2);
-        }
-        return ret;
-    }
-
-    public boolean putChar(char var, int pos) {
-        int tmp = var;
-        if (inRange(pos, 2)) {
-            buf[pos + 0] = (short) ((tmp >> 8) & 255);
-            buf[pos + 1] = (short) ((tmp) & 255);
-            return true;
-        } else {
-            error();
-            return false;
-        }
-    }
-
-    public boolean putCharAscii(char var) {
-        boolean ret = putCharAscii(var, curPos);
-        if (ret) {
-            move(1);
-        }
-        return ret;
-    }
-
-    public boolean putCharAscii(char var, int pos) {
-        if (inRange(pos)) {
-            buf[pos] = (short) var;
-            return true;
-        } else {
-            error();
-            return false;
-        }
-    }
-
-    public boolean putStringAscii(String var) {
+    public void putStringAscii(String var) {
         boolean ret = putStringAscii(var, curPos);
         if (ret) {
             move(var.length());
         }
-        return ret;
     }
 
-    public boolean putStringAscii(String var, int pos) {
+    private boolean putStringAscii(String var, int pos) {
         char[] charArr = var.toCharArray();
         if (inRange(pos, var.length())) {
             for (int i = 0; i < var.length(); i++) {
@@ -287,19 +203,11 @@ public class ByteBuffer {
     }
 
     public String toString() {
-        StringBuffer strBuf = new StringBuffer();
+        StringBuilder strBuf = new StringBuilder();
         short tmp;
         for (int i = 0; i < (size - 1); i += 2) {
             tmp = (short) ((buf[i] << 8) | (buf[i + 1]));
             strBuf.append((char) (tmp));
-        }
-        return strBuf.toString();
-    }
-
-    public String toStringAscii() {
-        StringBuffer strBuf = new StringBuffer();
-        for (int i = 0; i < size; i++) {
-            strBuf.append((char) (buf[i]));
         }
         return strBuf.toString();
     }
@@ -310,7 +218,7 @@ public class ByteBuffer {
         return ret;
     }
 
-    public short getByte(int pos) throws ArrayIndexOutOfBoundsException {
+    private short getByte(int pos) throws ArrayIndexOutOfBoundsException {
         if (inRange(pos)) {
             return buf[pos];
         } else {
@@ -319,13 +227,13 @@ public class ByteBuffer {
         }
     }
 
-    public short getShort() throws ArrayIndexOutOfBoundsException {
+    short getShort() throws ArrayIndexOutOfBoundsException {
         short ret = getShort(curPos);
         move(2);
         return ret;
     }
 
-    public short getShort(int pos) throws ArrayIndexOutOfBoundsException {
+    private short getShort(int pos) throws ArrayIndexOutOfBoundsException {
         if (inRange(pos, 2)) {
             return (short) ((buf[pos] << 8) | (buf[pos + 1]));
         } else {
@@ -340,10 +248,10 @@ public class ByteBuffer {
         return ret;
     }
 
-    public int getInt(int pos) throws ArrayIndexOutOfBoundsException {
+    private int getInt(int pos) throws ArrayIndexOutOfBoundsException {
         int ret = 0;
         if (inRange(pos, 4)) {
-            ret |= (buf[pos + 0] << 24);
+            ret |= (buf[pos] << 24);
             ret |= (buf[pos + 1] << 16);
             ret |= (buf[pos + 2] << 8);
             ret |= (buf[pos + 3]);
@@ -354,13 +262,7 @@ public class ByteBuffer {
         }
     }
 
-    public char getChar() throws ArrayIndexOutOfBoundsException {
-        char ret = getChar(curPos);
-        move(2);
-        return ret;
-    }
-
-    public char getChar(int pos) throws ArrayIndexOutOfBoundsException {
+    private char getChar(int pos) throws ArrayIndexOutOfBoundsException {
         if (inRange(pos, 2)) {
             return (char) (getShort(pos));
         } else {
@@ -369,13 +271,7 @@ public class ByteBuffer {
         }
     }
 
-    public char getCharAscii() throws ArrayIndexOutOfBoundsException {
-        char ret = getCharAscii(curPos);
-        move(1);
-        return ret;
-    }
-
-    public char getCharAscii(int pos) throws ArrayIndexOutOfBoundsException {
+    private char getCharAscii(int pos) throws ArrayIndexOutOfBoundsException {
         if (inRange(pos, 1)) {
             return (char) (getByte(pos) & 255);
         } else {
@@ -384,17 +280,17 @@ public class ByteBuffer {
         }
     }
 
-    public String getString(int length) throws ArrayIndexOutOfBoundsException {
+    String getString(int length) throws ArrayIndexOutOfBoundsException {
         if (length > 0) {
             String ret = getString(curPos, length);
             move(ret.length() * 2);
             return ret;
         } else {
-            return new String("");
+            return "";
         }
     }
 
-    public String getString(int pos, int length) throws ArrayIndexOutOfBoundsException {
+    private String getString(int pos, int length) throws ArrayIndexOutOfBoundsException {
         char[] tmp;
         if (inRange(pos, length * 2) && length > 0) {
             tmp = new char[length];
@@ -407,33 +303,7 @@ public class ByteBuffer {
         }
     }
 
-    public String getStringWithShortLength() throws ArrayIndexOutOfBoundsException {
-        String ret = getStringWithShortLength(curPos);
-        move(ret.length() * 2 + 2);
-        return ret;
-    }
-
-    public String getStringWithShortLength(int pos) throws ArrayIndexOutOfBoundsException {
-        short len;
-        if (inRange(pos, 2)) {
-            len = getShort(pos);
-            if (len > 0) {
-                return getString(pos + 2, len);
-            } else {
-                return new String("");
-            }
-        } else {
-            throw new ArrayIndexOutOfBoundsException();
-        }
-    }
-
-    public String getStringAscii(int length) throws ArrayIndexOutOfBoundsException {
-        String ret = getStringAscii(curPos, length);
-        move(ret.length());
-        return ret;
-    }
-
-    public String getStringAscii(int pos, int length) throws ArrayIndexOutOfBoundsException {
+    private String getStringAscii(int pos, int length) throws ArrayIndexOutOfBoundsException {
         char[] tmp;
         if (inRange(pos, length) && length > 0) {
             tmp = new char[length];
@@ -446,20 +316,20 @@ public class ByteBuffer {
         }
     }
 
-    public String getStringAsciiWithShortLength() throws ArrayIndexOutOfBoundsException {
+    String getStringAsciiWithShortLength() throws ArrayIndexOutOfBoundsException {
         String ret = getStringAsciiWithShortLength(curPos);
         move(ret.length() + 2);
         return ret;
     }
 
-    public String getStringAsciiWithShortLength(int pos) throws ArrayIndexOutOfBoundsException {
+    private String getStringAsciiWithShortLength(int pos) throws ArrayIndexOutOfBoundsException {
         short len;
         if (inRange(pos, 2)) {
             len = getShort(pos);
             if (len > 0) {
                 return getStringAscii(pos + 2, len);
             } else {
-                return new String("");
+                return "";
             }
         } else {
             throw new ArrayIndexOutOfBoundsException();
@@ -471,15 +341,11 @@ public class ByteBuffer {
      */
     public void compress(int offset) {
         short[] newBuff = new short[size * 2]; // Leave a little extra room in case there are lots of different bytes..
-        short[] retBuff;
         int bufPos = 0;
         int newPos = 0;
         short sameCount;
         short diffCount;
         int blockSize;
-        short theByte;
-        boolean foundOther;
-        boolean foundSame;
         int bestSameCount;
         int bestBlockSize;
         double compFactor;
@@ -492,9 +358,6 @@ public class ByteBuffer {
 
         if (offset > 0) {
             // Write offset number of bytes to the new buffer:
-            //for(int i=0;i<offset;i++){
-            //	newBuff[i] = buf[i];
-            //}
             System.arraycopy(buf, 0, newBuff, 0, offset);
             bufPos = offset;
             newPos = offset;
@@ -506,10 +369,6 @@ public class ByteBuffer {
         while (bufPos < size) {
             // Count number of consecutive identical bytes:
 
-            sameCount = 1;
-            foundOther = false;
-            theByte = buf[bufPos];
-            blockSize = 1;
             maxCompFactor = 0;
             bestSameCount = 0;
             bestBlockSize = 1;
@@ -535,7 +394,7 @@ public class ByteBuffer {
                 }
 
                 newBuff[newPos] = (short) blockSize;
-                newBuff[newPos + 1] = (short) sameCount;
+                newBuff[newPos + 1] = sameCount;
 
                 for (int i = 0; i < blockSize; i++) {
                     newBuff[newPos + 2 + i] = buf[bufPos + i];
@@ -547,12 +406,9 @@ public class ByteBuffer {
             } else {
                 // Find the number of different bytes, & write them to the buffer:
                 //*****************************************
-                foundSame = false;
-                diffCount = 1;
-
                 diffCount = (short) differentByteCount(buf, bufPos, 2);
                 newBuff[newPos] = 0;
-                newBuff[newPos + 1] = (short) diffCount;
+                newBuff[newPos + 1] = diffCount;
 
                 System.arraycopy(buf, bufPos, newBuff, newPos + 2, diffCount);
 
@@ -583,9 +439,7 @@ public class ByteBuffer {
             return 0;
         }
 
-        for (int i = 0; i < blockSize; i++) {
-            block[i] = arr[arrpos + i];
-        }
+        System.arraycopy(arr, arrpos, block, 0, blockSize);
 
         blockCount = 1;
         arrpos += blockSize;
@@ -646,7 +500,7 @@ public class ByteBuffer {
     /**
      * Method for decompressing the data.
      */
-    public boolean decompress(int offset) {
+    boolean decompress() {
         int excessCapacity = 131072;
         short[] newBuff = new short[excessCapacity];
         int bufPos = 0;
@@ -654,22 +508,7 @@ public class ByteBuffer {
         int diffCount = 0;
         int sameCount = 0;
         int blockSize;
-        int theByte;
         boolean lastCompression = false;
-        if (DEBUG) {
-            System.out.println("Compressed size: " + size);
-            System.out.println("Decompressing..");
-        }
-
-        // Handle offset:
-        if (offset > 0) {
-            if (offset > newBuff.length) {
-                newBuff = expandShortArray(newBuff, offset - newBuff.length + excessCapacity);
-            }
-            System.arraycopy(buf, 0, newBuff, 0, offset);
-            bufPos += offset;
-            newPos += offset;
-        }
 
         while (bufPos + 2 < size) {
             if (buf[bufPos] == 0) {
@@ -744,17 +583,7 @@ public class ByteBuffer {
         return newArr;
     }
 
-    public void crop() {
-        if (curPos > 0) {
-            short[] newBuf = new short[curPos];
-            System.arraycopy(buf, 0, newBuf, 0, curPos);
-            buf = newBuf;
-        } else {
-            System.out.println("Could not crop buffer, as the current position is 0. The buffer may not be empty.");
-        }
-    }
-
-    public short[] calculateChecksums(int start, int length) {
+    private short[] calculateChecksums(int start, int length) {
         short[] srcBuf = new short[length];
         short[] csum = new short[8];
 
@@ -773,8 +602,8 @@ public class ByteBuffer {
             csum[3] += srcBuf[(i * 4 + 127) % length];
             csum[4] += srcBuf[(i * 2 + 1) % length];
             csum[5] += srcBuf[(i + 23) % length];
-            csum[6] += srcBuf[((int) (i / 2) + 75) % length];
-            csum[7] += srcBuf[((int) (i / 3) + 377) % length];
+            csum[6] += srcBuf[(i / 2 + 75) % length];
+            csum[7] += srcBuf[(i / 3 + 377) % length];
 
             csum[0] %= 7;
             csum[1] %= 19;
@@ -790,7 +619,7 @@ public class ByteBuffer {
     }
 
     public void appendChecksums(int start, int length) {
-        short[] checkSums = new short[8];
+        short[] checkSums;
         if ((start + length) <= size) {
             checkSums = calculateChecksums(start, length);
         } else {
@@ -806,7 +635,7 @@ public class ByteBuffer {
         }
     }
 
-    public short[] getChecksums() {
+    private short[] getChecksums() {
         short[] ret = new short[8];
 
         if (size > 8) {
@@ -820,7 +649,7 @@ public class ByteBuffer {
         }
     }
 
-    public boolean removeChecksums() {
+    boolean removeChecksums() {
         if (size > 8) {
             buf = expandShortArray(buf, -8);
             size -= 8;
@@ -832,23 +661,28 @@ public class ByteBuffer {
         }
     }
 
-    public boolean validateChecksums(int start, int length) {
-        short[] newCsums = calculateChecksums(start, length);
+    boolean validateChecksums(int length) {
+        short[] newCsums = calculateChecksums(0, length);
         short[] oldCsums = getChecksums();
         boolean foundMismatch = false;
 
         // Check that they're the same:
-        for (int i = 0; i < 8; i++) {
-            if (newCsums[i] != oldCsums[i]) {
-                System.out.println("Mismatching checksum: found " + newCsums[i] + ", should be " + oldCsums[i]);
-                foundMismatch = true;
-                //break;
+        if (oldCsums != null) {
+            for (int i = 0; i < 8; i++) {
+                if (newCsums[i] != oldCsums[i]) {
+                    System.out.println("Mismatching checksum: found " + newCsums[i] + ", should be " + oldCsums[i]);
+                    foundMismatch = true;
+                    //break;
+                }
             }
+            return (!foundMismatch);
+        } else {
+            System.out.println("Checksums not included, skipping.");
+            return true;
         }
-        return (!foundMismatch);
     }
 
-    public boolean writeToFile(String file) {
+    boolean writeToFile(String file) {
         try {
             FileOutputStream fOut = new FileOutputStream(file);
             fOut.write(getBytes());

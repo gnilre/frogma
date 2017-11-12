@@ -76,12 +76,12 @@ public class StatusData {
     public boolean restoreStatusData(byte[] buffer) {
         ByteBuffer buf = new ByteBuffer(buffer);
         buf.setExpandable(false);
-        if (!buf.validateChecksums(0, buf.getSize() - 8)) {
+        if (!buf.validateChecksums(buf.getSize() - 8)) {
             System.out.println("Unable to restore state information from the specified file.");
             return false;
         }
-        buf.decompress(0);
-        buf.goTo(0);
+        buf.decompress();
+        buf.gotoStart();
 
         int size = buf.getInt();
         statusData = new String[size];

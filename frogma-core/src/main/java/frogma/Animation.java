@@ -8,18 +8,17 @@ import frogma.gameobjects.models.DynamicObject;
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  *
- * @author Alf B�rge Lerv�g
+ * @author Alf Børge Lervåg
  * @version 1.0
  */
 public class Animation {
+
+    private static final int LEFT = 0;
+    private static final int RIGHT = 1;
+
     public int animState;
     public int imageNr;
     public int direction;
-
-    public static final int LEFT = 0;
-    public static final int RIGHT = 1;
-    public static final int UP = 2;
-
     public int walkFirst;
     public int walkLast;
     public int jumpFirst;
@@ -65,10 +64,6 @@ public class Animation {
 
     /**
      * getNext image in animation cycle
-     *
-     * @param animState
-     * @param direction
-     * @return int
      * <p>
      * We print out an integer here.
      * This could be an image instead, but it's faster to have one large image

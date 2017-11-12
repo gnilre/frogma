@@ -312,7 +312,7 @@ public class Game {
 
         // Validate checksums:
         ///*
-        if (!fBuffer.validateChecksums(0, fBuffer.getSize() - 8)) {
+        if (!fBuffer.validateChecksums(fBuffer.getSize() - 8)) {
             System.out.println("Mismatching checksums, file is corrupt.");
             return false;
         } else {
@@ -328,7 +328,7 @@ public class Game {
         //*/
 
         // Decompress:
-        if (!fBuffer.decompress(0)) {
+        if (!fBuffer.decompress()) {
             return false;
         }
 
