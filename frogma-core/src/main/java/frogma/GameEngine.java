@@ -92,7 +92,5 @@ public interface GameEngine {
 
     void levelFinished();
 
-    int getLevelTime();
-
     Component getComponent();
 }

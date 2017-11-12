@@ -1,31 +1,27 @@
 package frogma;
 
 import frogma.gameobjects.Player;
-import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.MovingObject;
 import frogma.misc.DownCount;
+import frogma.soundsystem.SoundFX;
 
 import java.awt.*;
 
 public class FrogEgg extends MovingObject {
-    FrogEgg nextEgg;
-    Image objImg;
-    GameEngine referrer;
-    StaticCollEvent waterDet;
-    DownCount animTimer = new DownCount(5);
-    boolean linkedToPlayer;
-    boolean moveToDest;
-    boolean notifiedNext;
-    int cyclesBeforeNotify = 15;
-    int curCycleBeforeNotify;
-    int timeStamp = 0;
-    int animFrame = 0;
-    int frameCount = 2;
-    int destX, destY;
 
-    public FrogEgg(GameEngine referrer, Image objImg) {
+    private FrogEgg nextEgg;
+    GameEngine referrer;
+    private StaticCollEvent waterDet;
+    private DownCount animTimer = new DownCount(5);
+    private boolean linkedToPlayer;
+    private boolean notifiedNext;
+    private int curCycleBeforeNotify;
+    private int timeStamp = 0;
+    private int animFrame = 0;
+    private int destX, destY;
+
+    FrogEgg(GameEngine referrer, Image objImg) {
         super(3, 4, referrer, objImg, true);
-        this.objImg = objImg;
         this.referrer = referrer;
         this.linkedToPlayer = false;
 
@@ -53,10 +49,6 @@ public class FrogEgg extends MovingObject {
         setNewPosition(nX, nY);
         setPosition(nX, nY);
 
-        if (getPosX() == destX && getPosY() == destY) {
-            moveToDest = false;
-        }
-
         Player p = referrer.getPlayer();
         if (getDistanceTo(p.getPosX() + p.getSolidWidth() * 4 - getSolidWidth() * 4, p.getPosY() + p.getSolidHeight() * 8 - getSolidHeight() * 8) < 7) {
             setPosition(destX, destY);
@@ -65,26 +57,15 @@ public class FrogEgg extends MovingObject {
 
         if (!notifiedNext) {
             curCycleBeforeNotify++;
+            int cyclesBeforeNotify = 15;
             if (++curCycleBeforeNotify >= cyclesBeforeNotify) {
                 notifiedNext = true;
-                moveToDest = false;
                 curCycleBeforeNotify = 0;
                 if (nextEgg != null) {
                     nextEgg.setDestination(destX, destY, referrer.getCycleCount());
                 }
             }
         }
-        //}
-        // This should be executed also if moveToDest was set to false in the above code.
-        /*if(!moveToDest){
-			Player p = referrer.getPlayer();
-			// Check distance to player:
-			if(getDistanceTo(p)>50){
-				setDestination(p.getPosX()+p.getSolidWidth()*4-this.getSolidWidth()*4,p.getPosY()+p.getSolidHeight()*8-this.getSolidHeight()*8);
-				notifiedNext = false;
-				//curCycleBeforeNotify = 0;
-			}
-		}*/
     }
 
     public void collide(DynamicCollEvent dce, int collRole) {
@@ -96,8 +77,7 @@ public class FrogEgg extends MovingObject {
         p.addEgg(this);
         destX = p.getPosX() + p.getSolidWidth() * 4 - tileW * 4;
         destY = p.getPosY() + p.getSolidHeight() * 8 - tileH * 8;
-        moveToDest = false;
-        referrer.getSndFX().play(referrer.getSndFX().SND_POWERUP);
+        referrer.getSndFX().play(SoundFX.SND_POWERUP);
 
     }
 
@@ -127,20 +107,12 @@ public class FrogEgg extends MovingObject {
             this.timeStamp = timeStamp;
             this.destX = x;
             this.destY = y;
-            moveToDest = true;
             notifiedNext = false;
             //curCycleBeforeNotify = 0;
         }
     }
 
-    public int getDistanceTo(BasicGameObject obj) {
-        int dx, dy;
-        dx = Math.abs(obj.getPosX() - this.getPosX());
-        dy = Math.abs(obj.getPosY() - this.getPosY());
-        return (int) (Math.sqrt(dx * dx + dy * dy));
-    }
-
-    public int getDistanceTo(int x, int y) {
+    private int getDistanceTo(int x, int y) {
         int dx, dy;
         dx = Math.abs(x - this.getPosX());
         dy = Math.abs(y - this.getPosY());
@@ -155,6 +127,7 @@ public class FrogEgg extends MovingObject {
                 if (animTimer.finished()) {
                     animTimer.setMax(3, true);
                     animFrame++;
+                    int frameCount = 2;
                     if (animFrame == frameCount) {
                         animFrame = 0;
                     }

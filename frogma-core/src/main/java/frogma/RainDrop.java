@@ -6,24 +6,16 @@ import java.awt.*;
 
 
 public class RainDrop extends MovingObject {
-    Image objImage;
-    boolean onScreen;
-    int animFrame = 0;
-    int frameCount = 0;
-    int subType;
+    private Image objImage;
+    private boolean onScreen;
+    private int subType;
 
-    public RainDrop(int tW, int tH, int subType, GameEngine referrer, Image objImg) {
+    RainDrop(int tW, int tH, int subType, GameEngine referrer, Image objImg) {
         super(tW, tH, referrer, objImg, true);
 
         this.objImage = objImg;
         this.subType = subType;
-
-        if (objImage == null) {
-            System.out.println("RainDrop: no image!!");
-        } else {
-            frameCount = objImg.getWidth(null) / (tW * 8);
-            onScreen = true;
-        }
+        this.onScreen = true;
 
         this.setProp(ObjectProps.PROP_ALIVE, true);
         this.setProp(ObjectProps.PROP_UPDATE, true);
@@ -44,17 +36,18 @@ public class RainDrop extends MovingObject {
         if (!onScreen && super.getPosY() > referrer.getScreenHeight() + 400) {
             setProp(ObjectProps.PROP_SHOWING, false);
         } else {
-            setdNewPosition(super.getPosX() + ((int) (4 * Math.random())) - 2, super.getPosY() + 15 + ((int) 3 * Math.random()));
+            setDNewPosition(super.getPosX() + ((int) (4 * Math.random())) - 2, super.getPosY() + 15 + (3 * Math.random()));
         }
     }
 
     public void advanceCycle() {
-        setdPosition(getNewX(), getNewY());
+        setDPosition(getNewX(), getNewY());
         onScreen = false;
     }
 
     public int getImgSrcX() {
         onScreen = true;
+        int animFrame = 0;
         return animFrame * tileW * 8;
     }
 

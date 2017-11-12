@@ -6,15 +6,9 @@ import java.awt.*;
 
 public class MapPlayer extends MovingObject implements PlayerInterface {
 
-    int numLives;
-    int maxVel = 20;
-    int acc = 2;
-
-    public MapPlayer(int tileW, int tileH, GameEngine referrer, Image objImage, boolean visible, int numLives) {
+    MapPlayer(int tileW, int tileH, GameEngine referrer, Image objImage, boolean visible) {
 
         super(tileW, tileH, referrer, objImage, visible);
-        this.numLives = numLives;
-
         setSpriteWidth(32);
         setSpriteHeight(64);
         setSpriteOffsetX(-8);
@@ -34,6 +28,7 @@ public class MapPlayer extends MovingObject implements PlayerInterface {
 
         setVelocity((int) (getVelX() * 0.9), (int) (getVelY() * 0.9));
 
+        int acc = 2;
         if (in.key("left").pressed()) {
             setVelocity(getVelX() - acc, getVelY());
         }
@@ -47,6 +42,7 @@ public class MapPlayer extends MovingObject implements PlayerInterface {
             setVelocity(getVelX(), getVelY() + acc);
         }
 
+        int maxVel = 20;
         if (getVelX() > maxVel) setVelocity(maxVel, getVelY());
         if (getVelX() < -maxVel) setVelocity(-maxVel, getVelY());
         if (getVelY() > maxVel) setVelocity(getVelX(), maxVel);
@@ -57,27 +53,20 @@ public class MapPlayer extends MovingObject implements PlayerInterface {
         setNewPosition(sce.getInvokerNewX(), sce.getInvokerNewY());
 
         int type = sce.getInvCollType();
-        if (type != sce.COLL_LEFT && type != sce.COLL_RIGHT) {
+        if (type != StaticCollEvent.COLL_LEFT && type != StaticCollEvent.COLL_RIGHT) {
             setVelocity(getVelX(), 0);
         }
-        if (type != sce.COLL_BOTTOM && type != sce.COLL_TOP) {
+        if (type != StaticCollEvent.COLL_BOTTOM && type != StaticCollEvent.COLL_TOP) {
             setVelocity(0, getVelY());
         }
-
-
-        //System.out.println("Static Collision.");
     }
 
     public void collide(DynamicCollEvent dce, int collRole) {
-        if (collRole == dce.COLL_AFFECTED) {
+        if (collRole == DynamicCollEvent.COLL_AFFECTED) {
             setNewPosition(dce.getAffNewX(), dce.getAffNewY());
         } else {
             setNewPosition(dce.getInvNewX(), dce.getInvNewY());
         }
-    }
-
-    public int getLifeCount() {
-        return numLives;
     }
 
     public int getState() {
@@ -94,11 +83,7 @@ public class MapPlayer extends MovingObject implements PlayerInterface {
     }
 
     public void setLife(int value) {
-        //life = value;
-    }
-
-    public void setHealth(int value) {
-        //health = value;
+        // ignore
     }
 
     public void calcNewPos() {

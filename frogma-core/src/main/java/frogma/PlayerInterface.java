@@ -2,14 +2,12 @@ package frogma;
 
 public interface PlayerInterface {
 
-    public void processInput(Input input);
+    void processInput(Input input);
 
-    public int getLife();
+    int getLife();
 
-    public int getHealth();
+    int getHealth();
 
-    public void setLife(int value);
-
-    public void setHealth(int value);
+    void setLife(int value);
 
 }

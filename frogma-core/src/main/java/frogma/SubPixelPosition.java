@@ -2,22 +2,10 @@ package frogma;
 
 public interface SubPixelPosition {
 
-    public double getdPosX();
+    void setDPosition(double x, double y);
 
-    public double getdPosY();
+    void setDNewPosition(double x, double y);
 
-    public double getdNewX();
-
-    public double getdNewY();
-
-    public double getdVelX();
-
-    public double getdVelY();
-
-    public void setdPosition(double x, double y);
-
-    public void setdNewPosition(double x, double y);
-
-    public void setdVelocity(double velX, double velY);
+    void setDVelocity(double velX, double velY);
 
 }

@@ -481,7 +481,7 @@ public final class GameEngineImpl implements GameEngine {
             }
 
             if (mapPlayer == null) {
-                mapPlayer = new MapPlayer(2, 2, this, playerImg, true, numLives);
+                mapPlayer = new MapPlayer(2, 2, this, playerImg, true);
             }
 
             mapPlayer.setPosition(gameLevel.getStartX(), gameLevel.getStartY());
@@ -1250,10 +1250,6 @@ public final class GameEngineImpl implements GameEngine {
 
     public boolean musicAllowed() {
         return playBgm;
-    }
-
-    public int getLevelTime() {
-        return 0;
     }
 
     public Component getComponent() {

@@ -1,5 +1,6 @@
 package frogma;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 
 /**
@@ -11,49 +12,39 @@ import java.awt.event.KeyEvent;
  * @author Johannes Odland
  * @version 1.0
  */
-
 public interface GameMenu {
+
     /**
      * Returns the menu items that is to be shown on screen
-     *
-     * @return
      */
-    public abstract String[] getMenuItemsAsStrings();
+    String[] getMenuItemsAsStrings();
 
     /**
      * returns selected menu item
      *
      * @return index of selected item
      */
-    public abstract int getSelectedMenuItem();
+    int getSelectedMenuItem();
 
     /**
      * Returns the menus horizontal position on screen. 0 is left,1 is right.
-     *
-     * @return
      */
-    public abstract double getPosX();
+    double getPosX();
 
     /**
      * Returns the menus vertical position on screen. 0 is top,1 is bottom.
-     *
-     * @return
      */
-    public abstract double getPosY();
+    double getPosY();
 
     /**
      * Returns Color of menu
-     *
-     * @return
      */
 
-    public abstract java.awt.Color getColor();
+    Color getColor();
 
     /**
      * Used to recive key input
-     *
-     * @param kE
      */
-    public abstract void triggerKeyEvent(KeyEvent kE);
+    void triggerKeyEvent(KeyEvent kE);
 
 }

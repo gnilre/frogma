@@ -39,42 +39,17 @@ public class MovingObject extends StaticObject implements SubPixelPosition {
         return (int) dvelY;
     }
 
-    // Sub pixel precision position/velocity:
-    public double getdPosX() {
-        return dposX;
-    }
-
-    public double getdPosY() {
-        return dposY;
-    }
-
-    public double getdNewX() {
-        return dnewX;
-    }
-
-    public double getdNewY() {
-        return dnewY;
-    }
-
-    public double getdVelX() {
-        return dvelX;
-    }
-
-    public double getdVelY() {
-        return dvelY;
-    }
-
-    public void setdPosition(double x, double y) {
+    public void setDPosition(double x, double y) {
         dposX = x;
         dposY = y;
     }
 
-    public void setdNewPosition(double x, double y) {
+    public void setDNewPosition(double x, double y) {
         dnewX = x;
         dnewY = y;
     }
 
-    public void setdVelocity(double velX, double velY) {
+    public void setDVelocity(double velX, double velY) {
         this.dvelX = velX;
         this.dvelY = velY;
     }

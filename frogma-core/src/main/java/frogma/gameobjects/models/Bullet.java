@@ -7,14 +7,13 @@ import java.awt.*;
 
 public class Bullet extends MovingObject implements SubPixelPosition {
 
-    boolean dying;
-    float hazard;
-    double animFrame;
-    double animSpeed;
-    int animFrameCount;
-    int subType;
-    BasicGameObject creator;
-    boolean onScreen;
+    private BasicGameObject creator;
+    private float hazard;
+    private double animFrame;
+    private double animSpeed;
+    private int animFrameCount;
+    private int subType;
+    private boolean onScreen;
 
     public Bullet(int tW, int tH, int subType, GameEngine referrer, BasicGameObject creator, Image objImg, double animSpeed, int animFrameCount, float hazard) {
         super(tW, tH, referrer, objImg, true);
@@ -29,7 +28,6 @@ public class Bullet extends MovingObject implements SubPixelPosition {
         this.creator = creator;
         this.animFrame = 0;
         setZRenderPos(GameEngine.Z_ABOVE_FG);
-        dying = false;
     }
 
     public void calcNewPos() {
@@ -51,7 +49,6 @@ public class Bullet extends MovingObject implements SubPixelPosition {
     }
 
     public void collide(StaticCollEvent sce) {
-        //dying = true;
         setProp(ObjectProps.PROP_ALIVE, false);
         referrer.getSndFX().play(SoundFX.SND_HITWALL);
     }

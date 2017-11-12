@@ -12,23 +12,16 @@ import java.awt.*;
 
 public class FlyingRobot extends MovingObject {
 
-    public static final int MODE_WAIT = 0;
-    public static final int MODE_ATTACK = 1;
-    public static final int MODE_DEAD = 2;
+    private static final int MODE_WAIT = 0;
+    private static final int MODE_ATTACK = 1;
+    private static final int MODE_DEAD = 2;
 
-    Image explosionImg;
-    Player player;
+    private Image explosionImg;
+    private Player player;
 
-    int life = 2;
-    int frame = 0;
-    int attackRadius = 300;
-    int mode;
-
-    int minVelX = -5;
-    int maxVelX = 5;
-
-    int minVelY = -4;
-    int maxVelY = 8;
+    private int life = 2;
+    private int frame = 0;
+    private int mode;
 
     public FlyingRobot(GameEngine referrer, Image objImage) {
         super(8, 8, referrer, objImage, true);
@@ -63,6 +56,7 @@ public class FlyingRobot extends MovingObject {
         int distY = (player.getPosY() + player.getSpriteHeight() / 2) - (getPosY() + getSpriteHeight() / 2);
         int radius = (int) (Math.sqrt(distX * distX + distY * distY));
 
+        int attackRadius = 300;
         if (radius < attackRadius) {
             mode = MODE_ATTACK;
         }
@@ -88,12 +82,16 @@ public class FlyingRobot extends MovingObject {
 
             // Apply speed limits:
 
+            int maxVelX = 5;
+            int minVelX = -5;
             if (getVelX() < minVelX) {
                 setVelocity(minVelX, getVelY());
             } else if (getVelX() > maxVelX) {
                 setVelocity(maxVelX, getVelY());
             }
 
+            int maxVelY = 8;
+            int minVelY = -4;
             if (getVelY() < minVelY) {
                 setVelocity(getVelX(), minVelY);
             } else if (getVelY() > maxVelY) {
@@ -160,7 +158,7 @@ public class FlyingRobot extends MovingObject {
         if (mode != MODE_DEAD) {
             return frame * 64;
         } else {
-            return ((int) (frame / 2)) * 64;
+            return frame / 2 * 64;
         }
     }
 

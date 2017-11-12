@@ -800,9 +800,9 @@ public class Player extends DynamicObject implements PlayerInterface {
                         offX = tileWidth * 8 - b.getSolidWidth() * 8;
                     }
                 }
-                b.setdPosition(posX + offX, posY + tileHeight * 3 - b.getSolidHeight() * 4);
-                b.setdNewPosition(posX + offX, posY + tileHeight * 3 - b.getSolidHeight() * 4);
-                b.setdVelocity(bSpeed, 0);
+                b.setDPosition(posX + offX, posY + tileHeight * 3 - b.getSolidHeight() * 4);
+                b.setDNewPosition(posX + offX, posY + tileHeight * 3 - b.getSolidHeight() * 4);
+                b.setDVelocity(bSpeed, 0);
                 referrer.addObjects(new BasicGameObject[]{b});
                 referrer.getSndFX().play(SoundFX.SND_FIREBALL);
             }
@@ -895,10 +895,6 @@ public class Player extends DynamicObject implements PlayerInterface {
 
     public void setLife(int value) {
         life = value;
-    }
-
-    public void setHealth(int value) {
-        health = value;
     }
 
 }
