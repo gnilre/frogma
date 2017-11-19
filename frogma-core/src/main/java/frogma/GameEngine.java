@@ -1,7 +1,11 @@
 package frogma;
 
+import frogma.collision.CollDetect;
+import frogma.gameobjects.MapPlayer;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.models.BasicGameObject;
+import frogma.input.Input;
+import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
 
@@ -25,8 +29,6 @@ public interface GameEngine {
     int Z_MG_PLAYER = 1;        // Between middle ground and player (normal objects)
     int Z_PLAYER_FG = 2;        // Between player and foreground
     int Z_ABOVE_FG = 3;        // Above foreground
-
-    Timer getNativeTimer();
 
     SoundFX getSndFX();
 

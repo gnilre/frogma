@@ -2,7 +2,10 @@ package frogma.leveleditor;
 
 import frogma.*;
 import frogma.gameobjects.models.BasicGameObject;
+import frogma.gameobjects.models.IndexGenerator;
 import frogma.misc.Misc;
+import frogma.resources.ByteBuffer;
+import frogma.resources.ImageLoader;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

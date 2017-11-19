@@ -1,9 +1,11 @@
-package frogma;
+package frogma.collision;
 
+import frogma.*;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.models.BasicGameObject;
-import frogma.gameobjects.models.Bullet;
+import frogma.gameobjects.Bullet;
 import frogma.misc.Misc;
+import frogma.tiles.TileType;
 
 import java.awt.*;
 
@@ -26,35 +28,6 @@ import java.awt.*;
  */
 public final class CollDetect {
 
-    // Collision type constants:
-    public static final byte COLL_LEFT = 0;
-    public static final byte COLL_TOPLEFT = 1;
-    public static final byte COLL_TOP = 2;
-    public static final byte COLL_TOPRIGHT = 3;
-    public static final byte COLL_RIGHT = 4;
-    public static final byte COLL_BOTTOMRIGHT = 5;
-    public static final byte COLL_BOTTOM = 6;
-    public static final byte COLL_BOTTOMLEFT = 7;
-
-    // Static Tile Type Constants:
-    public static final byte TILE_NO_SOLID = 0;
-    public static final byte TILE_ALL_SOLID = 1;
-    public static final byte TILE_TOP_SOLID = 2;
-    public static final byte TILE_LEFT_SOLID = 3;
-    public static final byte TILE_RIGHT_SOLID = 4;
-    public static final byte TILE_BOTTOM_SOLID = 5;
-    public static final byte TILE_MONSTERSTOP = 6;
-    public static final byte TILE_WATER = 7;
-    public static final byte TILE_DAMAGE_SOLID = 10;
-    public static final byte TILE_DAMAGE_NO_SOLID = 11;
-    public static final byte TILE_DEATH_SOLID = 12;
-    public static final byte TILE_DEATH_NO_SOLID = 13;
-    public static final byte TILE_BOUNCE_ALL = 20;
-    public static final byte TILE_BOUNCE_TOP = 21;
-    public static final byte TILE_BOUNCE_LEFT = 22;
-    public static final byte TILE_BOUNCE_RIGHT = 23;
-    public static final byte TILE_BOUNCE_BOTTOM = 24;
-
     private Game curLevel;
     private int levelWidth;
     private int levelHeight;
@@ -67,10 +40,10 @@ public final class CollDetect {
     private byte[] affType;
     private byte[] affCollType;
     private int affArrStart;
-    boolean foundGroundCollisionCase1 = false;
-    StaticCollEvent sceGCCase1 = new StaticCollEvent();
-    byte[] tilesNotSolid = new byte[]{TILE_NO_SOLID};
-    byte[] tilesSolid = new byte[]{TILE_ALL_SOLID, TILE_MONSTERSTOP};
+    private boolean foundGroundCollisionCase1 = false;
+    private StaticCollEvent sceGCCase1 = new StaticCollEvent();
+    private byte[] tilesNotSolid = new byte[]{TileType.TILE_NO_SOLID};
+    private byte[] tilesSolid = new byte[]{TileType.TILE_ALL_SOLID, TileType.TILE_MONSTERSTOP};
 
     private static final boolean DEBUG = false;
     private static final boolean RECYCLE_COLLISIONS = true;
@@ -80,16 +53,13 @@ public final class CollDetect {
 
 
     // Some variables not to be instantiated each time the methods are run:
-    Rectangle objRect1 = new Rectangle();
-    Rectangle objRect2 = new Rectangle();
-    Rectangle playerRect = new Rectangle();
-    Rectangle playerCurrentPosRect = new Rectangle();
-    Rectangle rect = new Rectangle();
-    Rectangle objIntersect_rect1 = new Rectangle();
-    Rectangle objIntersect_rect2 = new Rectangle();
-    int isSolid_tileType;
-    int sx, sy, ex, ey, dx, dy, cx, cy, w, h;
-    boolean isc_objIsPlayer;
+    private Rectangle objRect1 = new Rectangle();
+    private Rectangle objRect2 = new Rectangle();
+    private Rectangle playerRect = new Rectangle();
+    private Rectangle playerCurrentPosRect = new Rectangle();
+    private Rectangle rect = new Rectangle();
+    private Rectangle objIntersect_rect1 = new Rectangle();
+    private Rectangle objIntersect_rect2 = new Rectangle();
 
     /**
      * Standard constructor.
@@ -138,9 +108,7 @@ public final class CollDetect {
         int sx, sy, ex, ey;
         int velX, velY;
         int newX, newY;
-        int similarCount = 0;
         boolean fixedCollision;
-        long t1, t2;
 
         DynamicCollEvent ret;
         Misc.setRect(objRect1, 0, 0, 0, 0);
@@ -151,7 +119,6 @@ public final class CollDetect {
         // --------------------------------------------------------
 
         playerRect.add(rect);
-        BasicGameObject obj = null;
 
         playerSX = player.getPosX();
         playerSY = player.getPosY();
@@ -166,11 +133,7 @@ public final class CollDetect {
         }
         if (player.getVelY() > 0) {
             playerEY += player.getVelY();
-        } else {
-            playerSY += player.getVelY();
         }
-
-        t1 = System.currentTimeMillis();
 
         // Check for static collisions:
         StaticCollEvent staCollE = new StaticCollEvent();
@@ -198,20 +161,20 @@ public final class CollDetect {
                     ex = sx + objs[i].getSolidWidth() * STILE_SIZE;
                     ey = sy + objs[i].getSolidHeight() * STILE_SIZE;
                     if (sx % STILE_SIZE != 0) {
-                        sx = ((int) (sx / STILE_SIZE)) * STILE_SIZE;
+                        sx = sx / STILE_SIZE * STILE_SIZE;
                     }
                     if (ex % STILE_SIZE != 0) {
-                        ex = ((int) (ex / STILE_SIZE) + 1) * STILE_SIZE;
+                        ex = (ex / STILE_SIZE + 1) * STILE_SIZE;
                     }
                     if (velX < 0) {
                         sx += (velX - STILE_SIZE);
                     } else {
                         ex += (velX + STILE_SIZE);
                     }
-                    sx = (int) (sx / STILE_SIZE);
-                    sy = (int) (sy / STILE_SIZE);
-                    ex = (int) (ex / STILE_SIZE);
-                    ey = (int) (ey / STILE_SIZE);
+                    sx = sx / STILE_SIZE;
+                    sy = sy / STILE_SIZE;
+                    ex = ex / STILE_SIZE;
+                    ey = ey / STILE_SIZE;
 
 
                     // Check the areas around the object:
@@ -224,7 +187,6 @@ public final class CollDetect {
                                 if (checkStaticCollision(objs[i], sceGCCase1)) {
                                     objs[i].collide(sceGCCase1);
                                     foundGroundCollisionCase1 = true;
-                                    similarCount = 1;
                                 }
                             } else {
                                 // A similar collision has been encountered
@@ -233,7 +195,6 @@ public final class CollDetect {
                                 sceGCCase1.setNewPos(newX, objs[i].getPosY());
                                 objs[i].collide(sceGCCase1);
                                 fixedCollision = true;
-                                similarCount++;
                             }
                         }
                     }
@@ -246,18 +207,9 @@ public final class CollDetect {
             }
         }
 
-        t2 = System.currentTimeMillis();
-        //if(t2-t1>0)Debug.add("Static collisions: "+(t2-t1));
-
-        t1 = System.currentTimeMillis();
-
         // New collision detection routine between player and objects:
         detectCollisions2(player, objs, objActive);
 
-        t2 = System.currentTimeMillis();
-        //if(t2-t1>0)Debug.add("detectCollisions2: "+(t2-t1));
-
-        t1 = System.currentTimeMillis();
         // Find all collisions with objects not solid to player but collidable:
         if (objs.length > 0) {
             for (int i = 0; i < objs.length; i++) {
@@ -281,13 +233,9 @@ public final class CollDetect {
                 }
             }
         }
-        t2 = System.currentTimeMillis();
-        //if(t2-t1>0)Debug.add("Non-solid objects: "+(t2-t1));
-
     }
 
     public void detectBulletCollisions(BasicGameObject player, BasicGameObject[] bullet, int scrW, int scrH) {
-
 
         // Check static collisions:
         StaticCollEvent sce = new StaticCollEvent();
@@ -318,10 +266,8 @@ public final class CollDetect {
                 if (((Bullet) bullet[i]).getCreator() != player) {
                     dce = checkDynamicCollision(bullet[i], player);
                     if (dce != null) {
-                        if (minTimeObj == null || dce.getTime() < minTime) {
-                            minTime = dce.getTime();
-                            minTimeObj = player;
-                        }
+                        minTime = dce.getTime();
+                        minTimeObj = player;
                     }
                 }
 
@@ -336,7 +282,7 @@ public final class CollDetect {
                     if (b.getPosY() < bullet[i].getPosY() - scrH) continue;
                     if (i == j) continue;
                     if (!qualifiesForDynColl(b)) continue;
-                    if (!(((Bullet) bullet[i]).getCreator() != b)) continue;
+                    if (((Bullet) bullet[i]).getCreator() == b) continue;
                     if (b.getProp(ObjectProps.PROP_BULLET)) continue;
                     if (!b.getProp(ObjectProps.PROP_SOLIDTOPLAYER) && !bullet[i].getProp(ObjectProps.PROP_SOLIDTOALL)) {
                         continue;
@@ -364,12 +310,16 @@ public final class CollDetect {
                         } else {
                             // Do Dynamic collision:
                             dce = checkDynamicCollision(bullet[i], minTimeObj);
-                            dce.doCollision();
+                            if (dce != null) {
+                                dce.doCollision();
+                            }
                         }
                     } else {
                         // Do dynamic collision:
                         dce = checkDynamicCollision(bullet[i], minTimeObj);
-                        dce.doCollision();
+                        if (dce != null) {
+                            dce.doCollision();
+                        }
                     }
                 } else {
                     // No dynamic collision, but perhaps a statical?
@@ -383,7 +333,7 @@ public final class CollDetect {
         }
     }
 
-    public boolean qualifiesForDynColl(BasicGameObject bgo) {
+    private boolean qualifiesForDynColl(BasicGameObject bgo) {
         return (bgo.getProp(ObjectProps.PROP_ALIVE) && bgo.getProp(ObjectProps.PROP_DYNAMICCOLLIDABLE));
     }
 
@@ -396,16 +346,16 @@ public final class CollDetect {
      * @param obj2 The second object
      * @return Either a DynamicCollEvent instance if there's a collision ,otherwise null.
      */
-    public DynamicCollEvent checkDynamicCollision(BasicGameObject obj1, BasicGameObject obj2) {
+    private DynamicCollEvent checkDynamicCollision(BasicGameObject obj1, BasicGameObject obj2) {
         if ((!obj1.getProp(ObjectProps.PROP_DYNAMICCOLLIDABLE)) || (!obj2.getProp(ObjectProps.PROP_DYNAMICCOLLIDABLE)) || (referrer.getCheat().isEnabled(Cheat.CHEAT_NO_DYNAMIC_COLLISIONS))) {
             // Collision impossible..
             return null;
         }
 
-        int nSteps = 0;
-        int obj1Steps = 0;
-        int obj2Steps = 0;
-        int curStep = 0;
+        int nSteps;
+        int obj1Steps;
+        int obj2Steps;
+        int curStep;
 
         int curX1 = obj1.getPosX();
         int curY1 = obj1.getPosY();
@@ -505,34 +455,34 @@ public final class CollDetect {
                 // Horizontal collision.
                 if (curX1 < curX2) {
                     // obj1 right side:
-                    collType = COLL_LEFT;
+                    collType = CollisionType.COLL_LEFT;
                 } else {
                     // obj1 left side:
-                    collType = COLL_RIGHT;
+                    collType = CollisionType.COLL_RIGHT;
                 }
             } else if (objIntersect(obj1, obj2, prevX1, curY1, prevX2, curY2)) {
                 // Vertical collision.
                 if (curY1 < curY2) {
                     // obj1 bottom side:
-                    collType = COLL_BOTTOM;
+                    collType = CollisionType.COLL_BOTTOM;
                 } else {
                     // obj1 top side:
-                    collType = COLL_TOP;
+                    collType = CollisionType.COLL_TOP;
                 }
             } else {
                 // Corner collision.
                 if (curX1 < curX2 && curY1 < curY2) {
                     // obj1 bottom right corner:
-                    collType = COLL_BOTTOMRIGHT;
+                    collType = CollisionType.COLL_BOTTOMRIGHT;
                 } else if (curX1 < curX2 && curY1 > curY2) {
                     // obj1 top right corner:
-                    collType = COLL_TOPRIGHT;
+                    collType = CollisionType.COLL_TOPRIGHT;
                 } else if (curX1 > curX2 && curY1 > curY2) {
                     // obj1 top left corner:
-                    collType = COLL_TOPLEFT;
+                    collType = CollisionType.COLL_TOPLEFT;
                 } else {
                     // obj1 bottom left corner:
-                    collType = COLL_BOTTOMLEFT;
+                    collType = CollisionType.COLL_BOTTOMLEFT;
                 }
             }
 
@@ -588,40 +538,9 @@ public final class CollDetect {
         Misc.setRect(objIntersect_rect1, x1, y1, obj1.getSolidWidth() * STILE_SIZE, obj1.getSolidHeight() * STILE_SIZE);
         Misc.setRect(objIntersect_rect2, x2, y2, obj2.getSolidWidth() * STILE_SIZE, obj2.getSolidHeight() * STILE_SIZE);
 
-        if (objIntersect_rect1.intersects(objIntersect_rect2)) {
-            // The objects intersect at this position.
-            return true;
-        } else {
-            // The objects don't intersect.
-            return false;
-        }
-    }
-
-    public boolean isDynamicCollision(BasicGameObject obj, BasicGameObject[] otherObj, int x, int y) {
-        Player p = null;
-        if (otherObj == null) {
-            return false;
-        }
-        boolean isPlayer = obj.getName().equals("Player");
-        if (isPlayer) {
-            p = (Player) obj;
-        }
-        for (int i = 0; i < otherObj.length; i++) {
-            if (qualifiesForDynColl(otherObj[i])) {
-                if (isPlayer) {
-                    if (!(p.getProp(ObjectProps.PROP_BLINKING) && !otherObj[i].getProp(ObjectProps.PROP_SOLIDTOBLINKINGPLAYER))) {
-                        if (objIntersect(obj, otherObj[i], x, y, otherObj[i].getPosX(), otherObj[i].getPosY())) {
-                            return true;
-                        }
-                    }
-                } else {
-                    if (objIntersect(obj, otherObj[i], x, y, otherObj[i].getPosX(), otherObj[i].getPosY())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        // The objects intersect at this position.
+        // The objects don't intersect.
+        return objIntersect_rect1.intersects(objIntersect_rect2);
     }
 
     /**
@@ -654,14 +573,14 @@ public final class CollDetect {
         int objW = obj.getSolidWidth();
         int objH = obj.getSolidHeight();
 
-        int dx = 0;
-        int dy = 0;
+        int dx;
+        int dy;
 
-        int nSteps = 0;
-        int curStep = 0;
+        int nSteps;
+        int curStep;
 
-        int prevX = 0;
-        int prevY = 0;
+        int prevX;
+        int prevY;
         int collX = 0;
         int collY = 0;
         int affCount;
@@ -669,12 +588,8 @@ public final class CollDetect {
         // Vars for the affAdd part..
         int addX;
         int addY;
-        int newAddX;
-        int newAddY;
-        int tileX = getTileX(curX);
-        int tileY = getTileY(curY);
-        int newTileX = getTileX(objNewX);
-        int newTileY = getTileY(objNewY);
+        int tileX;
+        int tileY;
 
         boolean collided = false;
         boolean coll_left = false;
@@ -796,90 +711,76 @@ public final class CollDetect {
                 addY = 0;
             }
 
-            if (getTileOffX(objNewX) > 0) {
-                newAddX = 1;
-            } else {
-                newAddX = 0;
-            }
-
-            if (getTileOffY(objNewY) > 0) {
-                newAddY = 1;
-            } else {
-                newAddY = 0;
-            }
-
             tileX = getTileX(curX);
             tileY = getTileY(curY);
-            newTileX = getTileX(objNewX);
-            newTileY = getTileY(objNewY);
 
             // Add affected tiles:
             // -----------------------------------------------------------
             affArrStart = 0;
             if (coll_left && coll_top) {
                 // invoker bottomright collision
-                invCollType = COLL_BOTTOMRIGHT;
+                invCollType = CollisionType.COLL_BOTTOMRIGHT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY, 1, objH, COLL_LEFT);
-                addAffArea(tileX, tileY + objH, objW, 1, COLL_TOP);
-                addAffArea(tileX + objW, tileY + objH, 1, 1, COLL_TOPLEFT);
+                addAffArea(tileX + objW, tileY, 1, objH, CollisionType.COLL_LEFT);
+                addAffArea(tileX, tileY + objH, objW, 1, CollisionType.COLL_TOP);
+                addAffArea(tileX + objW, tileY + objH, 1, 1, CollisionType.COLL_TOPLEFT);
             } else if (coll_left && coll_bottom) {
                 // invoker topright collision
-                invCollType = COLL_TOPRIGHT;
+                invCollType = CollisionType.COLL_TOPRIGHT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY + 1, 1, objH, COLL_LEFT);
-                addAffArea(tileX, tileY, objW, 1, COLL_BOTTOM);
-                addAffArea(tileX + objW, tileY, 1, 1, COLL_BOTTOMLEFT);
+                addAffArea(tileX + objW, tileY + 1, 1, objH, CollisionType.COLL_LEFT);
+                addAffArea(tileX, tileY, objW, 1, CollisionType.COLL_BOTTOM);
+                addAffArea(tileX + objW, tileY, 1, 1, CollisionType.COLL_BOTTOMLEFT);
             } else if (coll_right && coll_top) {
                 // invoker bottomleft collision
-                invCollType = COLL_BOTTOMLEFT;
+                invCollType = CollisionType.COLL_BOTTOMLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, 1, objH, COLL_RIGHT);
-                addAffArea(tileX + 1, tileY + objH, objW, 1, COLL_TOP);
-                addAffArea(tileX, tileY + objH, 1, 1, COLL_TOPRIGHT);
+                addAffArea(tileX, tileY, 1, objH, CollisionType.COLL_RIGHT);
+                addAffArea(tileX + 1, tileY + objH, objW, 1, CollisionType.COLL_TOP);
+                addAffArea(tileX, tileY + objH, 1, 1, CollisionType.COLL_TOPRIGHT);
             } else if (coll_right && coll_bottom) {
                 // invoker topleft collision
-                invCollType = COLL_TOPLEFT;
+                invCollType = CollisionType.COLL_TOPLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY + 1, 1, objH, COLL_RIGHT);
-                addAffArea(tileX + 1, tileY, objW, 1, COLL_BOTTOM);
-                addAffArea(tileX, tileY, 1, 1, COLL_BOTTOMRIGHT);
+                addAffArea(tileX, tileY + 1, 1, objH, CollisionType.COLL_RIGHT);
+                addAffArea(tileX + 1, tileY, objW, 1, CollisionType.COLL_BOTTOM);
+                addAffArea(tileX, tileY, 1, 1, CollisionType.COLL_BOTTOMRIGHT);
             } else if (coll_left) {
                 // invoker right collision
-                invCollType = COLL_RIGHT;
+                invCollType = CollisionType.COLL_RIGHT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY, 1, objH + addY, COLL_LEFT);
+                addAffArea(tileX + objW, tileY, 1, objH + addY, CollisionType.COLL_LEFT);
             } else if (coll_right) {
                 // invoker left collision
-                invCollType = COLL_LEFT;
+                invCollType = CollisionType.COLL_LEFT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, 1, objH + addY, COLL_RIGHT);
+                addAffArea(tileX, tileY, 1, objH + addY, CollisionType.COLL_RIGHT);
             } else if (coll_top) {
                 // invoker bottom collision
-                invCollType = COLL_BOTTOM;
+                invCollType = CollisionType.COLL_BOTTOM;
                 affCount = objW + addX + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY + objH, objW + addX, 1, COLL_TOP);
+                addAffArea(tileX, tileY + objH, objW + addX, 1, CollisionType.COLL_TOP);
             } else if (coll_bottom) {
                 // invoker top collision
-                invCollType = COLL_TOP;
+                invCollType = CollisionType.COLL_TOP;
                 affCount = objW + addX + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, objW + addX, 1, COLL_BOTTOM);
+                addAffArea(tileX, tileY, objW + addX, 1, CollisionType.COLL_BOTTOM);
             }
             // -----------------------------------------------------------
 
@@ -983,24 +884,24 @@ public final class CollDetect {
      */
     public boolean isStaticCollision(BasicGameObject obj, int nX, int nY) {
 
-        isc_objIsPlayer = obj.getProp(ObjectProps.PROP_PLAYER);
+        boolean isc_objIsPlayer = obj.getProp(ObjectProps.PROP_PLAYER);
         if (referrer.getCheat().isEnabled(Cheat.CHEAT_NO_STATIC_COLLISIONS)) {
             if (isc_objIsPlayer) {
                 return false;
             }
         }
 
-        cx = obj.getPosX();
-        cy = obj.getPosY();
-        dx = obj.getNewX() - cx;
-        dy = obj.getNewY() - cy;
-        w = obj.getSolidWidth();
-        h = obj.getSolidHeight();
+        int cx = obj.getPosX();
+        int cy = obj.getPosY();
+        int dx = obj.getNewX() - cx;
+        int dy = obj.getNewY() - cy;
+        int w = obj.getSolidWidth();
+        int h = obj.getSolidHeight();
 
-        sx = nX / 8;
-        sy = nY / 8;
-        ex = sx + w + (nX % 8 == 0 ? 0 : 1);
-        ey = sy + h + (nY % 8 == 0 ? 0 : 1);
+        int sx = nX / 8;
+        int sy = nY / 8;
+        int ex = sx + w + (nX % 8 == 0 ? 0 : 1);
+        int ey = sy + h + (nY % 8 == 0 ? 0 : 1);
         if (nX < 0) sx--;
         if (nY < 0) sy--;
 
@@ -1050,12 +951,8 @@ public final class CollDetect {
      * @param y The y-coordinate of the tile in question
      * @return Whether the tile at the given position is not type 0
      */
-    public boolean isTile(int x, int y) {
-        if (x < 0 || x >= levelWidth || y < 0 || y >= levelHeight) {
-            return true;
-        } else {
-            return (this.sTiles[(y * levelWidth) + x] != TILE_NO_SOLID);
-        }
+    private boolean isTile(int x, int y) {
+        return x < 0 || x >= levelWidth || y < 0 || y >= levelHeight || (this.sTiles[(y * levelWidth) + x] != TileType.TILE_NO_SOLID);
     }
 
     /**
@@ -1073,40 +970,40 @@ public final class CollDetect {
      * @param objH the height of the object in 8x8 tiles
      * @return whether the tile is solid, given tile position ,object position, object speed, etc.
      */
-    public boolean isSolid(int x, int y, int velX, int velY, int topX, int topY, int objW, int objH, boolean objectIsPlayer) {
+    private boolean isSolid(int x, int y, int velX, int velY, int topX, int topY, int objW, int objH, boolean objectIsPlayer) {
 
         if (x < 0 || x >= levelWidth || y < 0 || y >= levelHeight) {
             return true;
         }
 
-        isSolid_tileType = this.sTiles[y * levelWidth + x];
-        if (isSolid_tileType == TILE_ALL_SOLID || isSolid_tileType == TILE_BOUNCE_ALL || isSolid_tileType == TILE_DAMAGE_SOLID || isSolid_tileType == TILE_DEATH_SOLID) {
+        int isSolid_tileType = this.sTiles[y * levelWidth + x];
+        if (isSolid_tileType == TileType.TILE_ALL_SOLID || isSolid_tileType == TileType.TILE_BOUNCE_ALL || isSolid_tileType == TileType.TILE_DAMAGE_SOLID || isSolid_tileType == TileType.TILE_DEATH_SOLID) {
             return true;
         }
-        if (isSolid_tileType == TILE_MONSTERSTOP && !objectIsPlayer) {
+        if (isSolid_tileType == TileType.TILE_MONSTERSTOP && !objectIsPlayer) {
             return true;
         }
 
         switch (isSolid_tileType) {
-            case TILE_TOP_SOLID: {
+            case TileType.TILE_TOP_SOLID: {
                 if (velY > 0 && (topY / 8 + objH + (topY % 8 == 0 ? 0 : 1) <= y)) {//isAbove(topY,objH,y)){
                     return true;
                 }
                 break;
             }
-            case TILE_BOTTOM_SOLID: {
+            case TileType.TILE_BOTTOM_SOLID: {
                 if (velY < 0 && (topY / 8 >= y + 1)) {//isBelow(topY,y)){
                     return true;
                 }
                 break;
             }
-            case TILE_LEFT_SOLID: {
+            case TileType.TILE_LEFT_SOLID: {
                 if (velX > 0 && (topX / 8 >= x + 1)) {//isRightOf(topX,x)){
                     return true;
                 }
                 break;
             }
-            case TILE_RIGHT_SOLID: {
+            case TileType.TILE_RIGHT_SOLID: {
                 if (velX < 0 && (topX / 8 + objW + (topX % 8 == 0 ? 0 : 1) <= x)) {//isLeftOf(topX,objW,x)){
                     return true;
                 }
@@ -1118,150 +1015,17 @@ public final class CollDetect {
     }
 
     /**
-     * Returns whether the specified object is located completely above
-     * a given y-coordinate.
-     *
-     * @param objY  The y-coordinate of the object
-     * @param objH  The height of the object in 8x8 tiles
-     * @param tileY The y-coordinate we want to check whether the object is above
-     * @return Whether the object is above the vertical line given by the y-coordinate
-     */
-    private boolean isAbove(int objY, int objH, int tileY) {
-        return (objY / 8 + objH + (objY % 8 == 0 ? 0 : 1) <= tileY);
-    }
-
-
-    /**
-     * Returns whether the specified object is located completely below
-     * a given y-coordinate.
-     *
-     * @param objY  The y-coordinate of the object
-     * @param tileY The y-coordinate we want to check whether the object is below
-     * @return Whether the object is below the vertical line given by the y-coordinate
-     */
-    private boolean isBelow(int objY, int tileY) {
-        return (objY / 8 >= tileY + 1);
-    }
-
-    /**
-     * Returns whether the specified object is located completely to the left of
-     * a given x-coordinate.
-     *
-     * @param objX  The x-coordinate of the object
-     * @param objW  The width of the object in 8x8 tiles
-     * @param tileX The x-coordinate we want to check whether the object is left of
-     * @return Whether the object is left of the horisontal line given by the x-coordinate
-     */
-    private boolean isLeftOf(int objX, int objW, int tileX) {
-        return (objX / 8 + objW + (objX % 8 == 0 ? 0 : 1) <= tileX);
-    }
-
-    /**
-     * Returns whether the specified object is located completely to the right of
-     * a given x-coordinate.
-     *
-     * @param objX  The x-coordinate of the object
-     * @param tileX The x-coordinate we want to check whether the object is right of
-     * @return Whether the object is to the right of the horisontal line given by the x-coordinate
-     */
-    private boolean isRightOf(int objX, int tileX) {
-        return (objX / 8 >= tileX + 1);
-    }
-
-    /**
      * Returns the tile type of the tile at the given position.
      *
      * @param x The x-ccordinate of the tile
      * @param y The y-coordinate of the tile
      * @return The tile type of the spec. tile
      */
-    public byte getSTile(int x, int y) {
+    private byte getSTile(int x, int y) {
         if (x < 0 || x >= this.curLevel.getSolidWidth() || y < 0 || y >= this.curLevel.getSolidHeight()) {
             return 1;
         } else {
             return (byte) this.sTiles[(y * this.curLevel.getSolidWidth()) + x];
-        }
-    }
-
-    /**
-     * This method was supposed to return the closest coordinates where the spec. object
-     * doesn't collide/overlap with any static tile or other object.
-     * It's really buggy, and should not be used.. :-(
-     *
-     * @param obj  The object that is to be repositioned
-     * @param objs The other objects in the level
-     * @return The nearest coordinates where the object doesn't collide/overlap. Buggy,
-     * not to be used!
-     */
-    public Point moveToNearestSpace(BasicGameObject obj, BasicGameObject[] objs) {
-        boolean foundPos = false;
-        boolean dynaColl = false;
-        int minX = 0;
-        int minY = 0;
-        int dx = 0;
-        int dy = 0;
-        int mindx = 0;
-        int mindy = 0;
-
-        int objW = obj.getSolidWidth();
-        int objH = obj.getSolidHeight();
-
-        int newX = obj.getNewX();
-        int newY = obj.getNewY();
-
-        int nTileX = getTileX(newX);
-        int nTileY = getTileY(newY);
-
-        int objX = obj.getPosX();
-        int objY = obj.getPosY();
-        int objNewX = obj.getNewX();
-        int objNewY = obj.getNewY();
-
-        System.out.println("I am entering the fatal buggy loop! This will make things lock up!");
-        System.out.println("Look for me at the moveToNearestSpace(...) method in CollDetect.java");
-        System.out.println("I really really don't want to be here anymore!");
-
-        for (int j = 0; j < levelHeight - objH; j++) {
-            for (int i = 0; i < levelWidth - objW; i++) {
-                if (!isStaticCollision(obj, i * STILE_SIZE, j * STILE_SIZE)) {
-                    dynaColl = false;
-                    for (int k = 0; k < objs.length; k++) {
-                        if (obj != objs[k]) {
-                            obj.setPosition(i * STILE_SIZE, j * STILE_SIZE);
-                            if (checkDynamicCollision(obj, objs[k]) != null) {
-                                dynaColl = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!dynaColl) {
-                        dx = i - nTileX;
-                        dy = j - nTileY;
-                        mindx = minX - nTileX;
-                        mindy = minY - nTileY;
-                        if ((((dx * dx) + (dy * dy)) < ((mindx * mindx) + (mindy * mindy))) || (!foundPos)) {
-                            minX = i;
-                            minY = j;
-                            obj.setState(0);
-                            foundPos = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        obj.setPosition(objX, objY);
-        obj.setNewPosition(objNewX, objNewY);
-
-        if (foundPos) {
-            newX = minX * STILE_SIZE;
-            newY = minY * STILE_SIZE;
-            Point ret = new Point(newX, newY);
-            msg("ret");
-            return ret;
-        } else {
-            msg("Found no new possitions");
-            return null;
         }
     }
 
@@ -1271,11 +1035,11 @@ public final class CollDetect {
      * @param nx The X-coordinate (pixels) that is to be converted
      * @return The tile X coordinate corresponding to the pixel X coordinate
      */
-    public int getTileX(int nx) {
+    private int getTileX(int nx) {
         if (nx >= 0) {
-            return ((int) (nx / STILE_SIZE));
+            return nx / STILE_SIZE;
         } else {
-            return ((int) ((nx / STILE_SIZE) - 1));
+            return (nx / STILE_SIZE) - 1;
         }
     }
 
@@ -1285,11 +1049,11 @@ public final class CollDetect {
      * @param ny The Y-coordinate (pixels) that is to be converted
      * @return The tile Y coordinate corresponding to the pixel Y coordinate
      */
-    public int getTileY(int ny) {
+    private int getTileY(int ny) {
         if (ny >= 0) {
-            return ((int) (ny / STILE_SIZE));
+            return ny / STILE_SIZE;
         } else {
-            return ((int) ((ny / STILE_SIZE) - 1));
+            return (ny / STILE_SIZE) - 1;
         }
     }
 
@@ -1299,7 +1063,7 @@ public final class CollDetect {
      * @param nx The X-coordinate (pixels) the offset is calculated from
      * @return The pixel offset of the tile coordinate, given a pixel coordinate
      */
-    public int getTileOffX(int nx) {
+    private int getTileOffX(int nx) {
         return (nx % STILE_SIZE);
     }
 
@@ -1309,7 +1073,7 @@ public final class CollDetect {
      * @param ny The Y-coordinate (pixels) the offset is calculated from
      * @return The pixel offset of the tile coordinate, given a pixel coordinate
      */
-    public int getTileOffY(int ny) {
+    private int getTileOffY(int ny) {
         return (ny % STILE_SIZE);
     }
 
@@ -1318,100 +1082,10 @@ public final class CollDetect {
      *
      * @param debugmsg The message to write to the output.
      */
-    public static void msg(String debugmsg) {
+    private static void msg(String debugmsg) {
         if (DEBUG) {
             System.out.println(debugmsg);
         }
-    }
-
-    /**
-     * Returns whether the spec. object stands on a solid object or tiles.
-     * DEPRECATED. THIS SHOULD NOT BE USED, AS THE TILE PART IS INACCURATE
-     */
-    public boolean standingOnSolid(BasicGameObject obj, BasicGameObject[] objs) {
-        return standingOnSolid(obj, obj.getPosX(), obj.getPosY(), objs);
-    }
-
-    /**
-     * Returns whether the spec. object stands on a solid object or tiles.
-     * DEPRECATED. THIS SHOULD NOT BE USED, AS THE TILE PART IS INACCURATE
-     */
-    public boolean standingOnSolid(BasicGameObject obj, int posX, int posY, BasicGameObject[] objs) {
-        // Check both static tiles & dynamic objects.
-        return (standingOnSolidTiles(obj, posX, posY) || standingOnObject(obj, posX, posY, objs));
-    }
-
-    /**
-     * Returns whether the spec. object stands on solid tiles.
-     * DEPRECATED. THIS SHOULD NOT BE USED, AS IT IS INACCURATE!
-     */
-    public boolean standingOnSolidTiles(BasicGameObject obj, int posX, int posY) {
-        // >> DEPRECATED.. WILL ONLY WORK FOR TILE_ALL_SOLID.
-        // Use standingOnTileType() to check. Check solid tile types.
-        // Just normal solid for now..
-        boolean onSolid = false;
-
-        if (standingOnTileType(obj, posX, posY, TILE_ALL_SOLID)) {
-            onSolid = true;
-        }
-        //if(standingOnTileType(obj,posX,posY,TILE_ALL_SOLID)){ onSolid=true; }
-        // More to come..
-        return onSolid;
-    }
-
-    /**
-     * Returns whether the specified object is standing on any of the objects in the object array spec.
-     *
-     * @param obj  The object in question
-     * @param posX The object X-coordinate to be checked
-     * @param posY The object Y-coordinate to be checked
-     * @param objs The other objects.
-     * @return Whether the object is standing on any of the objects.
-     */
-    public boolean standingOnObject(BasicGameObject obj, int posX, int posY, BasicGameObject[] objs) {
-        // Check with objIntersect().
-        boolean foundColl = false;
-        for (int i = 0; i < objs.length; i++) {
-            if (objs[i] != obj && objs[i].getProp(ObjectProps.PROP_ALIVE) && objs[i].getProp(ObjectProps.PROP_DYNAMICCOLLIDABLE) && objs[i].getProp(ObjectProps.PROP_SOLIDTOPLAYER)) {
-                if (objIntersect(obj, objs[i], obj.getPosX(), obj.getPosY() + 1, objs[i].getPosX(), objs[i].getPosY())) {
-                    foundColl = true;
-                    break;
-                }
-            }
-        }
-        return foundColl;
-    }
-
-    /**
-     * Returns whether the object is standing on at least one tile of the specified type.
-     *
-     * @param obj      The object in question
-     * @param posX     The object X-coordinate to be checked
-     * @param posY     The object Y-coordinate to be checked
-     * @param tileType The tile type to check for
-     * @return Whether the object stands on a tile of the spec. type, at the given position.
-     */
-    public boolean standingOnTileType(BasicGameObject obj, int posX, int posY, byte tileType) {
-        boolean foundTile = false;
-        int addX;
-
-        if (getTileOffY(posY) != 0) {
-            //Not on a static tile.
-            return false;
-        }
-        if (getTileOffX(posX) != 0) {
-            addX = 1;
-        } else {
-            addX = 0;
-        }
-
-        for (int i = getTileX(posX); i < (getTileX(posX) + obj.getSolidWidth() + addX); i++) {
-            if (getSTile(i, getTileY(posY) + obj.getSolidHeight()) == tileType) {
-                foundTile = true;
-                break;
-            }
-        }
-        return foundTile;
     }
 
     public StaticCollEvent getSolidTiles(BasicGameObject obj, int x, int y) {
@@ -1446,7 +1120,7 @@ public final class CollDetect {
         return new StaticCollEvent(obj, stile_x, stile_y, stile_type, new byte[0], (byte) 0, (float) 0, x, y);
     }
 
-    public boolean isAllSTilesInAreaOfType(int x, int y, int w, int h, byte[] sTType) {
+    private boolean isAllSTilesInAreaOfType(int x, int y, int w, int h, byte[] sTType) {
         boolean foundType;
         byte tileType;
 
@@ -1458,8 +1132,8 @@ public final class CollDetect {
             for (int i = x; i < (x + w); i++) {
                 tileType = (byte) this.sTiles[j * levelWidth + i];
                 foundType = false;
-                for (int arrCnt = 0; arrCnt < sTType.length; arrCnt++) {
-                    if (tileType == sTType[arrCnt]) {
+                for (byte stileType : sTType) {
+                    if (tileType == stileType) {
                         foundType = true;
                         break;
                     }
@@ -1472,10 +1146,9 @@ public final class CollDetect {
         return true;
     }
 
-
-    public void detectCollisions2(BasicGameObject player, BasicGameObject[] objs, byte[] objActive) {
+    private void detectCollisions2(BasicGameObject player, BasicGameObject[] objs, byte[] objActive) {
         int maxDx, maxDy;
-        int stepCount = 0;
+        int stepCount;
         int curStep;
         byte[] possColl = new byte[objs.length];
         int possCount;
@@ -1565,9 +1238,6 @@ public final class CollDetect {
 
         int psx, psy;    // player start pos
         int[] osx, osy;    // object start pos
-
-        int prevX1, prevX2;
-        int prevY1, prevY2;
 
         int pw, ph;            // player size
         int[] objW, objH;    // object size
@@ -1689,15 +1359,6 @@ public final class CollDetect {
             }
             // -------------------------------------------------------
         } // end of while loop.
-		/*if(foundColl){
-			System.out.println("Too many runs through coll check!!!");
-			System.out.println("Troubling objects: ");
-			for(int i=0;i<pcObj.length;i++){
-				if(collNow[i]==-1){
-					System.out.println(pcObj[i].getName());
-				}
-			}
-		}*/
     }
 
 }

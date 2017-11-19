@@ -1,9 +1,12 @@
-package frogma;
+package frogma.gameobjects;
 
-import frogma.gameobjects.Player;
+import frogma.*;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.MovingObject;
 import frogma.misc.DownCount;
 import frogma.soundsystem.SoundFX;
+import frogma.tiles.TileType;
 
 import java.awt.*;
 
@@ -20,7 +23,7 @@ public class FrogEgg extends MovingObject {
     private int animFrame = 0;
     private int destX, destY;
 
-    FrogEgg(GameEngine referrer, Image objImg) {
+    public FrogEgg(GameEngine referrer, Image objImg) {
         super(3, 4, referrer, objImg, true);
         this.referrer = referrer;
         this.linkedToPlayer = false;
@@ -122,7 +125,7 @@ public class FrogEgg extends MovingObject {
     public int getImgSrcX() {
         if (referrer != null) {
             waterDet = referrer.getCollDetect().getSolidTiles(this, getPosX(), getPosY());
-            if (waterDet.hasTileType(CollDetect.TILE_WATER)) {
+            if (waterDet.hasTileType(TileType.TILE_WATER)) {
                 animTimer.count();
                 if (animTimer.finished()) {
                     animTimer.setMax(3, true);

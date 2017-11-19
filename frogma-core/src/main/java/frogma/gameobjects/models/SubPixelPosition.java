@@ -1,4 +1,4 @@
-package frogma;
+package frogma.gameobjects.models;
 
 public interface SubPixelPosition {
 

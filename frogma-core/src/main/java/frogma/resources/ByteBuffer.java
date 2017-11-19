@@ -1,4 +1,4 @@
-package frogma;
+package frogma.resources;
 
 import java.io.FileOutputStream;
 
@@ -21,7 +21,7 @@ public class ByteBuffer {
         hasBeenErrors = false;
     }
 
-    ByteBuffer(byte[] content) {
+    public ByteBuffer(byte[] content) {
         try {
             buf = new short[content.length];
             for (int i = 0; i < content.length; i++) {
@@ -227,7 +227,7 @@ public class ByteBuffer {
         }
     }
 
-    short getShort() throws ArrayIndexOutOfBoundsException {
+    public short getShort() throws ArrayIndexOutOfBoundsException {
         short ret = getShort(curPos);
         move(2);
         return ret;
@@ -316,7 +316,7 @@ public class ByteBuffer {
         }
     }
 
-    String getStringAsciiWithShortLength() throws ArrayIndexOutOfBoundsException {
+    public String getStringAsciiWithShortLength() throws ArrayIndexOutOfBoundsException {
         String ret = getStringAsciiWithShortLength(curPos);
         move(ret.length() + 2);
         return ret;
@@ -500,7 +500,7 @@ public class ByteBuffer {
     /**
      * Method for decompressing the data.
      */
-    boolean decompress() {
+    public boolean decompress() {
         int excessCapacity = 131072;
         short[] newBuff = new short[excessCapacity];
         int bufPos = 0;
@@ -649,7 +649,7 @@ public class ByteBuffer {
         }
     }
 
-    boolean removeChecksums() {
+    public boolean removeChecksums() {
         if (size > 8) {
             buf = expandShortArray(buf, -8);
             size -= 8;
@@ -661,7 +661,7 @@ public class ByteBuffer {
         }
     }
 
-    boolean validateChecksums(int length) {
+    public boolean validateChecksums(int length) {
         short[] newCsums = calculateChecksums(0, length);
         short[] oldCsums = getChecksums();
         boolean foundMismatch = false;
@@ -682,7 +682,7 @@ public class ByteBuffer {
         }
     }
 
-    boolean writeToFile(String file) {
+    public boolean writeToFile(String file) {
         try {
             FileOutputStream fOut = new FileOutputStream(file);
             fOut.write(getBytes());

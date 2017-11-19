@@ -1,9 +1,9 @@
 package frogma.gameobjects.models;
 
-import frogma.DynamicCollEvent;
+import frogma.collision.DynamicCollEvent;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
-import frogma.StaticCollEvent;
+import frogma.collision.StaticCollEvent;
 
 import java.awt.*;
 

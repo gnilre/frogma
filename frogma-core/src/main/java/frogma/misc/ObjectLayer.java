@@ -1,6 +1,6 @@
 package frogma.misc;
 
-import frogma.ImageLoader;
+import frogma.resources.ImageLoader;
 import frogma.ObjectProducer;
 import frogma.gameobjects.models.BasicGameObject;
 

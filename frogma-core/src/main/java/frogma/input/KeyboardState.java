@@ -1,4 +1,4 @@
-package frogma;
+package frogma.input;
 
 public class KeyboardState {
     long[] st;

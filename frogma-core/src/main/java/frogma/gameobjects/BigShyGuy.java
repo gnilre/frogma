@@ -1,6 +1,9 @@
 package frogma.gameobjects;
 
 import frogma.*;
+import frogma.collision.Animation;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.DynamicObject;
 import frogma.misc.Misc;

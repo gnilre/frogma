@@ -1,8 +1,11 @@
 package frogma.gameobjects;
 
 import frogma.*;
+import frogma.collision.DynamicCollEvent;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.StaticObject;
+import frogma.input.Input;
+import frogma.input.KeyControl;
 import frogma.soundsystem.SoundFX;
 
 import java.awt.*;

@@ -2,11 +2,11 @@ package frogma;
 
 public class ObjectClassParams {
 
-    int[] type;
-    int[][] comboValues;
+    private int[] type;
+    private int[][] comboValues;
 
-    String[] name;
-    String[][] comboName;
+    private String[] name;
+    private String[][] comboName;
 
     public ObjectClassParams() {
         type = new int[10];

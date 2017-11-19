@@ -19,8 +19,8 @@ public class Cheat {
     // Cheat index constants:
     public static final int CHEAT_UNLIMITED_LIVES = 0;
     public static final int CHEAT_UNLIMITED_HEALTH = 1;
-    static final int CHEAT_NO_DYNAMIC_COLLISIONS = 2;
-    static final int CHEAT_NO_STATIC_COLLISIONS = 3;
+    public static final int CHEAT_NO_DYNAMIC_COLLISIONS = 2;
+    public static final int CHEAT_NO_STATIC_COLLISIONS = 3;
     public static final int CHEAT_WATER_EVERYWHERE = 4;
     public static final int CHEAT_EXTRA_SPEED = 5;
     private static final int CHEAT_SKIPLEVEL = 6;
@@ -74,7 +74,7 @@ public class Cheat {
         return ret;
     }
 
-    void keyInput(int vKey) {
+    public void keyInput(int vKey) {
         int[] newBuffer;
 
         // Continue only if cheats are enabled:

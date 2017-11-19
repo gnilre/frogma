@@ -3,6 +3,7 @@ package frogma;
 import frogma.gameobjects.*;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.misc.RainSplash;
+import frogma.resources.ImageLoader;
 
 import java.awt.*;
 

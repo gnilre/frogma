@@ -1,12 +1,17 @@
-package frogma;
+package frogma.gameobjects;
 
+import frogma.GameEngine;
+import frogma.ObjectProps;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.MovingObject;
+import frogma.input.Input;
 
 import java.awt.*;
 
 public class MapPlayer extends MovingObject implements PlayerInterface {
 
-    MapPlayer(int tileW, int tileH, GameEngine referrer, Image objImage, boolean visible) {
+    public MapPlayer(int tileW, int tileH, GameEngine referrer, Image objImage, boolean visible) {
 
         super(tileW, tileH, referrer, objImage, visible);
         setSpriteWidth(32);

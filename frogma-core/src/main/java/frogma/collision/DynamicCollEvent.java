@@ -1,4 +1,4 @@
-package frogma;
+package frogma.collision;
 
 import frogma.gameobjects.models.BasicGameObject;
 

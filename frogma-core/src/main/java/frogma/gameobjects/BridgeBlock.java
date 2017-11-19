@@ -1,6 +1,9 @@
 package frogma.gameobjects;
 
 import frogma.*;
+import frogma.collision.CollisionType;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.DynamicObject;
 
 import java.awt.*;
@@ -59,7 +62,7 @@ public class BridgeBlock extends DynamicObject {
 
     public void collide(DynamicCollEvent dce, int collRole) {
         int ct = dce.getAffectedCollType();
-        if (ct == CollDetect.COLL_TOP || ct == CollDetect.COLL_TOPLEFT || ct == CollDetect.COLL_TOPRIGHT) {
+        if (ct == CollisionType.COLL_TOP || ct == CollisionType.COLL_TOPLEFT || ct == CollisionType.COLL_TOPRIGHT) {
             didCollide = true;
         }
     }

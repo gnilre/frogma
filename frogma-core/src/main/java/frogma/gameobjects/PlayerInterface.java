@@ -1,4 +1,6 @@
-package frogma;
+package frogma.gameobjects;
+
+import frogma.input.Input;
 
 public interface PlayerInterface {
 

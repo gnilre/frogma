@@ -1,11 +1,10 @@
 package frogma.gameobjects;
 
 import frogma.Const;
-import frogma.DynamicCollEvent;
+import frogma.collision.DynamicCollEvent;
 import frogma.GameEngine;
 import frogma.ObjectProps;
 import frogma.gameobjects.models.BasicGameObject;
-import frogma.gameobjects.models.Bullet;
 import frogma.gameobjects.models.MovingObject;
 
 import java.awt.*;

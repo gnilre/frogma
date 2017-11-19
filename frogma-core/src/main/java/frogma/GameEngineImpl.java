@@ -1,9 +1,14 @@
 package frogma;
 
+import frogma.collision.CollDetect;
+import frogma.effects.Credits;
+import frogma.gameobjects.MapPlayer;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.Stars;
 import frogma.gameobjects.models.BasicGameObject;
+import frogma.input.Input;
 import frogma.misc.Misc;
+import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
 
@@ -27,10 +32,9 @@ public final class GameEngineImpl implements GameEngine {
     private static final int ENGLISH = 1;
 
     private ObjectProducer objProducer;
-    public ImageLoader imgLoader;
+    private ImageLoader imgLoader;
     private final Input input;
     private GraphicsEngineImpl gfxEng;
-    private Timer timer;
     private GameMenu menu;
     private GameMenu pauseMenu;
     private CollDetect collDet;
@@ -46,7 +50,6 @@ public final class GameEngineImpl implements GameEngine {
     private Credits credits;
     private Cheat cheat;
     private int lang;
-    private GameEngine mySelf;
 
     private int objCount;
     private boolean finishedLevel = false;
@@ -98,12 +101,10 @@ public final class GameEngineImpl implements GameEngine {
         // Set in-game state to true:
         Misc.setInGame(true);
 
-        this.mySelf = this;
         this.lang = 1;
         this.screenW = screenWidth;
         this.screenH = screenHeight;
         System.out.println("Creating native timer..");
-        this.timer = new Timer();
         this.cheat = new Cheat(this);
         this.input = new Input(this, this.cheat);
         input.addKey(KeyEvent.VK_W, "w");
@@ -117,7 +118,7 @@ public final class GameEngineImpl implements GameEngine {
 
         this.objProducer = new ObjectProducer(this, gfxEng, this.imgLoader);
         playBgm = PLAY_BGM;
-        credits = new Credits("Credits:\nErling Andersen\nAlf Børge Lervåg\nAndreas Wigmostad Bjerkhaug\nJohannes Odland", 640, 480);
+        credits = new Credits("Credits:\nAlf Børge Lervåg\nAndreas Wigmostad Bjerkhaug\nJohannes Odland\nErling Andersen", 640, 480);
 
         Stars.setEnabled(false);
 
@@ -148,7 +149,7 @@ public final class GameEngineImpl implements GameEngine {
         }
 
         // Time state:
-        stateTime1 = timer.getCurrentTime();
+        stateTime1 = getCurrentTimeMillis();
 
         // Initialize sound effects object:
         sndFX = new SoundFX(true);
@@ -170,7 +171,7 @@ public final class GameEngineImpl implements GameEngine {
         // -- THE GREAT LOOP --
         // -----------------------------------------------------------------
         while (gameState != STATE_QUIT) {
-            long fpsTimer1 = timer.getCurrentTime();
+            long fpsTimer1 = getCurrentTimeMillis();
 
             // THE LOADING SCREEN
             long stateTime2;
@@ -183,7 +184,7 @@ public final class GameEngineImpl implements GameEngine {
                 pauseThread();
 
                 // stateTime1 has been set earlier.
-                stateTime2 = timer.getCurrentTime();
+                stateTime2 = getCurrentTimeMillis();
                 if ((stateTime2 - stateTime1) >= 100 || input.key("enter").pressed()) {
                     // Switch state to Main Menu:
                     this.setState(STATE_MAIN_MENU);
@@ -198,7 +199,7 @@ public final class GameEngineImpl implements GameEngine {
                 pauseThread();
 
                 // stateTime1 has been set earlier.
-                stateTime2 = timer.getCurrentTime();
+                stateTime2 = getCurrentTimeMillis();
                 if ((stateTime2 - stateTime1) >= 10) {
                     // Switch state to Main Menu:
                     this.setState(STATE_PLAYING);
@@ -208,7 +209,7 @@ public final class GameEngineImpl implements GameEngine {
             // THE GAMEPLAY LOOP
             else if (gameState == STATE_PLAYING) {
                 // -----------------------------------------------------------------------------
-                long frameTimer1 = timer.getCurrentTime();
+                long frameTimer1 = getCurrentTimeMillis();
 
                 // Check layer toggles:
                 for (int i = 0; i < GraphicsEngine.LAYER_COUNT; i++) {
@@ -237,10 +238,10 @@ public final class GameEngineImpl implements GameEngine {
 
                 if (gameLevel.isMap()) {
                     collDet.detectCollisions(mapPlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(mapPlayer, collidableObj, 640, 480);
+                    collDet.detectBulletCollisions(mapPlayer, collidableObj, screenW, screenH);
                 } else {
                     collDet.detectCollisions(thePlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(thePlayer, collidableObj, 640, 480);
+                    collDet.detectBulletCollisions(thePlayer, collidableObj, screenW, screenH);
                 }
 
                 synchronized (input) {
@@ -316,14 +317,14 @@ public final class GameEngineImpl implements GameEngine {
                     System.out.println("*finished level*");
                     nextLevel();
                 }
-                long frameTimer2 = timer.getCurrentTime();
+                long frameTimer2 = getCurrentTimeMillis();
 
                 // Frame Timing:
                 if (TIME_FPS) {
                     if ((frameTimer2 - frameTimer1) < frameTime) {
-                        timer.waitMillis(frameTime - (frameTimer2 - frameTimer1));
+                        waitMillis(frameTime - (frameTimer2 - frameTimer1));
                     } else {
-                        timer.waitMillis(1);
+                        waitMillis(1);
                     }
                 }
 
@@ -379,7 +380,7 @@ public final class GameEngineImpl implements GameEngine {
             // Average FPS calculation:
             // ----------------------------------------------
             if (CALC_AVERAGE_FPS) {
-                long fpsTimer2 = timer.getCurrentTime();
+                long fpsTimer2 = getCurrentTimeMillis();
                 fpsFrameTime[fpsArrPos] = (int) (fpsTimer2 - fpsTimer1);
                 fpsArrPos++;
                 if (fpsArrPos == (fpsAverageInterval - 1)) {
@@ -405,6 +406,18 @@ public final class GameEngineImpl implements GameEngine {
 
         // Exit Game.
         System.exit(0);
+    }
+
+    private long getCurrentTimeMillis() {
+        return System.currentTimeMillis();
+    }
+
+    private void waitMillis(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            // ignore
+        }
     }
 
     public void setLevel(boolean saveStats) {
@@ -498,7 +511,7 @@ public final class GameEngineImpl implements GameEngine {
         if (playBgm && PLAY_BGM) {
             if (bgmSystem == null) {
                 // Initialize for the first time:
-                bgmSystem = new MidiPlayer(this);
+                bgmSystem = new MidiPlayer();
                 //bgmSystem.init(this, new String[]{gameLevel.getMusic(),Misc.getGameRoot()+"/bgm/ench28.mod"},new boolean[]{true,true});
                 bgmSystem.init(gameLevel.getMusic());
                 bgmSystem.setLooping(true);
@@ -670,10 +683,6 @@ public final class GameEngineImpl implements GameEngine {
 
     public Input getPlayerInput() {
         return this.input;
-    }
-
-    public Timer getNativeTimer() {
-        return this.timer;
     }
 
     public Cheat getCheat() {
@@ -956,7 +965,7 @@ public final class GameEngineImpl implements GameEngine {
                                             bgmSystem.startPlaying(0);
                                         } else {
                                             // Initialize for the first time:
-                                            bgmSystem = new MidiPlayer(mySelf);
+                                            bgmSystem = new MidiPlayer();
                                             //bgmSystem.init(mySelf, new String[]{gameLevel.getMusic(),Misc.getGameRoot()+"/bgm/ench28.mod"},new boolean[]{true,true});
                                             bgmSystem.init(gameLevel.getMusic());
                                             bgmSystem.setLooping(true);
@@ -1130,7 +1139,7 @@ public final class GameEngineImpl implements GameEngine {
                     if (selectedMenuItem == 0) {
                         gfxEng.initialize(loadLevImg);
                         gfxEng.setState(GraphicsEngine.STATE_IMAGE);
-                        stateTime1 = timer.getCurrentTime();
+                        stateTime1 = getCurrentTimeMillis();
 
                         gameLevel.setLevel(0);
                         setLevel(false);

@@ -1,4 +1,4 @@
-package frogma;
+package frogma.input;
 
 /**
  * <p>Title: KeyControl</p>

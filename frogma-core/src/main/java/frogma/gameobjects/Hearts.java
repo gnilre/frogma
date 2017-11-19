@@ -1,6 +1,6 @@
 package frogma.gameobjects;
 
-import frogma.DynamicCollEvent;
+import frogma.collision.DynamicCollEvent;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
 import frogma.gameobjects.models.DynamicObject;

@@ -1,6 +1,11 @@
-package frogma.gameobjects.models;
+package frogma.gameobjects;
 
 import frogma.*;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
+import frogma.gameobjects.models.BasicGameObject;
+import frogma.gameobjects.models.MovingObject;
+import frogma.gameobjects.models.SubPixelPosition;
 import frogma.soundsystem.SoundFX;
 
 import java.awt.*;

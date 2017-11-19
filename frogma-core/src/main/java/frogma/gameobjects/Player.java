@@ -1,10 +1,14 @@
 package frogma.gameobjects;
 
 import frogma.*;
+import frogma.collision.Animation;
+import frogma.collision.DynamicCollEvent;
+import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.BasicGameObject;
-import frogma.gameobjects.models.Bullet;
 import frogma.gameobjects.models.DynamicObject;
+import frogma.input.Input;
 import frogma.soundsystem.SoundFX;
+import frogma.tiles.TileType;
 
 import java.awt.*;
 
@@ -636,7 +640,7 @@ public class Player extends DynamicObject implements PlayerInterface {
         if (useInput) {
             // Check whether we're in water or not:
             StaticCollEvent sce = referrer.getCollDetect().getSolidTiles(this, this.posX, this.posY);
-            if (sce.hasTileType(CollDetect.TILE_WATER) || referrer.getCheat().isEnabled(Cheat.CHEAT_WATER_EVERYWHERE)) {
+            if (sce.hasTileType(TileType.TILE_WATER) || referrer.getCheat().isEnabled(Cheat.CHEAT_WATER_EVERYWHERE)) {
                 this.velX -= (int) (this.velX / 4);
                 this.velY -= (int) (this.velY / 4);
 

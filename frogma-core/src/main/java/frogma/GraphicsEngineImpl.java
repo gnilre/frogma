@@ -1,7 +1,10 @@
 package frogma;
 
+import frogma.gameobjects.PlayerInterface;
 import frogma.gameobjects.models.BasicGameObject;
+import frogma.input.Input;
 import frogma.misc.Misc;
+import frogma.resources.ImageLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -260,9 +263,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      * @param game menu an object of Game that will be drawn when the corresponding state is set.
      */
     public void initialize(Game game) {
-
-        MemWatcher.printUsage("Before GfxEng Initialize");
-
         Graphics g;
 
         //henter forgrunnsvariabler
@@ -316,7 +316,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
         this.levelHeight = this.fgHeight * fgTileSize;
         this.levelWidth = fgWidth * fgTileSize;
-        MemWatcher.printUsage("After GfxEng Initialize");
     }
 
     /**
@@ -450,9 +449,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         if (showLayer[GraphicsEngine.LAYER_STATUS]) {
             renderStatusDisplay(g, imgLoader, (PlayerInterface) player);
         }
-
-        // Memory Usage:
-        //g.drawString(MemWatcher.getStrUsage(),5,480-20);
 
         // Heart effect:
         if (doHeartEffect) {

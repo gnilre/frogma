@@ -1,7 +1,9 @@
-package frogma;
+package frogma.gameobjects;
 
+import frogma.*;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.StaticObject;
+import frogma.resources.ImageLoader;
 
 import java.awt.*;
 

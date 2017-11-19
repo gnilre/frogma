@@ -1,5 +1,7 @@
-package frogma;
+package frogma.gameobjects;
 
+import frogma.GameEngine;
+import frogma.ObjectProps;
 import frogma.gameobjects.models.MovingObject;
 
 import java.awt.*;

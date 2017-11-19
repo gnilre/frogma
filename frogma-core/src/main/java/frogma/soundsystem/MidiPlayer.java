@@ -1,10 +1,6 @@
 package frogma.soundsystem;
 
-import frogma.GameEngine;
-import frogma.Timer;
-
 import javax.sound.midi.*;
-import java.io.File;
 
 /**
  * <p>Title: MidiPlayer</p>
@@ -26,7 +22,6 @@ public class MidiPlayer extends Thread {
     private boolean isPlaying;
     private boolean isLooping;
     private boolean stopRunning;
-    private boolean fadeOut = false;
     private boolean resetPosition = false;
     private MidiPlayerListener[] listener = new MidiPlayerListener[0];
 
@@ -38,16 +33,11 @@ public class MidiPlayer extends Thread {
 
     private Sequencer defSequencer;
     private boolean sequencerValid;
-    private float tempoFactor = 1;
-    private File[] midiFile;
     private String[] fileName;
     private Sequence[] midiSequence;
     private boolean[] sequenceLoaded;
     private boolean[] sequenceValid;
     private int sequenceIndex;
-
-    private GameEngine gEng;
-    private Timer timer;
 
 
     /**
@@ -56,12 +46,8 @@ public class MidiPlayer extends Thread {
      * an argument. This file will be attempted loaded,
      * and the midiplayer initialized with it.
      */
-    public MidiPlayer(GameEngine gEng) {
+    public MidiPlayer() {
 
-        this.gEng = gEng;
-        if (gEng != null) {
-            this.timer = gEng.getNativeTimer();
-        }
         this.isPlaying = false;
         this.isLooping = false;
         this.stopRunning = false;
@@ -95,7 +81,6 @@ public class MidiPlayer extends Thread {
         sequenceValid = new boolean[fileName.length];
         sequenceLoaded = new boolean[fileName.length];
         midiSequence = new Sequence[fileName.length];
-        midiFile = new File[fileName.length];
 
         // Stop the player if it's playing at the moment:
         if (this.isPlaying) {

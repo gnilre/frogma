@@ -1,7 +1,6 @@
 package frogma.gameobjects.models;
 
 import frogma.GameEngine;
-import frogma.SubPixelPosition;
 
 import java.awt.*;
 
@@ -11,9 +10,9 @@ public class MovingObject extends StaticObject implements SubPixelPosition {
         super(tileW, tileH, referrer, objImage, visible);
     }
 
-    double dposX, dposY;
-    double dnewX, dnewY;
-    double dvelX, dvelY;
+    protected double dposX, dposY;
+    protected double dnewX, dnewY;
+    protected double dvelX, dvelY;
 
     public int getPosX() {
         return (int) dposX;

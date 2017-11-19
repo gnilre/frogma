@@ -1,6 +1,6 @@
 package frogma.gameobjects;
 
-import frogma.CollDetect;
+import frogma.collision.CollDetect;
 import frogma.Game;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;

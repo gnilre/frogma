@@ -1,4 +1,4 @@
-package frogma;
+package frogma.resources;
 
 import java.awt.*;
 

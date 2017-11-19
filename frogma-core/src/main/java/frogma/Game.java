@@ -1,5 +1,10 @@
 package frogma;
 
+import frogma.gameobjects.models.IndexGenerator;
+import frogma.resources.ByteBuffer;
+import frogma.resources.FilLeser;
+import frogma.resources.ImageLoader;
+
 import java.awt.*;
 import java.io.File;
 

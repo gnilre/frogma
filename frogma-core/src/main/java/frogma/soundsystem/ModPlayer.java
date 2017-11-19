@@ -27,7 +27,7 @@ public class ModPlayer extends Thread {
     private boolean[] fileValid;
     private boolean looping;
     private boolean initialized;
-    private boolean isPlaying;
+    private volatile boolean isPlaying;
 
     private Module[] module;
     private MicroMod mMod;
@@ -229,7 +229,7 @@ public class ModPlayer extends Thread {
         }
     }
 
-    public void destroy() {
+    public void close() {
         stopPlaying();
         outDev.close();
     }

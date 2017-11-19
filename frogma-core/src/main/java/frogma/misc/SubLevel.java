@@ -2,7 +2,7 @@ package frogma.misc;
 // This class should hold enough data to run a game (sub)level.
 
 import frogma.GraphicsEngine;
-import frogma.ImageLoader;
+import frogma.resources.ImageLoader;
 import frogma.ObjectProducer;
 import frogma.gameobjects.Player;
 

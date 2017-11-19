@@ -1,4 +1,4 @@
-package frogma;
+package frogma.resources;
 
 import java.io.*;
 
@@ -8,9 +8,8 @@ import java.io.*;
  * @author Andreas Wigmostad Bjerkhaug
  */
 public class FilLeser {
-    BufferedReader buffer;
-    InputStream inStream;
-    File minFil;
+    private BufferedReader buffer;
+    private InputStream inStream;
 
     /**
      * Creates a new FilLeser which reads from the specified filename.
@@ -19,18 +18,12 @@ public class FilLeser {
      */
     public FilLeser(String filnavn) {
         System.out.println("Fil: " + filnavn);
-        //try{
-        //inStream = new FileInputStream(filnavn);//getClass().getResourceAsStream(filnavn);
-        //buffer = new BufferedReader(new InputStreamReader(new FileInputStream(filnavn)));
         inStream = getClass().getResourceAsStream(filnavn);
         if (inStream != null) {
             buffer = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(filnavn)));
         } else {
             System.out.println("Unable to read file!");
         }
-        //}catch(FileNotFoundException f){
-        //	System.out.println("Unable to open file.");
-        //}
     }
 
     /**
@@ -40,10 +33,9 @@ public class FilLeser {
      */
     public FilLeser(File fil) {
         System.out.println("Fil: " + fil.getAbsolutePath());
-        this.minFil = fil;
-        if (minFil.exists()) {
+        if (fil.exists()) {
             try {
-                buffer = new BufferedReader(new InputStreamReader(new FileInputStream(minFil)));
+                buffer = new BufferedReader(new InputStreamReader(new FileInputStream(fil)));
                 inStream = new FileInputStream(fil);
             } catch (FileNotFoundException f) {
                 System.out.println("Unable to open file.");
@@ -138,27 +130,8 @@ public class FilLeser {
         try {
             buffer.close();
         } catch (IOException ioe) {
+            // ignore
         }
-    }
-
-    public byte readSingleByte() throws IOException {
-        return (byte) inStream.read();
-    }
-
-    public short readSingleShort() throws IOException {
-        int b1, b2;
-        b1 = inStream.read();
-        b2 = inStream.read();
-        return (short) (b1 << 8 | b2);
-    }
-
-    public int readSingleInt() throws IOException {
-        int b1, b2, b3, b4;
-        b1 = inStream.read();
-        b2 = inStream.read();
-        b3 = inStream.read();
-        b4 = inStream.read();
-        return (b1 << 24 | b2 << 16 | b3 << 8 | b4);
     }
 
     public byte[] readWholeFile(int offset) {
@@ -170,15 +143,14 @@ public class FilLeser {
         int excessCapacity = 150000;
         int index = 0;
 
-        long t1, t2;
-
-        t1 = System.currentTimeMillis();
-
         buff = new byte[excessCapacity];
         readByte = new byte[excessCapacity];
         if (offset > 0) {
             try {
-                inStream.skip(offset);
+                long skipped = inStream.skip(offset);
+                if (skipped != offset) {
+                    throw new IllegalStateException("Unable to skip to offset " + offset);
+                }
             } catch (IOException ioe) {
                 // Ignore.
             }
@@ -209,7 +181,6 @@ public class FilLeser {
         newbuff = new byte[index];
         System.arraycopy(buff, 0, newbuff, 0, index);
 
-        t2 = System.currentTimeMillis();
         //System.out.println("Time taken reading the file: "+((t2-t1)/1000));
 
         return newbuff;

@@ -1,5 +1,7 @@
 package frogma;
 
+import frogma.resources.ImageLoader;
+
 import java.awt.*;
 
 public class Const {
