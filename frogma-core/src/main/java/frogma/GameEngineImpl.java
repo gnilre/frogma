@@ -63,8 +63,8 @@ public final class GameEngineImpl implements GameEngine {
     // Vars used in state timing:
     private long stateTime1 = 0;
 
-    private byte gameState;
-    private byte prevState;
+    private GameState gameState;
+    private GameState prevState;
 
     // Cycle count (used for time stamps):
     private int cycleCount = 0;
@@ -87,30 +87,26 @@ public final class GameEngineImpl implements GameEngine {
     // Level position vars:
     private int renderX, renderY;
     private int targetX, targetY;
-    private int screenW, screenH;
+    private int screenWidth, screenHeight;
 
 
     /**
      * This is the standard constructor of GameEngine.
      */
-    public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean runWindowed) {
-
-        System.setProperty("sun.java2d.translaccel", "true");
-        System.setProperty("sun.java2d.accthreshold", "0");
+    public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean fullscreen) {
 
         // Set in-game state to true:
         Misc.setInGame(true);
 
         this.lang = 1;
-        this.screenW = screenWidth;
-        this.screenH = screenHeight;
-        System.out.println("Creating native timer..");
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
         this.cheat = new Cheat(this);
         this.input = new Input(this, this.cheat);
         input.addKey(KeyEvent.VK_W, "w");
         input.addKey(KeyEvent.VK_Q, "q");
 
-        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, input, this, runWindowed);
+        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, fullscreen, input, this);
 
         imgLoader = Const.createStandardImageLoader(gfxEng, false);
         imgLoader.load(Const.IMG_LOGO);
@@ -118,17 +114,17 @@ public final class GameEngineImpl implements GameEngine {
 
         this.objProducer = new ObjectProducer(this, gfxEng, this.imgLoader);
         playBgm = PLAY_BGM;
-        credits = new Credits("Credits:\nAlf Børge Lervåg\nAndreas Wigmostad Bjerkhaug\nJohannes Odland\nErling Andersen", 640, 480);
+        credits = new Credits("Credits:\nAlf Børge Lervåg\nAndreas Wigmostad Bjerkhaug\nJohannes Odland\nErling Andersen", screenWidth, screenHeight);
 
         Stars.setEnabled(false);
-
-        // -------------------------------------
-
         // Show the Loading image:
         gfxEng.initialize(imgLoader.get(Const.IMG_LOADING));
-        gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+        gfxEng.setState(GraphicsState.IMAGE);
         for (int i = 0; i < 10; i++) {
             gfxEng.draw();
+
+            // -------------------------------------
+
             try {
                 Thread.sleep(10);
             } catch (Exception e) {
@@ -159,8 +155,7 @@ public final class GameEngineImpl implements GameEngine {
         gameLevel = new Game(gfxEng, "/levels/game.gam");
 
         frameTime = 1000 / targetFps;        // Calculate frame time:
-        this.gameState = STATE_LOADING;
-        this.setState(STATE_LOADING);            // Set state to loading.
+        setState(GameState.LOADING);            // Set state to loading.
     }
 
     /**
@@ -170,12 +165,12 @@ public final class GameEngineImpl implements GameEngine {
 
         // -- THE GREAT LOOP --
         // -----------------------------------------------------------------
-        while (gameState != STATE_QUIT) {
+        while (gameState != GameState.QUIT) {
             long fpsTimer1 = getCurrentTimeMillis();
 
             // THE LOADING SCREEN
             long stateTime2;
-            if (gameState == STATE_LOADING) {
+            if (gameState == GameState.LOADING) {
 
                 // Draw loading Image:
                 gfxEng.draw();
@@ -187,9 +182,9 @@ public final class GameEngineImpl implements GameEngine {
                 stateTime2 = getCurrentTimeMillis();
                 if ((stateTime2 - stateTime1) >= 100 || input.key("enter").pressed()) {
                     // Switch state to Main Menu:
-                    this.setState(STATE_MAIN_MENU);
+                    this.setState(GameState.MAIN_MENU);
                 }
-            } else if (gameState == STATE_LOADING_LEVEL) {
+            } else if (gameState == GameState.LOADING_LEVEL) {
 
                 // Draw loading Image:
 
@@ -202,12 +197,12 @@ public final class GameEngineImpl implements GameEngine {
                 stateTime2 = getCurrentTimeMillis();
                 if ((stateTime2 - stateTime1) >= 10) {
                     // Switch state to Main Menu:
-                    this.setState(STATE_PLAYING);
+                    this.setState(GameState.PLAYING);
                 }
             }
 
             // THE GAMEPLAY LOOP
-            else if (gameState == STATE_PLAYING) {
+            else if (gameState == GameState.PLAYING) {
                 // -----------------------------------------------------------------------------
                 long frameTimer1 = getCurrentTimeMillis();
 
@@ -238,10 +233,10 @@ public final class GameEngineImpl implements GameEngine {
 
                 if (gameLevel.isMap()) {
                     collDet.detectCollisions(mapPlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(mapPlayer, collidableObj, screenW, screenH);
+                    collDet.detectBulletCollisions(mapPlayer, collidableObj, screenWidth, screenHeight);
                 } else {
                     collDet.detectCollisions(thePlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(thePlayer, collidableObj, screenW, screenH);
+                    collDet.detectBulletCollisions(thePlayer, collidableObj, screenWidth, screenHeight);
                 }
 
                 synchronized (input) {
@@ -301,11 +296,11 @@ public final class GameEngineImpl implements GameEngine {
                 }
 
                 if (renderX < 0) renderX = 0;
-                if (renderX + screenW > gameLevel.getSolidWidth() * 8)
-                    renderX = gameLevel.getSolidWidth() * 8 - screenW;
+                if (renderX + screenWidth > gameLevel.getSolidWidth() * 8)
+                    renderX = gameLevel.getSolidWidth() * 8 - screenWidth;
                 if (renderY < 0) renderY = 0;
-                if (renderY + screenH > gameLevel.getSolidHeight() * 8)
-                    renderY = gameLevel.getSolidHeight() * 8 - screenH;
+                if (renderY + screenHeight > gameLevel.getSolidHeight() * 8)
+                    renderY = gameLevel.getSolidHeight() * 8 - screenHeight;
 
                 if (!startOver) {
                     gfxEng.setMonsters(objs);
@@ -334,7 +329,7 @@ public final class GameEngineImpl implements GameEngine {
             }
 
             // THE PAUSE LOOP
-            else if (gameState == STATE_PAUSE) {
+            else if (gameState == GameState.PAUSE) {
                 // Wait for the window to regain focus.
                 gfxEng.draw();
                 // Pause a little while:
@@ -342,39 +337,39 @@ public final class GameEngineImpl implements GameEngine {
             }
 
             // THE MAIN MENU
-            else if (gameState == STATE_MAIN_MENU) {
+            else if (gameState == GameState.MAIN_MENU) {
                 gfxEng.draw();
                 // Pause a little while:
                 pauseThread();
             }
 
             // THE INGAME MENU
-            else if (gameState == STATE_INGAME_MENU) {
+            else if (gameState == GameState.INGAME_MENU) {
                 gfxEng.draw();
                 // Pause a little while:
                 pauseThread();
             }
 
             // THE GAME OVER SCREEN
-            else if (gameState == STATE_GAMEOVER) {
+            else if (gameState == GameState.GAME_OVER) {
                 gfxEng.draw();
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     // ignore
                 }
-                setState(STATE_MAIN_MENU);
+                setState(GameState.MAIN_MENU);
             }
 
             // THE CREDITS SCREEN
-            else if (gameState == STATE_CREDITS) {
+            else if (gameState == GameState.SHOW_CREDITS) {
                 if (!credits.isFinished()) {
                     gfxEng.initialize(credits.getNextImage());
                     gfxEng.draw();
                     // Pause a little while:
                     pauseThread();
                 } else
-                    this.setState(STATE_QUIT);
+                    this.setState(GameState.QUIT);
             }
 
             // Average FPS calculation:
@@ -541,11 +536,11 @@ public final class GameEngineImpl implements GameEngine {
         updateCollidable();
 
         if (gameLevel.isMap()) {
-            renderX = mapPlayer.getPosX() + mapPlayer.getSolidWidth() * 4 - screenW / 2;
-            renderY = mapPlayer.getPosY() + mapPlayer.getSolidHeight() * 4 - (int) (screenH / 2.5f);
+            renderX = mapPlayer.getPosX() + mapPlayer.getSolidWidth() * 4 - screenWidth / 2;
+            renderY = mapPlayer.getPosY() + mapPlayer.getSolidHeight() * 4 - (int) (screenHeight / 2.5f);
         } else {
-            renderX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - screenW / 2;
-            renderY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (screenH / 2.5f);
+            renderX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - screenWidth / 2;
+            renderY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (screenHeight / 2.5f);
         }
 
         targetX = renderX;
@@ -557,7 +552,7 @@ public final class GameEngineImpl implements GameEngine {
     }
 
 
-    public void setState(byte state) {
+    public void setState(GameState state) {
         // If any preparations should be done
         // before the state transition,
         // they're done here.
@@ -566,54 +561,54 @@ public final class GameEngineImpl implements GameEngine {
         this.prevState = this.gameState;
 
         // State transitions:
-        if (state == STATE_LOADING) {
-            gameState = STATE_LOADING;
+        if (state == GameState.LOADING) {
+            gameState = GameState.LOADING;
 
-        } else if (state == STATE_LOADING_LEVEL) {
+        } else if (state == GameState.LOADING_LEVEL) {
             gfxEng.initialize(loadLevImg);
-            gfxEng.setState(GraphicsEngine.STATE_IMAGE);
-            gameState = STATE_LOADING_LEVEL;
+            gfxEng.setState(GraphicsState.IMAGE);
+            gameState = GameState.LOADING_LEVEL;
 
-        } else if (state == STATE_PLAYING) {
-            gfxEng.setState(GraphicsEngine.STATE_LEVEL);
-            gameState = STATE_PLAYING;
+        } else if (state == GameState.PLAYING) {
+            gfxEng.setState(GraphicsState.LEVEL);
+            gameState = GameState.PLAYING;
 
-        } else if (state == STATE_PAUSE) {
+        } else if (state == GameState.PAUSE) {
             this.pauseMenu = new PauseMenu();
             gfxEng.initialize(this.pauseMenu);
-            if (this.prevState == this.STATE_PLAYING) {
-                gfxEng.setState(GraphicsEngine.STATE_LEVEL_MENU);
+            if (this.prevState == GameState.PLAYING) {
+                gfxEng.setState(GraphicsState.LEVEL_MENU);
             } else {
-                gfxEng.setState(GraphicsEngine.STATE_IMAGE_MENU);
+                gfxEng.setState(GraphicsState.IMAGE_MENU);
 
             }
             gfxEng.draw();
-            gameState = STATE_PAUSE;
+            gameState = GameState.PAUSE;
 
 
-        } else if (state == STATE_MAIN_MENU) {
+        } else if (state == GameState.MAIN_MENU) {
 
             this.menu = new MainMenu();
             gfxEng.initialize(this.loadImg);
             gfxEng.initialize(menu);
-            gfxEng.setState(GraphicsEngine.STATE_IMAGE_MENU);
+            gfxEng.setState(GraphicsState.IMAGE_MENU);
             gfxEng.draw();
 
             // not yet..
-            gameState = STATE_MAIN_MENU;
+            gameState = GameState.MAIN_MENU;
 
-        } else if (state == STATE_GAMEOVER) {
+        } else if (state == GameState.GAME_OVER) {
             gfxEng.initialize(this.gameOverImg);
-            gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+            gfxEng.setState(GraphicsState.IMAGE);
             gfxEng.draw();
-            this.gameState = STATE_GAMEOVER;
+            gameState = GameState.GAME_OVER;
 
-        } else if (state == STATE_CREDITS) {
-            gfxEng.setState(GraphicsEngine.STATE_IMAGE);
-            this.gameState = STATE_CREDITS;
+        } else if (state == GameState.SHOW_CREDITS) {
+            gfxEng.setState(GraphicsState.IMAGE);
+            gameState = GameState.SHOW_CREDITS;
 
-        } else if (state == STATE_QUIT) {
-            this.gameState = this.STATE_QUIT;
+        } else if (state == GameState.QUIT) {
+            gameState = GameState.QUIT;
         }
     }
 
@@ -633,11 +628,11 @@ public final class GameEngineImpl implements GameEngine {
         return null;
     }
 
-    public byte getPrevState() {
+    public GameState getPrevState() {
         return this.prevState;
     }
 
-    public byte getState() {
+    public GameState getState() {
         return this.gameState;
     }
 
@@ -705,31 +700,6 @@ public final class GameEngineImpl implements GameEngine {
         return gameLevel.isMap();
     }
 
-    /*  The static main method.
-     *  It doesn't do much, only creates a GameEngine
-     *  object & sets it to start showing the game.
-     */
-    public static void main(String[] args) {
-
-        boolean runWindowed = true;
-        int sW = 640;
-        int sH = 480;
-
-        for (String arg : args) {
-            if (arg.equals("safemode")) {
-                runWindowed = true;
-                System.out.println("Running in safemode");
-            } else if (arg.equals("fullscreen")) {
-                runWindowed = false;
-                System.out.println("Running in fullscreen");
-            }
-        }
-
-        GameEngineImpl gEng = new GameEngineImpl(sW, sH, 50, runWindowed);
-        gEng.run(); // Start running..
-
-    }
-
     /*  A method for sending debug messages to output,
      *  to make it easier write debug code (and displaying
      * it optionally..)
@@ -751,20 +721,20 @@ public final class GameEngineImpl implements GameEngine {
     }
 
     private void nextLevel() {
-        setState(STATE_LOADING_LEVEL);
+        setState(GameState.LOADING_LEVEL);
         gfxEng.initialize(loadLevImg);
-        gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+        gfxEng.setState(GraphicsState.IMAGE);
         if (gameLevel.setLevel()) {
             setLevel(true);
-            setState(STATE_LOADING_LEVEL);
+            setState(GameState.LOADING_LEVEL);
         } else {
-            setState(STATE_CREDITS);
+            setState(GameState.SHOW_CREDITS);
         }
     }
 
     public void startOver() {
         gfxEng.initialize(loadLevImg);
-        gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+        gfxEng.setState(GraphicsState.IMAGE);
         if (bgmSystem != null) {
             bgmSystem.stopPlaying();
         }
@@ -772,7 +742,7 @@ public final class GameEngineImpl implements GameEngine {
 
         setLevel(true);
 
-        setState(STATE_LOADING_LEVEL);
+        setState(GameState.LOADING_LEVEL);
 
 
     }
@@ -781,9 +751,7 @@ public final class GameEngineImpl implements GameEngine {
         if (bgmSystem != null) {
             bgmSystem.stopPlaying();
         }
-        setState(STATE_GAMEOVER);
-
-
+        setState(GameState.GAME_OVER);
     }
 
     /**
@@ -999,7 +967,7 @@ public final class GameEngineImpl implements GameEngine {
                                     if (bgmSystem != null) {
                                         bgmSystem.stopPlaying();
                                     }
-                                    setState(STATE_MAIN_MENU);
+                                    setState(GameState.MAIN_MENU);
                                     break;
                                 case 2:
                                     this.state = STATE_MAIN;
@@ -1138,12 +1106,12 @@ public final class GameEngineImpl implements GameEngine {
                 if (mode == MODE_MAIN) {
                     if (selectedMenuItem == 0) {
                         gfxEng.initialize(loadLevImg);
-                        gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+                        gfxEng.setState(GraphicsState.IMAGE);
                         stateTime1 = getCurrentTimeMillis();
 
                         gameLevel.setLevel(0);
                         setLevel(false);
-                        setState(STATE_LOADING_LEVEL);
+                        setState(GameState.LOADING_LEVEL);
 
                     } else if (selectedMenuItem == 1) {
                         selectedMenuItem = 0;
@@ -1154,7 +1122,7 @@ public final class GameEngineImpl implements GameEngine {
                         mode = MODE_SETTINGS;
 
                     } else if (selectedMenuItem == 3) {
-                        setState(STATE_CREDITS);
+                        setState(GameState.SHOW_CREDITS);
                     }
 
                 } else if (mode == MODE_SETTINGS) {
@@ -1181,12 +1149,12 @@ public final class GameEngineImpl implements GameEngine {
                     if (selectedMenuItem == 1) {
                         gfxEng.initialize(loadLevImg);
                         if (gameLevel.setLevel(kode.toString())) {
-                            gfxEng.setState(GraphicsEngine.STATE_IMAGE);
+                            gfxEng.setState(GraphicsState.IMAGE);
                             setLevel(false);
-                            setState(STATE_LOADING_LEVEL);
+                            setState(GameState.LOADING_LEVEL);
                         } else {
                             gfxEng.initialize(loadImg);
-                            setState(STATE_MAIN_MENU);
+                            setState(GameState.MAIN_MENU);
                         }
                     }
                 }
@@ -1221,7 +1189,6 @@ public final class GameEngineImpl implements GameEngine {
 
     public void setNextLevel() {
         gfxEng.stopHeartEffect();
-        gfxEng.setState(STATE_LOADING_LEVEL);
         finishedLevel = true;
     }
 

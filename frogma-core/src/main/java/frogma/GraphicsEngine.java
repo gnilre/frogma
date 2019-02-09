@@ -20,12 +20,6 @@ public interface GraphicsEngine {
 
     int LAYER_COUNT = 10;
 
-    //**statiske states;
-    int STATE_NONE = 0;
-    int STATE_LEVEL = 10;
-    int STATE_LEVEL_MENU = 11;
-    int STATE_IMAGE = 20;
-    int STATE_IMAGE_MENU = 21;
     // ----------------------------------------------------------
 
     void startHeartEffect(int sx, int sy, int ex, int ey, int tW, int tH, int frameCount);

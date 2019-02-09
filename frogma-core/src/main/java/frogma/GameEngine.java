@@ -9,20 +9,7 @@ import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
 
-import java.awt.*;
-
 public interface GameEngine {
-
-    // State Constants:
-    byte STATE_LOADING = 0;
-    byte STATE_PLAYING = 1;
-    byte STATE_PAUSE = 2;
-    byte STATE_MAIN_MENU = 3;
-    byte STATE_INGAME_MENU = 4;
-    byte STATE_GAMEOVER = 5;
-    byte STATE_CREDITS = 6;
-    byte STATE_QUIT = 7;
-    byte STATE_LOADING_LEVEL = 8;
 
     // Z Position constants:
     int Z_BG_MG = 0;            // Between background and middle ground
@@ -42,11 +29,11 @@ public interface GameEngine {
 
     void startOver();
 
-    byte getState();
+    GameState getState();
 
-    byte getPrevState();
+    GameState getPrevState();
 
-    void setState(byte newState);
+    void setState(GameState newState);
 
     GameMenu getMenu();
 
@@ -94,5 +81,4 @@ public interface GameEngine {
 
     void levelFinished();
 
-    Component getComponent();
 }

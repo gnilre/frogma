@@ -2,6 +2,7 @@ package frogma.input;
 
 import frogma.Cheat;
 import frogma.GameEngine;
+import frogma.GameState;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -110,18 +111,18 @@ public class Input implements KeyListener {
         }
 
         // Handle menus:
-        if (this.referrer.getState() == referrer.STATE_MAIN_MENU) {
+        if (this.referrer.getState() == GameState.MAIN_MENU) {
             this.referrer.getMenu().triggerKeyEvent(kE);
-        } else if (this.referrer.getState() == referrer.STATE_PLAYING && (kE.getKeyCode() == KeyEvent.VK_P || kE.getKeyCode() == KeyEvent.VK_ESCAPE)) {
-            this.referrer.setState(referrer.STATE_PAUSE);
-        } else if (this.referrer.getState() == referrer.STATE_PAUSE) {
+        } else if (this.referrer.getState() == GameState.PLAYING && (kE.getKeyCode() == KeyEvent.VK_P || kE.getKeyCode() == KeyEvent.VK_ESCAPE)) {
+            this.referrer.setState(GameState.PAUSE);
+        } else if (this.referrer.getState() == GameState.PAUSE) {
             if (kE.getKeyCode() == KeyEvent.VK_P || kE.getKeyCode() == KeyEvent.VK_ESCAPE) {
                 referrer.setState(referrer.getPrevState());
             }
             referrer.getPauseMenu().triggerKeyEvent(kE);
 
-        } else if (this.referrer.getState() == referrer.STATE_CREDITS && kE.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            this.referrer.setState(referrer.STATE_QUIT);
+        } else if (this.referrer.getState() == GameState.SHOW_CREDITS && kE.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            this.referrer.setState(GameState.QUIT);
         }
     }
 

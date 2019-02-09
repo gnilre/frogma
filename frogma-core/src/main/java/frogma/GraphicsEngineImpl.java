@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
 
 /**
  * <p>Title: Graphics Engine</p>
- * <p>Description:  Grapics engine. Creates a window either in fullscreen or windowed mode, and draws Game, imgaes and GameMenu objects to screen.</p>
+ * <p>Description:  Grapics engine. Creates a window either in windowed or fullscreen mode, and draws Game, imgaes and GameMenu objects to screen.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  *
@@ -29,13 +29,13 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     public static final boolean debug = false;
 
     private boolean[] showLayer = new boolean[LAYER_COUNT];
-    private int screenWidth = 640;
-    private int screenHeight = 480;
+    private final int screenWidth;
+    private final int screenHeight;
     private GameEngine referrer;
 
     //*****Fremvisnings-spesifike variabler****
 
-    private GraphicsDevice myDevice;
+    private GraphicsDevice graphicsDevice;
     private BufferStrategy myStrategy;
     private Image windowBuffer;
 
@@ -44,8 +44,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private int sW; //lagrer skjermvidde her. bruker kort variabel ettersom den skal brukes en del.
     private int sH; //Samme bare skjermh�yde.
 
-    private boolean safeMode;
-    private boolean isFullScreen;
+    private boolean fullscreen;
+    private boolean currentlyInFullscreen;
     private boolean isLost;
 
     //****Slutt på fremvisnings-spesifike variabler****
@@ -77,57 +77,31 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private GameMenu myGameMenu;
     private Image stillScreenImage;
 
-    private int state;
+    private GraphicsState state;
     private Rectangle scrRect = new Rectangle();
 
-    /**
-     * special constructor
-     * <p>
-     * allso takes an instance of the Input class, to give others access to KeyEvents. Input implements keylistener.
-     * <p>
-     * referrer is a reference :) to the GameEngine object that instanciated the GfxEngine
-     * <p>
-     * if safemode is true the game will play in windowed mode.
-     *
-     * @param input    a keylistener that will be added to the window
-     * @param referrer an object of type GameEngine. Used for referrer.setState(GameEngine.STATE_PAUSE) when focus is lost
-     * @param safeMode if true the game will play in windowed mode;
-     */
-    GraphicsEngineImpl(int screenWidth, int screenHeight, Input input, GameEngine referrer, boolean safeMode) {
-        this(screenWidth, screenHeight, safeMode);
-        this.addKeyListener(input);
-        this.referrer = referrer;
-    }
-
-    /**
-     * Standard Constructor.
-     * Creates a window. Tries to put this window in fullscreen mode. If Fullscreenmode isn't available a 640*480 window will be used.
-     * I.e. Linux-users will have to do with playing in windowed mode.
-     *
-     * @param safeMode use windowed mode
-     */
-    private GraphicsEngineImpl(int screenWidth, int screenHeight, boolean safeMode) {
+    GraphicsEngineImpl(int screenWidth, int screenHeight, boolean fullscreen, Input input, GameEngine referrer) {
         super("Frogma");
-        this.safeMode = safeMode;
-        hideCursor();
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                exitGame();
-            }
 
-            public void windowActivated(WindowEvent e) {
-                setDisplayMode();
-            }
-        });
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.fullscreen = fullscreen;
+        this.referrer = referrer;
+
+        addKeyListener(input);
+        hideCursor();
+        addListeners();
+        setIgnoreRepaint(true);
+
         this.windowBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
-        this.setIgnoreRepaint(true);
 
         GraphicsEnvironment myEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        myDevice = myEnvironment.getDefaultScreenDevice();
-        this.state = 0;
+        this.graphicsDevice = myEnvironment.getDefaultScreenDevice();
+        this.state = GraphicsState.NOTHING;
+
         this.switchToFullScreen(screenWidth, screenHeight);
-        imageOffsetX = (sW - screenWidth) / 2;
-        imageOffsetY = (sH - screenHeight) / 2;
+        imageOffsetX = (this.sW - screenWidth) / 2;
+        imageOffsetY = (this.sH - screenHeight) / 2;
 
         // Default layer toggles:
         showLayer[LAYER_BG] = true;
@@ -142,8 +116,20 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         showLayer[LAYER_STATUS] = true;
     }
 
+    private void addListeners() {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                exitGame();
+            }
+
+            public void windowActivated(WindowEvent e) {
+                setDisplayMode();
+            }
+        });
+    }
+
     private void setDisplayMode() {
-        if (!isFullScreen && myDevice.isFullScreenSupported() && !GraphicsEngineImpl.this.safeMode) {
+        if (fullscreen && !currentlyInFullscreen && graphicsDevice.isFullScreenSupported()) {
             if (debug) System.out.println("Vinduet har f�tt fokus igjen og vi skifter til fullscreen mode");
             switchBackToFullScreen(sW, sH);
             isLost = false;
@@ -160,7 +146,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
     private void exitGame() {
         isLost = true;
-        if (isFullScreen) {
+        if (currentlyInFullscreen) {
             switchFromFullScreen();
         }
         System.exit(0);
@@ -177,17 +163,17 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private void switchToFullScreen(int width, int height) {
 
         this.setSize(this.screenWidth, this.screenHeight);
-        if (myDevice.isFullScreenSupported() && !safeMode) {
-            if (debug) System.out.println("Systemet st�tter fullskjermsvisning");
-            this.isFullScreen = true;
+        if (fullscreen && graphicsDevice.isFullScreenSupported()) {
+            if (debug) System.out.println("Systemet støtter fullskjermsvisning");
+            this.currentlyInFullscreen = true;
             this.setResizable(false);
             this.setUndecorated(true);
             this.setIgnoreRepaint(true);
-            myDevice.setFullScreenWindow(this);
+            graphicsDevice.setFullScreenWindow(this);
             if (debug) System.out.println("Skiftet til fullskjerm");
-            if (myDevice.isDisplayChangeSupported()) {
-                if (debug) System.out.println("Systemet st�tter endring av skjermoppl�sning");
-                myDevice.setDisplayMode(new DisplayMode(width, height, 32, 0));
+            if (graphicsDevice.isDisplayChangeSupported()) {
+                if (debug) System.out.println("Systemet støtter endring av skjermoppløsning");
+                graphicsDevice.setDisplayMode(new DisplayMode(width, height, 32, 0));
                 this.sW = width;
                 this.sH = height;
                 if (debug) System.out.println("Skiftet til " + width + "*" + height);
@@ -198,12 +184,9 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             if (debug) System.out.println("Bufferstrategy opprettet");
 
         } else {
-            if (debug) System.out.println("Systemet st�tter ikke fullskjermsvisning, viser spillet i 640*480 vindu");
-            this.isFullScreen = false;
-            this.setSize(this.screenWidth, this.screenHeight);
+            this.currentlyInFullscreen = false;
             this.sW = this.screenWidth;
             this.sH = this.screenHeight;
-
             this.setVisible(true);
         }
     }
@@ -217,9 +200,9 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      */
     private void switchBackToFullScreen(int width, int height) {
         if (debug) System.out.println("Prøver å skifte tilbake til fullskjerm");
-        myDevice.setFullScreenWindow(this);
-        this.isFullScreen = true;
-        myDevice.setDisplayMode(new DisplayMode(width, height, 32, 0));
+        graphicsDevice.setFullScreenWindow(this);
+        this.currentlyInFullscreen = true;
+        graphicsDevice.setDisplayMode(new DisplayMode(width, height, 32, 0));
         this.sW = width;
         this.sH = height;
         this.createBufferStrategy(2);
@@ -231,10 +214,10 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      * It is triggered by an anonymous mouse listener, and the draw method.
      */
     private void switchFromFullScreen() {
-        if (isFullScreen) {
+        if (currentlyInFullscreen) {
             if (debug) System.out.println("Skifter vekk fra fullskjermsmodus");
-            isFullScreen = false;
-            myDevice.setFullScreenWindow(null);
+            currentlyInFullscreen = false;
+            graphicsDevice.setFullScreenWindow(null);
         }
     }
 
@@ -674,39 +657,39 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      */
     public void draw() {
 
-        if (!isLost && this.isFullScreen && myStrategy.contentsLost()) {
+        if (!isLost && this.currentlyInFullscreen && myStrategy.contentsLost()) {
             this.switchFromFullScreen();
             this.isLost = true;
-            this.referrer.setState(GameEngine.STATE_PAUSE);
+            this.referrer.setState(GameState.PAUSE);
         }
 
         if (!isLost) {
 
             Graphics g;
-            if (isFullScreen) {
+            if (currentlyInFullscreen) {
                 g = myStrategy.getDrawGraphics();
             } else {
                 g = windowBuffer.getGraphics();
             }
 
-            if (this.state == this.STATE_NONE) {
+            if (this.state == GraphicsState.NOTHING) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 //do nothing..
-            } else if (this.state == this.STATE_IMAGE) {
+            } else if (this.state == GraphicsState.IMAGE) {
                 g.setColor(Color.black);
                 g.drawImage(this.stillScreenImage, imageOffsetX, imageOffsetY, this.screenWidth, this.screenHeight, this);
-            } else if (this.state == this.STATE_IMAGE_MENU) {
+            } else if (this.state == GraphicsState.IMAGE_MENU) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 g.drawImage(this.stillScreenImage, imageOffsetX, imageOffsetY, this.screenWidth, this.screenHeight, this);
                 this.drawGameMenu(g);
-            } else if (this.state == this.STATE_LEVEL) {
+            } else if (this.state == GraphicsState.LEVEL) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 BasicGameObject player = referrer.levelIsMap() ? referrer.getMapPlayer() : referrer.getPlayer();
                 renderLevel(g, referrer.getCurrentLevel(), referrer.getLevelRenderX(), referrer.getLevelRenderY(), screenWidth, screenHeight, player, monsters, referrer.getImgLoader());
-            } else if (this.state == this.STATE_LEVEL_MENU) {
+            } else if (this.state == GraphicsState.LEVEL_MENU) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 BasicGameObject player = referrer.levelIsMap() ? referrer.getMapPlayer() : referrer.getPlayer();
@@ -714,7 +697,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
                 this.drawGameMenu(g);
             }
 
-            if (isFullScreen) {
+            if (currentlyInFullscreen) {
                 myStrategy.show();
             } else {
                 g = this.getGraphics();
@@ -741,25 +724,25 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      *
      * @param state a variable of type int
      */
-    public void setState(int state) {
-        if (state == this.STATE_NONE) {
+    public void setState(GraphicsState state) {
+        if (state == GraphicsState.NOTHING) {
             this.state = state;
-        } else if (state == this.STATE_IMAGE) {
+        } else if (state == GraphicsState.IMAGE) {
             if (this.stillScreenImage != null) {
                 this.state = state;
             } else {
                 System.out.println("Missing image..");
             }
-        } else if (state == this.STATE_IMAGE_MENU) {
+        } else if (state == GraphicsState.IMAGE_MENU) {
             if (this.stillScreenImage != null && this.myGameMenu != null) {
                 this.state = state;
             }
-        } else if (state == this.STATE_LEVEL) {
+        } else if (state == GraphicsState.LEVEL) {
             if (this.fgHeight != 0) {
                 if (debug) System.out.println("Satte state til tegn level");
                 this.state = state;
             }
-        } else if (state == this.STATE_LEVEL_MENU) {
+        } else if (state == GraphicsState.LEVEL_MENU) {
             if (this.fgHeight != 0 && this.myGameMenu != null) {
                 if (debug) System.out.println("Satte state til tegn level meny");
                 this.state = state;
