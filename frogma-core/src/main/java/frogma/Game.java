@@ -775,8 +775,6 @@ public class Game {
      * @return the filename of the midi-file used in the level
      */
     public String getMusic() {
-        // Overrride to test ModPlayer:
-        //return Misc.getGameRoot()+"/bgm/3.mod";
         return music;
     }
 

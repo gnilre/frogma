@@ -14,7 +14,6 @@
         <module>frogma-leveleditor</module>
         <module>frogma-resources</module>
         <module>frogma-distribution</module>
-        <module>micromod</module>
     </modules>
 
     <properties>
