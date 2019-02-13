@@ -79,11 +79,6 @@
             <artifactId>frogma-leveleditor</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>frogma</groupId>
-            <artifactId>micromod</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
