@@ -5,7 +5,8 @@ import frogma.resources.ByteBuffer;
 import frogma.resources.FilLeser;
 import frogma.resources.ImageLoader;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Image;
 import java.io.File;
 
 
@@ -468,39 +469,13 @@ public class Game {
 
     public boolean loadImages() {
 
-        // Load the tileset images:
-        /*fgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+fgTileSet));
-        bgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+bgTileSet));
-		rfgTileImage = Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/"+rfgTileSet));
+        ImageLoader imageLoader = new ImageLoader(this.user);
+        imageLoader.add("/images/" + fgTileSet, 0);
+        imageLoader.add("/images/" + bgTileSet, 1);
+        imageLoader.loadAll();
 
-		MediaTracker mt=new MediaTracker(new java.awt.Label());
-		mt.addImage(fgTileImage,0);
-		mt.addImage(bgTileImage,1);
-		mt.addImage(rfgTileImage,2);
-
-		try{
-			mt.waitForID(0);
-			mt.waitForID(1);
-		}
-		catch(InterruptedException e){
-			System.out.println("Unable to load tileset images, interrupted. Try again :)");
-			return false;
-		};*/
-
-        ImageLoader iLoad = new ImageLoader(2, this.user);
-        iLoad.add("/images/" + fgTileSet, 0, false, false);
-        iLoad.add("/images/" + bgTileSet, 1, false, false);
-        //iLoad.add("images/"+rfgTileSet,2,false,false);
-
-        //System.out.println("Fetching images..");
-
-        iLoad.loadAll();
-
-        fgTileImage = iLoad.get(0);
-        bgTileImage = iLoad.get(1);
-        //rfgTileImage = iLoad.get(2);
-
-        //System.out.println("Images fetched!");
+        fgTileImage = imageLoader.get(0);
+        bgTileImage = imageLoader.get(1);
 
         // Read alpha definition files:
         getAlphaTables();
@@ -834,11 +809,6 @@ public class Game {
             System.out.println("FG Alpha fetch failed because image is empty.");
             fail_fg = true;
         }
-        //if(!(alphaFile.exists() && alphaFile.canRead())){
-        //	System.out.println("FG Alpha fetch failed: unable to read file");
-        //	useFgAlpha=false;
-        //	fail_fg=true;
-        //}
 
         if (!fail_fg) {
             try {
@@ -869,11 +839,6 @@ public class Game {
             System.out.println("BG Alpha fetch failed because image is empty.");
             fail_bg = true;
         }
-        //if(!(alphaFile.exists() && alphaFile.canRead())){
-        //	System.out.println("BG Alpha fetch failed: unable to read file");
-        //	useBgAlpha=false;
-        //	fail_bg=true;
-        //}
 
         if (!fail_bg) {
             try {
