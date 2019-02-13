@@ -470,8 +470,8 @@ public class Game {
     public boolean loadImages() {
 
         ImageLoader imageLoader = new ImageLoader(this.user);
-        imageLoader.add("/images/" + fgTileSet, 0);
-        imageLoader.add("/images/" + bgTileSet, 1);
+        imageLoader.add(0, "/images/" + fgTileSet);
+        imageLoader.add(1, "/images/" + bgTileSet);
         imageLoader.loadAll();
 
         fgTileImage = imageLoader.get(0);

@@ -12,7 +12,9 @@ import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 
 /**
@@ -108,7 +110,7 @@ public final class GameEngineImpl implements GameEngine {
 
         gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, fullscreen, input, this);
 
-        imgLoader = Const.createStandardImageLoader(gfxEng, false);
+        imgLoader = Const.createStandardImageLoader(gfxEng);
         imgLoader.load(Const.IMG_LOGO);
         imgLoader.load(Const.IMG_LOADING);
 

@@ -11,54 +11,39 @@ import java.util.Map;
 
 public class ImageLoader {
 
-    private final Map<Integer, ImageLoadState> images = new HashMap<>();
+    private final Map<Integer, ImageState> images = new HashMap<>();
     private final Component component;
     private final Toolkit toolkit;
-
-    private class ImageLoadState {
-
-        ImageLoadState(int id, String filename) {
-            this.id = id;
-            this.filename = filename;
-        }
-
-        final int id;
-        final String filename;
-        Image image;
-        boolean loaded;
-        boolean errors;
-    }
 
     public ImageLoader(Component component) {
         this.component = component;
         this.toolkit = Toolkit.getDefaultToolkit();
     }
 
-    public void add(String filename, int id) {
-        images.put(id, new ImageLoadState(id, filename));
+    public void add(int id, String filename) {
+        images.put(id, new ImageState(id, filename));
     }
 
-    public void load(int imgIndex) {
-        if (images.containsKey(imgIndex)) {
-            load(Collections.singleton(images.get(imgIndex)));
-        }
+    public void load(int id) {
+        load(Collections.singleton(images.get(id)));
     }
 
     public boolean loadAll() {
         return load(images.values());
     }
 
-    private boolean load(Collection<ImageLoadState> imagesToLoad) {
+    private boolean load(Collection<ImageState> imagesToLoad) {
         MediaTracker tracker = new MediaTracker(this.component);
 
-        imagesToLoad.forEach(imageLoadState -> {
-            if (!imageLoadState.loaded && !imageLoadState.errors) {
+        imagesToLoad.forEach(imageState -> {
+            if (imageState.image == null && !imageState.failed) {
                 try {
-                    imageLoadState.image = toolkit.getImage(getClass().getResource(imageLoadState.filename));
-                    tracker.addImage(imageLoadState.image, imageLoadState.id);
+                    Image image = getImage(imageState);
+                    imageState.image = image;
+                    tracker.addImage(image, imageState.id);
                 } catch (Exception e) {
-                    imageLoadState.errors = true;
-                    System.out.println("Unable to load image " + imageLoadState.filename);
+                    imageState.failed = true;
+                    System.out.println("Unable to load image " + imageState.filename);
                 }
             }
         });
@@ -67,19 +52,36 @@ public class ImageLoader {
             tracker.waitForAll();
         } catch (Exception e) {
             System.out.println("ImageLoader: Couldn't load all the images.");
-            imagesToLoad.forEach(imageLoadState -> imageLoadState.errors = !imageLoadState.loaded);
+            imagesToLoad.forEach(imageState -> imageState.failed = imageState.image == null);
             return false;
         }
 
         return true;
     }
 
-    public Image get(int imgIndex) {
-        return images.get(imgIndex).image;
+    private Image getImage(ImageState imageState) {
+        return toolkit.getImage(getClass().getResource(imageState.filename));
+    }
+
+    public Image get(int id) {
+        return images.get(id).image;
     }
 
     public void remove(int index) {
         images.remove(index);
+    }
+
+    private class ImageState {
+
+        final int id;
+        final String filename;
+        Image image;
+        boolean failed;
+
+        ImageState(int id, String filename) {
+            this.id = id;
+            this.filename = filename;
+        }
     }
 
 }

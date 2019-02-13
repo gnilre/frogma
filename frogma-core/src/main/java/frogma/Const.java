@@ -2,7 +2,7 @@ package frogma;
 
 import frogma.resources.ImageLoader;
 
-import java.awt.*;
+import java.awt.Component;
 
 public class Const {
 
@@ -142,55 +142,52 @@ public class Const {
 
     public static final int OBJECT_TYPE_COUNT = 44;
 
-    public static ImageLoader createStandardImageLoader(Component user, boolean loadNow) {
-        ImageLoader imgLoader = new ImageLoader(user);
-
-        imgLoader.add(Const.IMGPATH_LOGO, Const.IMG_LOGO);
-        imgLoader.add(Const.IMGPATH_LOADING, Const.IMG_LOADING);
-        imgLoader.add(Const.IMGPATH_PLAYER, Const.IMG_PLAYER);
-        imgLoader.add(Const.IMGPATH_GAMEOVER, Const.IMG_GAMEOVER);
-        imgLoader.add(Const.IMGPATH_SOLIDTILES, Const.IMG_SOLIDTILES);
-        imgLoader.add(Const.IMGPATH_BONUS, Const.IMG_BONUS);
-        imgLoader.add(Const.IMGPATH_MMONSTER, Const.IMG_MMONSTER);
-        imgLoader.add(Const.IMGPATH_COIN, Const.IMG_COIN);
-        imgLoader.add(Const.IMGPATH_MARIO, Const.IMG_MARIO);
-        imgLoader.add(Const.IMGPATH_ARI, Const.IMG_ARI);
-        imgLoader.add(Const.IMGPATH_PLATFORM, Const.IMG_PLATFORM);
-        imgLoader.add(Const.IMGPATH_HEARTS, Const.IMG_HEARTS);
-        imgLoader.add(Const.IMGPATH_EVILBLOCK, Const.IMG_EVILBLOCK);
-        imgLoader.add(Const.IMGPATH_LAVAMONSTER, Const.IMG_LAVAMONSTER);
-        imgLoader.add(Const.IMGPATH_FISH, Const.IMG_FISH);
-        imgLoader.add(Const.IMGPATH_CLOUD, Const.IMG_CLOUD);
-        imgLoader.add(Const.IMGPATH_BRIDGEBLOCK, Const.IMG_BRIDGEBLOCK);
-        imgLoader.add(Const.IMGPATH_PRINCESS, Const.IMG_PRINCESS);
-        imgLoader.add(Const.IMGPATH_SLURM, Const.IMG_SLURM);
-        imgLoader.add(Const.IMGPATH_ANTIGRAV, Const.IMG_ANTIGRAV);
-        imgLoader.add(Const.IMGPATH_STARS, Const.IMG_STARS);
-        imgLoader.add(Const.IMGPATH_WATER_TOP, Const.IMG_WATER_TOP);
-        imgLoader.add(Const.IMGPATH_WATER_MIDDLE, Const.IMG_WATER_MIDDLE);
-        imgLoader.add(Const.IMGPATH_BIGSHYGUY, Const.IMG_BIGSHYGUY);
-        imgLoader.add(Const.IMGPATH_PIPE, Const.IMG_PIPE);
-        imgLoader.add(Const.IMGPATH_LAVA, Const.IMG_LAVA);
-        imgLoader.add(Const.IMGPATH_REZNOR, Const.IMG_REZNOR);
-        imgLoader.add(Const.IMGPATH_BLOCKS, Const.IMG_BLOCKS);
-        imgLoader.add(Const.IMGPATH_SINGLEHEART, Const.IMG_SINGLEHEART);
-        imgLoader.add(Const.IMGPATH_HEALTHBAR, Const.IMG_HEALTHBAR);
-        imgLoader.add(Const.IMGPATH_FIREBALL1, Const.IMG_FIREBALL1);
-        imgLoader.add(Const.IMGPATH_CONTROLLER, Const.IMG_CONTROLLER);
-        imgLoader.add(Const.IMGPATH_RAINDROP, Const.IMG_RAINDROP);
-        imgLoader.add(Const.IMGPATH_ROBOBIRD, Const.IMG_ROBOBIRD);
-        imgLoader.add(Const.IMGPATH_RAINSPLASH, Const.IMG_RAINSPLASH);
-        imgLoader.add(Const.IMGPATH_FROGEGG, Const.IMG_FROGEGG);
-        imgLoader.add(Const.IMGPATH_FLYINGROBOT, Const.IMG_FLYINGROBOT);
-        imgLoader.add(Const.IMGPATH_EXPLOSION, Const.IMG_EXPLOSION);
-        imgLoader.add(Const.IMGPATH_LINETRIGGER, Const.IMG_LINETRIGGER);
-
-
-        if (loadNow) {
-            imgLoader.loadAll();
-        }
-
+    public static ImageLoader createStandardImageLoader(Component component) {
+        ImageLoader imgLoader = new ImageLoader(component);
+        addAllImages(imgLoader);
         return imgLoader;
+    }
+
+    public static void addAllImages(ImageLoader imgLoader) {
+        imgLoader.add(Const.IMG_LOGO, Const.IMGPATH_LOGO);
+        imgLoader.add(Const.IMG_LOADING, Const.IMGPATH_LOADING);
+        imgLoader.add(Const.IMG_PLAYER, Const.IMGPATH_PLAYER);
+        imgLoader.add(Const.IMG_GAMEOVER, Const.IMGPATH_GAMEOVER);
+        imgLoader.add(Const.IMG_SOLIDTILES, Const.IMGPATH_SOLIDTILES);
+        imgLoader.add(Const.IMG_BONUS, Const.IMGPATH_BONUS);
+        imgLoader.add(Const.IMG_MMONSTER, Const.IMGPATH_MMONSTER);
+        imgLoader.add(Const.IMG_COIN, Const.IMGPATH_COIN);
+        imgLoader.add(Const.IMG_MARIO, Const.IMGPATH_MARIO);
+        imgLoader.add(Const.IMG_ARI, Const.IMGPATH_ARI);
+        imgLoader.add(Const.IMG_PLATFORM, Const.IMGPATH_PLATFORM);
+        imgLoader.add(Const.IMG_HEARTS, Const.IMGPATH_HEARTS);
+        imgLoader.add(Const.IMG_EVILBLOCK, Const.IMGPATH_EVILBLOCK);
+        imgLoader.add(Const.IMG_LAVAMONSTER, Const.IMGPATH_LAVAMONSTER);
+        imgLoader.add(Const.IMG_FISH, Const.IMGPATH_FISH);
+        imgLoader.add(Const.IMG_CLOUD, Const.IMGPATH_CLOUD);
+        imgLoader.add(Const.IMG_BRIDGEBLOCK, Const.IMGPATH_BRIDGEBLOCK);
+        imgLoader.add(Const.IMG_PRINCESS, Const.IMGPATH_PRINCESS);
+        imgLoader.add(Const.IMG_SLURM, Const.IMGPATH_SLURM);
+        imgLoader.add(Const.IMG_ANTIGRAV, Const.IMGPATH_ANTIGRAV);
+        imgLoader.add(Const.IMG_STARS, Const.IMGPATH_STARS);
+        imgLoader.add(Const.IMG_WATER_TOP, Const.IMGPATH_WATER_TOP);
+        imgLoader.add(Const.IMG_WATER_MIDDLE, Const.IMGPATH_WATER_MIDDLE);
+        imgLoader.add(Const.IMG_BIGSHYGUY, Const.IMGPATH_BIGSHYGUY);
+        imgLoader.add(Const.IMG_PIPE, Const.IMGPATH_PIPE);
+        imgLoader.add(Const.IMG_LAVA, Const.IMGPATH_LAVA);
+        imgLoader.add(Const.IMG_REZNOR, Const.IMGPATH_REZNOR);
+        imgLoader.add(Const.IMG_BLOCKS, Const.IMGPATH_BLOCKS);
+        imgLoader.add(Const.IMG_SINGLEHEART, Const.IMGPATH_SINGLEHEART);
+        imgLoader.add(Const.IMG_HEALTHBAR, Const.IMGPATH_HEALTHBAR);
+        imgLoader.add(Const.IMG_FIREBALL1, Const.IMGPATH_FIREBALL1);
+        imgLoader.add(Const.IMG_CONTROLLER, Const.IMGPATH_CONTROLLER);
+        imgLoader.add(Const.IMG_RAINDROP, Const.IMGPATH_RAINDROP);
+        imgLoader.add(Const.IMG_ROBOBIRD, Const.IMGPATH_ROBOBIRD);
+        imgLoader.add(Const.IMG_RAINSPLASH, Const.IMGPATH_RAINSPLASH);
+        imgLoader.add(Const.IMG_FROGEGG, Const.IMGPATH_FROGEGG);
+        imgLoader.add(Const.IMG_FLYINGROBOT, Const.IMGPATH_FLYINGROBOT);
+        imgLoader.add(Const.IMG_EXPLOSION, Const.IMGPATH_EXPLOSION);
+        imgLoader.add(Const.IMG_LINETRIGGER, Const.IMGPATH_LINETRIGGER);
     }
 
 }

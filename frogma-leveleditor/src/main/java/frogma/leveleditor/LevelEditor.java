@@ -277,7 +277,7 @@ public class LevelEditor extends JFrame implements ActionListener {
 
 
         // Create an image loader with all the standard images:
-        iLoader = Const.createStandardImageLoader(this, false);
+        iLoader = Const.createStandardImageLoader(this);
 
         // Remove some images that won't be used:
         iLoader.remove(Const.IMG_LOGO);
@@ -285,8 +285,8 @@ public class LevelEditor extends JFrame implements ActionListener {
         iLoader.remove(Const.IMG_GAMEOVER);
 
         // Add custom images:
-        iLoader.add("/images/all.png", 300);
-        iLoader.add("/images/sky.png", 301);
+        iLoader.add(300, "/images/all.png");
+        iLoader.add(301, "/images/sky.png");
 
         // Load all the images:
         iLoader.loadAll();
@@ -3470,8 +3470,8 @@ public class LevelEditor extends JFrame implements ActionListener {
             this.setSize(160, 325);
 
             iLoader = new ImageLoader(this.lEdit);
-            iLoader.add("/leveleditor/layerlock.png", 0);
-            iLoader.add("/leveleditor/layervisible.png", 1);
+            iLoader.add(0, "/leveleditor/layerlock.png");
+            iLoader.add(1, "/leveleditor/layervisible.png");
             iLoader.loadAll();
             imgLayerLock = iLoader.get(0);
             imgLayerVisible = iLoader.get(1);
