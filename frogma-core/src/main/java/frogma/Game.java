@@ -1,13 +1,13 @@
 package frogma;
 
+import java.awt.Component;
+import java.awt.Image;
+import java.io.File;
+
 import frogma.gameobjects.models.IndexGenerator;
 import frogma.resources.ByteBuffer;
 import frogma.resources.FilLeser;
 import frogma.resources.ImageLoader;
-
-import java.awt.Component;
-import java.awt.Image;
-import java.io.File;
 
 
 /**
@@ -605,7 +605,7 @@ public class Game {
      * @return the array of foreground tiles
      */
     public short[] getFGTiles() {
-        return (short[]) fgTiles.clone();
+        return fgTiles;
     }
 
     /**
@@ -614,11 +614,11 @@ public class Game {
      * @return the array of background tiles
      */
     public short[] getBGTiles() {
-        return (short[]) bgTiles.clone();
+        return bgTiles;
     }
 
     public short[] getRFGTiles() {
-        return (short[]) rfgTiles.clone();
+        return rfgTiles;
     }
 
     /**
@@ -627,7 +627,7 @@ public class Game {
      * @return the array of solid tiles
      */
     public short[] getSolidTiles() {
-        return (short[]) sTiles.clone();
+        return sTiles;
     }
 
     /**
@@ -802,7 +802,7 @@ public class Game {
 
         // FG Alpha:
         //------------------------------------------------------------------------
-        int tileCount = (int) (fgTileImage.getWidth(null) / fgTileImage.getHeight(null));
+        int tileCount = (fgTileImage.getWidth(null) / fgTileImage.getHeight(null));
 
         if (tileCount < 1) {
             useFgAlpha = false;
@@ -832,7 +832,7 @@ public class Game {
         // BG Alpha:
         //------------------------------------------------------------------------
         alphaFileName = "/images/" + bgTileSet.substring(0, bgTileSet.length() - 3) + "atf";
-        tileCount = (int) (bgTileImage.getWidth(null) / bgTileImage.getHeight(null));
+        tileCount = bgTileImage.getWidth(null) / bgTileImage.getHeight(null);
 
         if (tileCount < 1) {
             useBgAlpha = false;
