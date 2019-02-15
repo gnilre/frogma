@@ -1099,7 +1099,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                         startPosX = objX / zoom;
                         startPosY = objY / zoom;
 
-                    } else if (e.getModifiers() == MouseEvent.BUTTON1_MASK) {
+                    } else if (e.getButton() == 1) {
                         // Add object:
 
                         int objX, objY;
@@ -1126,7 +1126,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                         lEdit.addObject(dynObjIndex - 1, objX, objY);
 
 
-                    } else if (e.getModifiers() == MouseEvent.BUTTON3_MASK) {
+                    } else if (e.getButton() == 3) {
                         // Remove object if hit:
 
                         int length;
@@ -1195,10 +1195,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                             }
                         }
                     }
-                    //g.setClip(null);
                     repaint();
-                    //paint(g);
-
                 }
                 // -------------------------------------------------------------
             } else if (currentTool == TOOL_PICK) {
@@ -1208,8 +1205,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                 int layerIndex = getLayerFromState(state);
                 if (state > 0 && state < 5) {
                     // A tile layer:
-
-                    //System.out.println("Picking tile..");
 
                     layerArr = tileArray[layerIndex];
                     tileSize = layerTileSize[layerIndex];
@@ -1223,7 +1218,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                         // Get the tile type:
                         if (layerArr[tileY * layerW + tileX] > 0) {
                             tileIndex[layerIndex] = layerArr[tileY * layerW + tileX] - 1;
-                            //System.out.println("tile set to "+tileIndex[getLayerFromState(state)]);
                             currentTool = TOOL_DRAW;
                             toolButton[0].setSelected(false);
                             toolButton[1].setSelected(true);
@@ -1575,10 +1569,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if ((mouseEvent.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+                        if (mouseEvent.getButton() == 1) {
                             tileTypeToSet = curTileIndex + 1;
                             okToProceed = true;
-                        } else if ((mouseEvent.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
+                        } else if (mouseEvent.getButton() == 3) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1653,9 +1647,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Just draw one tile.
-                        if (mouseEvent.getModifiers() == MouseEvent.BUTTON1_MASK)
+                        if (mouseEvent.getButton() == 1)
                             curTileArray[y_pos * curWidth + x_pos] = (short) (curTileIndex + 1);
-                        else if (mouseEvent.getModifiers() == MouseEvent.BUTTON3_MASK)
+                        else if (mouseEvent.getButton() == 3)
                             curTileArray[y_pos * curWidth + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
@@ -1682,10 +1676,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if ((mouseEvent.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+                        if (mouseEvent.getButton() == 1) {
                             tileTypeToSet = tileIndex[3] + 1;
                             okToProceed = true;
-                        } else if ((mouseEvent.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
+                        } else if (mouseEvent.getButton() == 3) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1762,9 +1756,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Draw one tile only:
-                        if (mouseEvent.getModifiers() == MouseEvent.BUTTON1_MASK)
+                        if (mouseEvent.getButton() == 1)
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = (byte) (tileIndex[3] + 1);
-                        else if (mouseEvent.getModifiers() == MouseEvent.BUTTON3_MASK)
+                        else if (mouseEvent.getButton() == 3)
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
