@@ -2,10 +2,9 @@ package frogma.gameobjects.models;
 
 public interface Triggable {
 
-    public static int MSG_FIRE = 0;
-    public static int MSG_REACTIVATE = 1;
+    int MSG_FIRE = 0;
+    int MSG_REACTIVATE = 1;
 
-    public void receiveTrigger(int message);
-
+    void receiveTrigger(int message);
 
 }

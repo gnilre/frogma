@@ -1,138 +1,140 @@
 package frogma.gameobjects.models;
 
-import frogma.collision.DynamicCollEvent;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
+import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Image;
 
 
 // Et interface for de 'dynamiske' objektene i spillet.
 public interface BasicGameObject {
 
-    public void advanceCycle();
+    void advanceCycle();
 
-    public void calcNewPos();
+    void calcNewPos();
 
-    public void collide(DynamicCollEvent dce, int collRole);
+    void collide(DynamicCollEvent dce, int collRole);
 
-    public void collide(StaticCollEvent sce);
+    void collide(StaticCollEvent sce);
 
-    public void initParams();
+    void initParams();
 
-    public void init();    // Called by GameEngine after all objects have been created.
-    // The objects should resolve references to other objects here.
+    /**
+     * Called by GameEngine after all objects have been created.
+     * The objects should resolve references to other objects here.
+     */
+    void init();
 
-    public boolean customRender();
+    boolean customRender();
 
-    public void render(Graphics g, int screenX, int screenY, int screenW, int screenH);
+    void render(Graphics g, int screenX, int screenY, int screenW, int screenH);
 
-    public byte getAction();
+    byte getAction();
 
-    public Image getImage();
+    Image getImage();
 
-    //public String getParamName(int paramIndex);
-    //public String[] getParamNames();
-    public GameEngine getReferrer();
+    GameEngine getReferrer();
 
-    public double getPosTransformX();
+    double getPosTransformX();
 
-    public double getPosTransformY();
+    double getPosTransformY();
 
-    public void setPosTransformX(double value);
+    void setPosTransformX(double value);
 
-    public void setPosTransformY(double value);
+    void setPosTransformY(double value);
 
-    public int getIndex();
+    int getIndex();
 
-    public int getID();
+    int getID();
 
-    public int getNewX();
+    int getNewX();
 
-    public int getNewY();
+    int getNewY();
 
-    public int getParam(int paramIndex);
+    int getParam(int paramIndex);
 
-    public int[] getParams();
+    int[] getParams();
 
-    public int getParamCount();
+    int getParamCount();
 
-    public int getPosX();
+    int getPosX();
 
-    public int getPosY();
+    int getPosY();
 
-    public int getSolidWidth();
+    int getSolidWidth();
 
-    public int getSolidHeight();
+    int getSolidHeight();
 
-    public int getState();
+    int getState();
 
-    public int getVelX();
+    int getVelX();
 
-    public int getVelY();
+    int getVelY();
 
-    public int getSubType();
+    int getSubType();
 
-    public int getZRenderPos();
+    int getZRenderPos();
 
-    public boolean getProp(int propKey);
+    boolean getProp(int propKey);
 
-    public void setProp(int propKey, boolean value);
+    void setProp(int propKey, boolean value);
 
-    public boolean[] getProps();
+    boolean[] getProps();
 
-    public void setProps(boolean[] value);
+    void setProps(boolean[] value);
 
-    public void setIndex(int index);
+    void setIndex(int index);
 
-    public void setID(int id);
+    void setID(int id);
 
-    public void setNewPosition(int newX, int newY);
+    void setNewPosition(int newX, int newY);
 
-    public void setParam(int paramIndex, int paramValue);
+    void setParam(int paramIndex, int paramValue);
 
-    public void setParams(int[] paramArray);
+    void setParams(int[] paramArray);
 
-    public void setPosition(int newX, int newY);
+    void setPosition(int newX, int newY);
 
-    public void setRelativePosition(int deltaX, int deltaY);
+    void setRelativePosition(int deltaX, int deltaY);
 
-    public void setSize(int width, int height);
+    void setSize(int width, int height);
 
-    public void setState(int animState);
+    void setState(int animState);
 
-    public void setVelocity(int velX, int velY);
+    void setVelocity(int velX, int velY);
 
-    public void setZRenderPos(int zPos);
+    void setZRenderPos(int zPos);
 
-    public void terminate();
+    void terminate();
 
-    public ObjectClassParams getParamInfo(int subtype);
+    ObjectClassParams getParamInfo(int subtype);
 
-    public String getName();
+    String getName();
 
-    public int getImgSrcX();
+    int getImgSrcX();
 
-    public int getImgSrcY();
+    int getImgSrcY();
 
-    public void timerEvent(String msg);
+    void timerEvent(String msg);
 
-    public void decreaseHealth(int value);
+    void decreaseHealth(int value);
 
-    public int getSpriteWidth();
+    int getSpriteWidth();
 
-    public int getSpriteHeight();
+    int getSpriteHeight();
 
-    public int getSpriteOffsetX();
+    int getSpriteOffsetX();
 
-    public int getSpriteOffsetY();
+    int getSpriteOffsetY();
 
-    public void setSpriteWidth(int value);
+    void setSpriteWidth(int value);
 
-    public void setSpriteHeight(int value);
+    void setSpriteHeight(int value);
 
-    public void setSpriteOffsetX(int value);
+    void setSpriteOffsetX(int value);
 
-    public void setSpriteOffsetY(int value);
+    void setSpriteOffsetY(int value);
 }

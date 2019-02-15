@@ -820,10 +820,10 @@ public final class CollDetect {
     private void compactAff() {
 
         // Prepare new arrays:
-        int newAffX[] = new int[affArrStart];
-        int newAffY[] = new int[affArrStart];
-        byte newAffType[] = new byte[affArrStart];
-        byte newAffCollType[] = new byte[affArrStart];
+        int[] newAffX = new int[affArrStart];
+        int[] newAffY = new int[affArrStart];
+        byte[] newAffType = new byte[affArrStart];
+        byte[] newAffCollType = new byte[affArrStart];
 
         // Copy contents:
         for (int i = 0; i < affArrStart; i++) {

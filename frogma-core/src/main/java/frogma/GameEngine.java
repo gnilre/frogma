@@ -1,7 +1,6 @@
 package frogma;
 
 import frogma.collision.CollDetect;
-import frogma.gameobjects.MapPlayer;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.input.Input;
@@ -45,8 +44,6 @@ public interface GameEngine {
 
     Player getPlayer();
 
-    MapPlayer getMapPlayer();
-
     GraphicsEngine getGfx();
 
     ImageLoader getImgLoader();
@@ -74,8 +71,6 @@ public interface GameEngine {
     int getLevelRenderY();
 
     int getCycleCount();
-
-    boolean levelIsMap();
 
     boolean musicAllowed();
 

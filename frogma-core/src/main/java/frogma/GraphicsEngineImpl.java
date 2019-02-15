@@ -638,12 +638,12 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             } else if (this.state == GraphicsState.LEVEL) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
-                BasicGameObject player = referrer.levelIsMap() ? referrer.getMapPlayer() : referrer.getPlayer();
+                BasicGameObject player = referrer.getPlayer();
                 renderLevel(g, referrer.getCurrentLevel(), referrer.getLevelRenderX(), referrer.getLevelRenderY(), screenWidth, screenHeight, player, monsters, referrer.getImgLoader());
             } else if (this.state == GraphicsState.LEVEL_MENU) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
-                BasicGameObject player = referrer.levelIsMap() ? referrer.getMapPlayer() : referrer.getPlayer();
+                BasicGameObject player = referrer.getPlayer();
                 renderLevel(g, referrer.getCurrentLevel(), referrer.getLevelRenderX(), referrer.getLevelRenderY(), screenWidth, screenHeight, player, monsters, referrer.getImgLoader());
                 this.drawGameMenu(g);
             }

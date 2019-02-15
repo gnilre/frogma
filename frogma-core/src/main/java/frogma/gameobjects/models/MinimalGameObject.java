@@ -1,11 +1,12 @@
 package frogma.gameobjects.models;
 
-import frogma.collision.DynamicCollEvent;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
+import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Image;
 
 public class MinimalGameObject implements BasicGameObject {
 
@@ -175,8 +176,6 @@ public class MinimalGameObject implements BasicGameObject {
     public boolean getProp(int propKey) {
         return false;
     }
-
-    ;
 
     public void setProp(int propKey, boolean value) {
     }

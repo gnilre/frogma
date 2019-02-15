@@ -2,7 +2,6 @@ package frogma;
 
 import frogma.collision.CollDetect;
 import frogma.effects.Credits;
-import frogma.gameobjects.MapPlayer;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.Stars;
 import frogma.gameobjects.models.BasicGameObject;
@@ -13,7 +12,6 @@ import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 
@@ -27,7 +25,6 @@ import java.awt.event.KeyEvent;
  * @author Johannes Odland
  * @version 1.0
  */
-
 public final class GameEngineImpl implements GameEngine {
 
     private static final int NORWEGIAN = 0;
@@ -63,7 +60,7 @@ public final class GameEngineImpl implements GameEngine {
     private int frameTime;        // how long each frame should be displayed.
 
     // Vars used in state timing:
-    private long stateTime1 = 0;
+    private long stateTime1;
 
     private GameState gameState;
     private GameState prevState;
@@ -84,7 +81,6 @@ public final class GameEngineImpl implements GameEngine {
     private byte[] updateObj;
     private byte[] collidableActive;
     private Player thePlayer;
-    private MapPlayer mapPlayer;
 
     // Level position vars:
     private int renderX, renderY;
@@ -95,7 +91,7 @@ public final class GameEngineImpl implements GameEngine {
     /**
      * This is the standard constructor of GameEngine.
      */
-    public GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean fullscreen) {
+    GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean fullscreen) {
 
         // Set in-game state to true:
         Misc.setInGame(true);
@@ -163,7 +159,7 @@ public final class GameEngineImpl implements GameEngine {
     /**
      * The main Game Loop :)
      */
-    public void run() {
+    void run() {
 
         // -- THE GREAT LOOP --
         // -----------------------------------------------------------------
@@ -216,11 +212,7 @@ public final class GameEngineImpl implements GameEngine {
                 }
 
                 // Calculate new positions for all objects:
-                if (gameLevel.isMap()) {
-                    mapPlayer.calcNewPos();
-                } else {
-                    thePlayer.calcNewPos();
-                }
+                thePlayer.calcNewPos();
                 for (int i = 0; i < objCount; i++) {
                     if (updateObj[i] == 1) {
                         objs[i].calcNewPos();
@@ -233,28 +225,15 @@ public final class GameEngineImpl implements GameEngine {
                     }
                 }
 
-                if (gameLevel.isMap()) {
-                    collDet.detectCollisions(mapPlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(mapPlayer, collidableObj, screenWidth, screenHeight);
-                } else {
-                    collDet.detectCollisions(thePlayer, collidableObj, collidableActive); // Detect collisions
-                    collDet.detectBulletCollisions(thePlayer, collidableObj, screenWidth, screenHeight);
-                }
+                collDet.detectCollisions(thePlayer, collidableObj, collidableActive); // Detect collisions
+                collDet.detectBulletCollisions(thePlayer, collidableObj, screenWidth, screenHeight);
 
                 synchronized (input) {
-                    if (gameLevel.isMap()) {
-                        mapPlayer.processInput(input);                        // Process Input
-                    } else {
-                        thePlayer.processInput(input);                        // Process Input
-                    }
+                    thePlayer.processInput(input);                        // Process Input
                     input.advanceCycle();                                // Update key cycle counts
                 }
 
-                if (gameLevel.isMap()) {
-                    mapPlayer.advanceCycle();
-                } else {
-                    thePlayer.advanceCycle();
-                }
+                thePlayer.advanceCycle();
                 for (int i = 0; i < objCount; i++) {
                     if (activeObj[i] == 1 && updateObj[i] == 1) {
                         objs[i].advanceCycle();
@@ -263,30 +242,23 @@ public final class GameEngineImpl implements GameEngine {
 
                 // Check whether the player is still alive:
                 boolean startOver = false;
-                if (!gameLevel.isMap()) {
-                    if (!thePlayer.getProp(ObjectProps.PROP_ALIVE)) {
-                        System.out.println("Player isn't alive!");
-                        msg("Player died.");
-                        if (thePlayer.getLife() > 0) {
-                            thePlayer.setLife(thePlayer.getLife() - 1);
-                            this.startOver();
-                            startOver = true;
-                        } else {
-                            this.gameOver();
-                            System.out.println("Game Over!!!");
-                        }
+                if (!thePlayer.getProp(ObjectProps.PROP_ALIVE)) {
+                    System.out.println("Player isn't alive!");
+                    msg("Player died.");
+                    if (thePlayer.getLife() > 0) {
+                        thePlayer.setLife(thePlayer.getLife() - 1);
+                        this.startOver();
+                        startOver = true;
+                    } else {
+                        this.gameOver();
+                        System.out.println("Game Over!!!");
                     }
                 }
 
                 // Calculate rendering position:
                 // Calculate level render position:
-                if (gameLevel.isMap()) {
-                    targetX = mapPlayer.getPosX() + mapPlayer.getSolidWidth() * 4 - 640 / 2;
-                    targetY = mapPlayer.getPosY() + mapPlayer.getSolidHeight() * 4 - (int) (480 / 2.5f);
-                } else {
-                    targetX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - 640 / 2;
-                    targetY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (480 / 2.5f);
-                }
+                targetX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - 640 / 2;
+                targetY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (480 / 2.5f);
 
                 renderX = (int) (renderX * 0.8d + targetX * 0.2d);
                 if (targetY < renderY) {
@@ -464,40 +436,21 @@ public final class GameEngineImpl implements GameEngine {
 
 
         // Create player:
-        if (!gameLevel.isMap()) {
-            // Create & initialize player:
-            Player oldplayer;
-            // Position player:
-            if (thePlayer != null && saveStats) {
-                oldplayer = thePlayer;
-            } else oldplayer = null;
+        // Create & initialize player:
+        Player oldplayer;
+        // Position player:
+        if (thePlayer != null && saveStats) {
+            oldplayer = thePlayer;
+        } else oldplayer = null;
 
 
-            initializePlayer();
-            thePlayer.setPosition(gameLevel.getStartX(), gameLevel.getStartY());
-            thePlayer.setNewPosition(gameLevel.getStartX(), gameLevel.getStartY());
-            thePlayer.setVelocity(0, 0);
-            if (saveStats && oldplayer != null) {
-                thePlayer.setPoints(oldplayer.getPoints());
-                thePlayer.setLife(oldplayer.getLife());
-            }
-        } else {
-
-            int numLives;
-            if (thePlayer != null) {
-                numLives = thePlayer.getLife();
-            } else {
-                numLives = 3;
-            }
-
-            if (mapPlayer == null) {
-                mapPlayer = new MapPlayer(2, 2, this, playerImg, true);
-            }
-
-            mapPlayer.setPosition(gameLevel.getStartX(), gameLevel.getStartY());
-            mapPlayer.setNewPosition(gameLevel.getStartX(), gameLevel.getStartY());
-            mapPlayer.setVelocity(0, 0);
-
+        initializePlayer();
+        thePlayer.setPosition(gameLevel.getStartX(), gameLevel.getStartY());
+        thePlayer.setNewPosition(gameLevel.getStartX(), gameLevel.getStartY());
+        thePlayer.setVelocity(0, 0);
+        if (saveStats && oldplayer != null) {
+            thePlayer.setPoints(oldplayer.getPoints());
+            thePlayer.setLife(oldplayer.getLife());
         }
 
         // Initialize objects, allow them to resolve links, etc.:
@@ -517,13 +470,8 @@ public final class GameEngineImpl implements GameEngine {
         // Update the array with collidable objects:
         updateCollidable();
 
-        if (gameLevel.isMap()) {
-            renderX = mapPlayer.getPosX() + mapPlayer.getSolidWidth() * 4 - screenWidth / 2;
-            renderY = mapPlayer.getPosY() + mapPlayer.getSolidHeight() * 4 - (int) (screenHeight / 2.5f);
-        } else {
-            renderX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - screenWidth / 2;
-            renderY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (screenHeight / 2.5f);
-        }
+        renderX = thePlayer.getPosX() + thePlayer.getSolidWidth() * 4 - screenWidth / 2;
+        renderY = thePlayer.getPosY() + thePlayer.getSolidHeight() * 4 - (int) (screenHeight / 2.5f);
 
         targetX = renderX;
         targetY = renderY;
@@ -603,13 +551,6 @@ public final class GameEngineImpl implements GameEngine {
         return null;
     }
 
-    public Image createImage(int w, int h) {
-        if (gfxEng != null) {
-            return gfxEng.createImage(w, h);
-        }
-        return null;
-    }
-
     public GameState getPrevState() {
         return this.prevState;
     }
@@ -672,14 +613,6 @@ public final class GameEngineImpl implements GameEngine {
 
     public Player getPlayer() {
         return thePlayer;
-    }
-
-    public MapPlayer getMapPlayer() {
-        return mapPlayer;
-    }
-
-    public boolean levelIsMap() {
-        return gameLevel.isMap();
     }
 
     /*  A method for sending debug messages to output,
@@ -816,38 +749,25 @@ public final class GameEngineImpl implements GameEngine {
          * @return menu items as a string array
          */
         public String[] getMenuItemsAsStrings() {
-            String[] str;
-            switch (lang) {
-                case 0:
-                    switch (state) {
-                        case 0:
-                            str = new String[]{"Pause", "Bakgrunnsmusikk: " + (playBgm ? "Ja" : "Nei"), "Lydeffekter: " + (playSfx ? "Ja" : "Nei"), "Tilbake til hovedmenyen"};
-                            break;
-                        case 1:
-                            str = new String[]{"Er du sikker på at du vil avbryte spillet?", "Ja", "Nei"};
-                            break;
-
-                        default:
-                            str = new String[]{"Feil: Menysystemet klikket"};
-                    }
-                    break;
-                default:
-
-                    switch (state) {
-                        case 0:
-                            str = new String[]{"Pause", "Background Music: " + (playBgm ? "Yes" : "No"), "Sound FX: " + (playSfx ? "Yes" : "No"), "Back to main menu"};
-                            break;
-                        case 1:
-                            str = new String[]{"Quit?", "Yes", "No"};
-                            break;
-
-                        default:
-                            str = new String[]{"Feil: Menysystemet klikket"};
-
-                    }
-
+            if (lang == NORWEGIAN) {
+                switch (state) {
+                    case 0:
+                        return new String[]{"Pause", "Bakgrunnsmusikk: " + (playBgm ? "Ja" : "Nei"), "Lydeffekter: " + (playSfx ? "Ja" : "Nei"), "Tilbake til hovedmenyen"};
+                    case 1:
+                        return new String[]{"Er du sikker på at du vil avbryte spillet?", "Ja", "Nei"};
+                    default:
+                        return new String[]{"Feil: Menysystemet klikket"};
+                }
+            } else {
+                switch (state) {
+                    case 0:
+                        return new String[]{"Pause", "Background Music: " + (playBgm ? "Yes" : "No"), "Sound FX: " + (playSfx ? "Yes" : "No"), "Back to main menu"};
+                    case 1:
+                        return new String[]{"Quit?", "Yes", "No"};
+                    default:
+                        return new String[]{"Feil: Menysystemet klikket"};
+                }
             }
-            return str;
         }
 
         /**
@@ -990,12 +910,6 @@ public final class GameEngineImpl implements GameEngine {
         private StringBuffer kode = new StringBuffer();
         private int selectedMenuItem;
 
-
-        MainMenu() {
-            super();
-            this.mode = this.MODE_MAIN;
-        }
-
         /**
          * Returns the menu items that is to be shown on screen
          *
@@ -1099,7 +1013,6 @@ public final class GameEngineImpl implements GameEngine {
 
                 } else if (mode == MODE_SETTINGS) {
                     if (selectedMenuItem == 0) {
-                        selectedMenuItem = 0;
                         mode = MODE_MAIN;
 
                     } else if (selectedMenuItem == 1) {
@@ -1115,7 +1028,6 @@ public final class GameEngineImpl implements GameEngine {
 
                 } else if (mode == MODE_JUMP_TO_LEVEL) {
                     if (selectedMenuItem == 0) {
-                        selectedMenuItem = 0;
                         mode = MODE_MAIN;
                     }
                     if (selectedMenuItem == 1) {
@@ -1198,10 +1110,6 @@ public final class GameEngineImpl implements GameEngine {
 
     public boolean musicAllowed() {
         return playBgm;
-    }
-
-    public Component getComponent() {
-        return gfxEng;
     }
 
 }

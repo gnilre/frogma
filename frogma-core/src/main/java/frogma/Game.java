@@ -118,32 +118,23 @@ public class Game {
             if (!getVars()) {
                 return false;
             }
-            if (levels[levelNr].substring(levels[levelNr].length() - 3, levels[levelNr].length()).toLowerCase().equals("map")) {
-                isMap = true;
-            } else {
-                isMap = false;
-            }
+            isMap = levels[levelNr].substring(levels[levelNr].length() - 3).equalsIgnoreCase("map");
             levelNr++;
             return true;
         }
     }
 
-    boolean setLevel(int levelno) {
+    void setLevel(int levelno) {
         if (levelno >= levels.length) {
-            return false;
+            return;
         }
         levelNr = levelno;
         levelReader = new FilLeser(levels[levelNr]);
-        if (levels[levelNr].substring(levels[levelNr].length() - 3, levels[levelNr].length()).toLowerCase().equals("map")) {
-            isMap = true;
-        } else {
-            isMap = false;
-        }
+        isMap = levels[levelNr].substring(levels[levelNr].length() - 3).equalsIgnoreCase("map");
         if (!getVars()) {
-            return false;
+            return;
         }
         levelNr++;
-        return true;
     }
 
     /**
@@ -163,7 +154,7 @@ public class Game {
                 levelNr = j;
                 levelReader = new FilLeser(levels[levelNr]);
 
-                if (levels[levelNr].substring(levels[levelNr].length() - 3, levels[levelNr].length()).toLowerCase().equals("map")) {
+                if (levels[levelNr].substring(levels[levelNr].length() - 3).equalsIgnoreCase("map")) {
                     isMap = true;
                 } else {
                     isMap = false;
@@ -188,17 +179,8 @@ public class Game {
      */
     public boolean setLevel(File level) {
         levelReader = new FilLeser(level);
-
-        if (level.getAbsolutePath().substring(level.getAbsolutePath().length() - 3, level.getAbsolutePath().length()).toLowerCase().equals("map")) {
-            isMap = true;
-        } else {
-            isMap = false;
-        }
-
-        if (!getVars()) {
-            return false;
-        }
-        return true;
+        isMap = level.getAbsolutePath().substring(level.getAbsolutePath().length() - 3).equalsIgnoreCase("map");
+        return getVars();
     }
 
     private boolean getVars() {
