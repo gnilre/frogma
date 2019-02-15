@@ -1,13 +1,13 @@
 package frogma;
 
+import java.awt.Component;
+import java.awt.Image;
+import java.io.File;
+
 import frogma.gameobjects.models.IndexGenerator;
 import frogma.resources.ByteBuffer;
 import frogma.resources.FilLeser;
 import frogma.resources.ImageLoader;
-
-import java.awt.Component;
-import java.awt.Image;
-import java.io.File;
 
 
 /**
@@ -592,7 +592,7 @@ public class Game {
      * @return the array of foreground tiles
      */
     public short[] getFGTiles() {
-        return (short[]) fgTiles.clone();
+        return fgTiles;
     }
 
     /**
@@ -601,11 +601,11 @@ public class Game {
      * @return the array of background tiles
      */
     public short[] getBGTiles() {
-        return (short[]) bgTiles.clone();
+        return bgTiles;
     }
 
     public short[] getRFGTiles() {
-        return (short[]) rfgTiles.clone();
+        return rfgTiles;
     }
 
     /**
@@ -614,7 +614,7 @@ public class Game {
      * @return the array of solid tiles
      */
     public short[] getSolidTiles() {
-        return (short[]) sTiles.clone();
+        return sTiles;
     }
 
     /**
