@@ -64,6 +64,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>Title: Level Editor </p>
@@ -2565,7 +2567,7 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         JTextField txtID;
         JLabel lblTypeValue;
-        JComboBox[] cmbParam;
+        List<JComboBox<String>> cmbParam = new ArrayList<>();
 
         int[] type = new int[10];
         int[][] comboValue = new int[10][];
@@ -2598,7 +2600,6 @@ public class LevelEditor extends JFrame implements ActionListener {
             this.lblParam = new JLabel[10];
             this.txtID = new JTextField("<obj ID>");
             this.lblTypeValue = new JLabel("<Object Type>");
-            this.cmbParam = new JComboBox[10];
             this.txtParamValue = new JTextField[10];
             this.btnChooseObject = new JButton[10];
 
@@ -2624,31 +2625,31 @@ public class LevelEditor extends JFrame implements ActionListener {
             for (int i = 0; i < 10; i++) {
 
                 this.lblParam[i] = new JLabel("< Not in use >");
-                this.cmbParam[i] = new JComboBox();
+                this.cmbParam.add(new JComboBox<>());
                 this.txtParamValue[i] = new JTextField("-1");
                 this.btnChooseObject[i] = new JButton("...");
 
-                cmbParam[i].setVisible(false);
+                cmbParam.get(i).setVisible(false);
                 txtParamValue[i].setVisible(false);
                 btnChooseObject[i].setVisible(false);
 
-                this.lblParam[i].setFont(theFont);
-                this.cmbParam[i].setFont(theFont);
+                lblParam[i].setFont(theFont);
+                cmbParam.get(i).setFont(theFont);
 
                 lblParam[i].setBounds(3, 40 + 19 * i, largeCmpW, 16);
                 txtParamValue[i].setBounds(3 + largeCmpW, 40 + 19 * i, smallCmpW, 16);
-                cmbParam[i].setBounds(3 + largeCmpW, 40 + 19 * i, smallCmpW * 2, 16);
+                cmbParam.get(i).setBounds(3 + largeCmpW, 40 + 19 * i, smallCmpW * 2, 16);
                 btnChooseObject[i].setBounds(3 + largeCmpW + 3 + smallCmpW, 40 + 19 * i, smallCmpW, 16);
 
                 this.getContentPane().add(lblParam[i]);
                 this.getContentPane().add(txtParamValue[i]);
-                this.getContentPane().add(cmbParam[i]);
+                this.getContentPane().add(cmbParam.get(i));
                 this.getContentPane().add(btnChooseObject[i]);
 
                 txtParamValue[i].addActionListener(this);
                 btnChooseObject[i].addActionListener(this);
-                cmbParam[i].addActionListener(this);
-                cmbParam[i].addItemListener(this);
+                cmbParam.get(i).addActionListener(this);
+                cmbParam.get(i).addItemListener(this);
                 txtParamValue[i].getDocument().addDocumentListener(this);
             }
 
@@ -2665,7 +2666,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                     lEdit.component.requestFocus();
                 } else if (src == txtParamValue[i]) {
                     //System.out.println("ParamValue");
-                } else if (src == cmbParam[i]) {
+                } else if (src == cmbParam.get(i)) {
                     //System.out.println("Combo");
                 }
             }
@@ -2674,8 +2675,8 @@ public class LevelEditor extends JFrame implements ActionListener {
         public void itemStateChanged(ItemEvent ie) {
             int selIndex;
             for (int i = 0; i < 10; i++) {
-                if (ie.getSource() == cmbParam[i]) {
-                    selIndex = cmbParam[i].getSelectedIndex();
+                if (ie.getSource() == cmbParam.get(i)) {
+                    selIndex = cmbParam.get(i).getSelectedIndex();
                     //System.out.println("Param set to "+comboValue[i][selIndex]);
                     objectParam[objectIndex][i] = comboValue[i][selIndex];
                     component.repaint();
@@ -2743,41 +2744,41 @@ public class LevelEditor extends JFrame implements ActionListener {
                 if (name[i] == null) {
                     name[i] = "Param " + (i + 1);
                 }
+                JComboBox<String> paramCombo = cmbParam.get(i);
                 if (type[i] == Const.PARAM_TYPE_OBJECT_REFERENCE) {
                     lblParam[i].setText(name[i]);
                     txtParamValue[i].setVisible(true);
                     txtParamValue[i].setEditable(false);
                     btnChooseObject[i].setVisible(true);
-                    cmbParam[i].setVisible(false);
+                    paramCombo.setVisible(false);
                 } else if (type[i] == Const.PARAM_TYPE_VALUE) {
                     lblParam[i].setText(name[i]);
                     txtParamValue[i].setVisible(true);
                     txtParamValue[i].setEditable(true);
                     btnChooseObject[i].setVisible(false);
-                    cmbParam[i].setVisible(false);
+                    paramCombo.setVisible(false);
                 } else if (type[i] == Const.PARAM_TYPE_COMBO) {
                     lblParam[i].setText(name[i]);
                     txtParamValue[i].setVisible(false);
                     btnChooseObject[i].setVisible(false);
-                    cmbParam[i].removeItemListener(this);
-                    cmbParam[i].setVisible(true);
-                    cmbParam[i].removeAllItems();
+                    paramCombo.removeItemListener(this);
+                    paramCombo.setVisible(true);
+                    paramCombo.removeAllItems();
                     for (int j = 0; j < comboValue[i].length; j++) {
-                        cmbParam[i].addItem(comboName[i][j]);
+                        paramCombo.addItem(comboName[i][j]);
                     }
-                    //System.out.println("Param Value: "+objectParam[objectIndex][i]);
                     for (int j = 0; j < comboValue[i].length; j++) {
                         if (comboValue[i][j] == objectParam[objectIndex][i]) {
-                            cmbParam[i].setSelectedIndex(j);
+                            paramCombo.setSelectedIndex(j);
                         }
                     }
-                    cmbParam[i].addItemListener(this);
+                    paramCombo.addItemListener(this);
                 } else {
                     // Any other type --> Not in use:
                     lblParam[i].setText("< Not in use >");
                     txtParamValue[i].setVisible(false);
                     btnChooseObject[i].setVisible(false);
-                    cmbParam[i].setVisible(false);
+                    paramCombo.setVisible(false);
                 }
                 this.invalidate();
 
