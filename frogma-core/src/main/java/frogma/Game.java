@@ -724,7 +724,7 @@ public class Game {
      *
      * @return the filename of the midi-file used in the level
      */
-    public String getMusic() {
+    public String getBackgroundMusicFilename() {
         return music;
     }
 

@@ -507,29 +507,9 @@ public final class GameEngineImpl implements GameEngine {
 
         if (playBgm && PLAY_BGM) {
             if (bgmSystem == null) {
-                // Initialize for the first time:
                 bgmSystem = new MidiPlayer();
-                //bgmSystem.init(this, new String[]{gameLevel.getMusic(),Misc.getGameRoot()+"/bgm/ench28.mod"},new boolean[]{true,true});
-                bgmSystem.init(gameLevel.getMusic());
-                bgmSystem.setLooping(true);
-                bgmSystem.startPlaying(0);
-                System.out.println("MIDI Player Initialized");
-            } else {
-                if (!bgmSystem.getFileName(0).equals(gameLevel.getMusic())) {
-                    System.out.println("Old MIDI File: " + bgmSystem.getFileName(0));
-                    bgmSystem.stopPlaying();
-                    //bgmSystem.init(this,new String[]{gameLevel.getMusic(),Misc.getGameRoot()+"/bgm/ench28.mod"},new boolean[]{true,true});
-                    bgmSystem.init(gameLevel.getMusic());
-                    bgmSystem.setLooping(true);
-                    bgmSystem.startPlaying(0); // Start playing background music
-                    System.out.println("New MIDI File: " + gameLevel.getMusic());
-                } else {
-                    if (!bgmSystem.isPlaying()) {
-                        bgmSystem.setLooping(true);
-                        bgmSystem.startPlaying(0);
-                    }
-                }
             }
+            bgmSystem.playInLoop(gameLevel.getBackgroundMusicFilename());
         } else {
             System.out.println("MUSIC IS OFF!!!!");
         }
@@ -930,22 +910,12 @@ public final class GameEngineImpl implements GameEngine {
                                         }
                                     } else if (PLAY_BGM) {
                                         playBgm = true;
-                                        if (bgmSystem != null) {
-                                            bgmSystem.setLooping(true);
-                                            bgmSystem.startPlaying(0);
-                                        } else {
-                                            // Initialize for the first time:
+                                        if (bgmSystem == null) {
                                             bgmSystem = new MidiPlayer();
-                                            //bgmSystem.init(mySelf, new String[]{gameLevel.getMusic(),Misc.getGameRoot()+"/bgm/ench28.mod"},new boolean[]{true,true});
-                                            bgmSystem.init(gameLevel.getMusic());
-                                            bgmSystem.setLooping(true);
-                                            bgmSystem.startPlaying(0);
-                                            System.out.println("MIDI Player Initialized");
                                         }
-
+                                        bgmSystem.playInLoop(gameLevel.getBackgroundMusicFilename());
                                     }
                                     break;
-
                                 }
                                 case 2:
                                     if (playSfx) {

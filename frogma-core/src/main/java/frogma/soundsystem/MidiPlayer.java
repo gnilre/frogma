@@ -1,6 +1,10 @@
 package frogma.soundsystem;
 
-import javax.sound.midi.*;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 
 /**
  * <p>Title: MidiPlayer</p>
@@ -15,30 +19,20 @@ import javax.sound.midi.*;
  */
 public class MidiPlayer extends Thread {
 
-    public static final boolean DEBUG_ENABLED = true;
-    public static final int EVENT_STOP = 0;
+    private static final String BACKGROUND_MUSIC_PATH = "/music/";
 
-    private Thread myThread;
+    private Thread playerThread;
+    private volatile boolean stopThread;
+
     private boolean isPlaying;
-    private boolean isLooping;
-    private boolean stopRunning;
+    private boolean loopingEnabled;
     private boolean resetPosition = false;
-    private MidiPlayerListener[] listener = new MidiPlayerListener[0];
+    private MidiPlayerListener listener;
 
-    private double startGain;
-    private double endGain;
-    private int fadeStep;
-    private int fadeStepCount;
-    private boolean fade;
-
-    private Sequencer defSequencer;
+    private Sequencer sequencer;
+    private Sequence midiSequence;
     private boolean sequencerValid;
-    private String[] fileName;
-    private Sequence[] midiSequence;
-    private boolean[] sequenceLoaded;
-    private boolean[] sequenceValid;
-    private int sequenceIndex;
-
+    private boolean sequenceValid;
 
     /**
      * The standard constructor for
@@ -47,67 +41,43 @@ public class MidiPlayer extends Thread {
      * and the midiplayer initialized with it.
      */
     public MidiPlayer() {
-
-        this.isPlaying = false;
-        this.isLooping = false;
-        this.stopRunning = false;
-        myThread = new Thread(this);
-
-        // Get default sequencer:
+        this.playerThread = new Thread(this);
         try {
-            this.defSequencer = MidiSystem.getSequencer();
-            this.defSequencer.open();
+            this.sequencer = MidiSystem.getSequencer();
+            this.sequencer.open();
             this.sequencerValid = true;
         } catch (MidiUnavailableException mue) {
             // No MIDI support.
             this.sequencerValid = false;
-            MidiPlayer.dbgPrint("Midi not supported.");
+            System.out.println("Midi not supported.");
         }
     }
 
-    public synchronized void init(String fileName) {
-        init(new String[]{fileName}, new boolean[]{true});
+    public boolean playInLoop(String filename) {
+        loopingEnabled = true;
+        load(BACKGROUND_MUSIC_PATH + filename);
+        return startPlaying();
+    }
+
+    public boolean playOnce(String filename) {
+        loopingEnabled = false;
+        load(BACKGROUND_MUSIC_PATH + filename);
+        return startPlaying();
     }
 
     /**
-     * A method used for initializing the midi player
-     * with a different file.
+     * Load a MIDI file into the sequencer.
      *
-     * @param fileName the path & file name of the new midi file
+     * @param filename the path & file name of the new midi file
      */
-    public synchronized void init(String[] fileName, boolean[] loadNow) {
-
-        // Create arrays:
-        sequenceValid = new boolean[fileName.length];
-        sequenceLoaded = new boolean[fileName.length];
-        midiSequence = new Sequence[fileName.length];
-
-        // Stop the player if it's playing at the moment:
-        if (this.isPlaying) {
-            this.stopRunning = true;
-            try {
-                myThread.join();
-            } catch (Exception e) {
-                // Ignore.
-            }
-        }
-
-        // Copy file name array:
-        this.fileName = fileName;
-
-        // Load MIDI Sequences:
-        for (int i = 0; i < fileName.length; i++) {
-            if (loadNow[i]) {
-                sequenceLoaded[i] = true;
-                try {
-                    midiSequence[i] = MidiSystem.getSequence(getClass().getResource(fileName[i]));
-                    sequenceValid[i] = true;
-                } catch (Exception e) {
-                    // Invalid MIDI file:
-                    sequenceValid[i] = false;
-                    System.out.println("Invalid MIDI file: " + fileName[i]);
-                }
-            }
+    private synchronized void load(String filename) {
+        stopPlaying();
+        try {
+            midiSequence = MidiSystem.getSequence(getClass().getResource(filename));
+            sequenceValid = true;
+        } catch (Exception e) {
+            sequenceValid = false;
+            System.out.println("Invalid MIDI file: " + filename);
         }
     }
 
@@ -118,293 +88,78 @@ public class MidiPlayer extends Thread {
      * No parameters.
      */
     public void run() {
-        long mcSecLength;// = defSequencer.getMicrosecondLength();
-        long curPos = 0;
+        long microsecondLength;
 
-        if (!sequenceLoaded[sequenceIndex]) {
-            sequenceValid[sequenceIndex] = loadSequence(sequenceIndex);
-        }
-        if (sequenceValid[sequenceIndex] && sequencerValid) {
+        if (sequenceValid && sequencerValid) {
             try {
-                defSequencer.setSequence(midiSequence[sequenceIndex]);
-                mcSecLength = defSequencer.getMicrosecondLength();
-                defSequencer.start();
-            } catch (InvalidMidiDataException imde) {
-                sequenceValid[sequenceIndex] = false;
-                System.out.println("Encountered invalid MIDI data in file " + fileName[sequenceIndex]);
-                return;
+                sequencer.setSequence(midiSequence);
+                microsecondLength = sequencer.getMicrosecondLength();
+                sequencer.start();
+            } catch (InvalidMidiDataException e) {
+                throw new IllegalArgumentException("Invalid midi file", e);
             }
-            while (!this.stopRunning) {
+            while (!stopThread) {
                 // Nothing to do yet..
 
-                if ((defSequencer.getMicrosecondPosition() >= mcSecLength) || (!defSequencer.isRunning()) || this.resetPosition) {
-                    if (this.isLooping || this.resetPosition) {
+                if ((sequencer.getMicrosecondPosition() >= microsecondLength) || (!sequencer.isRunning()) || this.resetPosition) {
+                    if (this.loopingEnabled || this.resetPosition) {
                         // Reset position & start:
-                        defSequencer.stop();
-                        defSequencer.setMicrosecondPosition(0);
-                        defSequencer.start();
+                        sequencer.stop();
+                        sequencer.setMicrosecondPosition(0);
+                        sequencer.start();
                     } else {
                         // Stop playback, exit.
-                        this.stopRunning = true;
-                        sendEvent(EVENT_STOP);
+                        stopThread = true;
+                        sendMusicFinishedEvent();
                     }
                     this.resetPosition = false;
                 }
 
                 try {
-                    //if(timer == null){
-                    myThread.sleep(40);
-                    //}else{
-                    //	timer.waitMilli(20,true);
-                    //}
-                } catch (InterruptedException e) {
+                    sleep(40);
+                } catch (InterruptedException ignored) {
                 }
             }
             // Stopped.
-            defSequencer.stop();
+            sequencer.stop();
             this.isPlaying = false;
-        } else {
-            MidiPlayer.dbgPrint("Unable to play, not Valid player.");
         }
     }
 
-    private synchronized boolean loadSequence(int sequenceIndex) {
-        if (sequenceIndex < 0 || sequenceIndex >= midiSequence.length) {
-            return false;
-        }
-        try {
-            midiSequence[sequenceIndex] = MidiSystem.getSequence(getClass().getResource(fileName[sequenceIndex]));
+    private boolean startPlaying() {
+        stopPlaying();
+        if (sequenceValid && sequencerValid) {
+            isPlaying = true;
+            stopThread = false;
+            resetPosition = true;
+            playerThread = new Thread(this);
+            playerThread.start();
             return true;
-        } catch (Exception e) {
-            return false;
         }
+        return false;
     }
 
-    public synchronized void startPlaying(int sequenceIndex) {
-        if (sequenceIndex >= 0 && sequenceIndex < midiSequence.length && sequenceLoaded[sequenceIndex] && sequenceValid[sequenceIndex] && sequencerValid) {
-            stopPlaying();
-            this.sequenceIndex = sequenceIndex;
-            this.setPlaying(true);
-        } else {
-            System.out.println("Invalid sequence index: " + sequenceIndex);
-        }
-    }
-
-    public synchronized void stopPlaying() {
+    public void stopPlaying() {
         if (isPlaying) {
-            setPlaying(false);
-        }
-    }
-
-    /**
-     * A method for setting the playing state of the midi player.
-     *
-     * @param playing Whether the midi player should be playing or not
-     */
-    private void setPlaying(boolean playing) {
-        if (playing) {
-            if (myThread != null) {
-                // Start playing:
-                this.isPlaying = true;
-                this.stopRunning = false;
-                this.resetPosition = true;
-                if (myThread.isAlive()) {
-                    // Stop thread:
-                    this.stopRunning = true;
-                    try {
-                        myThread.join();
-                    } catch (InterruptedException e) {
-                        System.out.println("MidiPlayer can't seem to stop!");
-                    }
-                }
-                myThread = new Thread(this);
-                //myThread.setPriority(Thread.MIN_PRIORITY);
-                myThread.start();
-                //System.out.println("MIDIPLAYER STARTED");
-            }
-        } else {
-            // Stop thread if running:
-            this.stopRunning = true;
-            try {
-                myThread.join();
-            } catch (InterruptedException e) {
-                System.out.println("MidiPlayer can't seem to stop!");
-            }
-            //System.out.println("MIDIPLAYER STOPPED.");
-        }
-    }
-
-    /**
-     * A method for changing the tempo of the music being played.
-     * This may not be set before the midi player has begun playing.
-     *
-     * @param newTempo the new tempo of the music as a multiplication
-     *                 factor of the default tempo of the sequence.
-     */
-    public void setTempo(float newTempo) {
-        if (isPlaying) {
-            try {
-                this.defSequencer.setTempoFactor(newTempo);
-            } catch (Exception e) {
-            }
-        } else {
-            MidiPlayer.dbgPrint("Can't set tempo, not playing!");
-        }
-    }
-
-    /**
-     * A method for easily doubling the tempo of the music.
-     */
-    public void setTempoHigh() {
-        setTempo(2);
-    }
-
-    /**
-     * A method for easily setting the tempo of the music to one half default.
-     */
-    public void setTempoLow() {
-        setTempo((float) (0.5));
-    }
-
-    /**
-     * A method for setting the tempo back to normal.
-     */
-    public void setTempoNormal() {
-        setTempo(1);
-    }
-
-    /**
-     * A method for setting the looping state of the player.
-     *
-     * @param looping Whether the sequence should be restarted when finished.
-     */
-    public void setLooping(boolean looping) {
-        this.isLooping = looping;
-    }
-
-    /**
-     * Returns whether the midi player is looping the sequence.
-     */
-    public boolean isLooping() {
-        return this.isLooping;
-    }
-
-    /**
-     * Returns whether the midi player is playing.
-     */
-    public boolean isPlaying() {
-        return this.isPlaying;
-    }
-
-    /**
-     * Returns whether the midi player is valid for beginning to play.
-     */
-    public boolean isValid() {
-        return this.sequencerValid;
-    }
-
-    /**
-     * A method for printing debug messages to output when
-     * the DEBUG_ENABLED flag is set to true.
-     */
-    public static void dbgPrint(String dbgMsg) {
-        if (DEBUG_ENABLED) {
-            System.out.println("[MusicPlayer]: " + dbgMsg);
-        }
-    }
-
-    public String getFileName(int sequenceIndex) {
-        return this.fileName[sequenceIndex];
-    }
-
-    public synchronized void sendEvent(int eventCode) {
-        for (int i = 0; i < listener.length; i++) {
-            if (listener[i] != null) {
-                listener[i].actionPerformed(eventCode);
-            }
-        }
-    }
-
-    public synchronized int addListener(MidiPlayerListener mpl) {
-        MidiPlayerListener[] newArr = new MidiPlayerListener[listener.length + 1];
-        System.arraycopy(listener, 0, newArr, 0, listener.length);
-        newArr[listener.length] = mpl;
-        listener = newArr;
-        return (listener.length - 1);
-    }
-
-    public synchronized void removeListener(int index) {
-        MidiPlayerListener[] newArr = new MidiPlayerListener[listener.length - 1];
-        for (int i = 0; i < index; i++) {
-            newArr[i] = listener[i];
-        }
-        for (int i = index + 1; i < listener.length; i++) {
-            newArr[i - 1] = listener[i];
-        }
-        listener = newArr;
-    }
-
-    public synchronized void setVolume(double gain) {
-        //System.out.println("trying to set volume to "+gain);
-        if (isPlaying() && defSequencer.isRunning()) {
-            long t1, t2;
-            t1 = System.currentTimeMillis();
-            while (defSequencer.getMicrosecondPosition() < 1) {
+            stopThread = true;
+            if (playerThread.isAlive()) {
                 try {
-                    sleep(5);
-                } catch (InterruptedException ie) {
-                }
-                t2 = System.currentTimeMillis();
-                if (t2 - t1 > 5000) {
-                    return;
-                }
-            }
-            if (defSequencer instanceof Synthesizer) {
-                Synthesizer synthesizer = (Synthesizer) defSequencer;
-                MidiChannel[] channels = synthesizer.getChannels();
-
-                // gain is a value between 0 and 1 (loudest)
-                for (int i = 0; i < channels.length; i++) {
-                    channels[i].controlChange(7, (int) (gain * 127.0));
+                    playerThread.join();
+                } catch (InterruptedException e) {
+                    System.out.println("Unable to stop MidiPlayer");
                 }
             }
         }
-        //System.out.println("volume was set (successfully?)");
     }
 
-    public double getVolume() {
-        if (defSequencer instanceof Synthesizer) {
-            Synthesizer synthesizer = (Synthesizer) defSequencer;
-            MidiChannel[] channels = synthesizer.getChannels();
-
-            if (channels.length > 0 && channels[0] != null) {
-                return ((double) (channels[0].getController(7) / 127D));
-            }
+    private synchronized void sendMusicFinishedEvent() {
+        if (listener != null) {
+            listener.musicFinished();
         }
-        return 1;
     }
 
-    public void initFade(double startGain, double endGain, int steps) {
-        fadeStep = 0;
-        fade = true;
-        this.startGain = startGain;
-        this.endGain = endGain;
-        this.fadeStepCount = steps;
-    }
-
-    public void fade() {
-        if (fade) {
-            if (fadeStep < fadeStepCount) {
-                double gain = startGain + (((endGain - startGain) * ((double) fadeStep)) / ((double) fadeStepCount));
-                if (gain < 0) gain = 0;
-                if (gain > 1) gain = 1;
-                setVolume(gain);
-                fadeStep++;
-            } else {
-                fade = false;
-                fadeStep = 0;
-            }
-        }
+    public synchronized void setListener(MidiPlayerListener listener) {
+        this.listener = listener;
     }
 
 }

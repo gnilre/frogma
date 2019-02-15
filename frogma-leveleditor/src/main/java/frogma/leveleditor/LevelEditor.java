@@ -711,7 +711,7 @@ public class LevelEditor extends JFrame implements ActionListener {
         tileSetString[1] = game.getFGTileSet();
         tileSetString[2] = game.getRFGTileSet();
 
-        music = game.getMusic();
+        music = game.getBackgroundMusicFilename();
 
         component.setPanelSize();
         repaint();

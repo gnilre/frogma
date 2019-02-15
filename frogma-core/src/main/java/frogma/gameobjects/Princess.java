@@ -1,6 +1,9 @@
 package frogma.gameobjects;
 
-import frogma.*;
+import frogma.Const;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
+import frogma.ObjectProps;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.BasicGameObject;
@@ -9,7 +12,7 @@ import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.MidiPlayerListener;
 import frogma.soundsystem.SoundFX;
 
-import java.awt.*;
+import java.awt.Image;
 
 /**
  * <p>Title: Princess </p>
@@ -22,13 +25,11 @@ import java.awt.*;
  */
 
 public class Princess extends DynamicObject implements MidiPlayerListener {
-    public static Image objectImage;
-    int gravity = 1;
-    int aniCount;
-    int endAniFrame;
-    boolean endAniFrameValid = false;
-    boolean timeByMusic = false;
-    boolean killed = false;
+    private static final String COURSE_CLEAR_MIDI_FILE = "courseclear.mid";
+    private Image objectImage;
+    private int aniCount;
+    private boolean timeByMusic = false;
+    private boolean killed = false;
 
     // Static initialization of object parameter info:
     static ObjectClassParams oparInfo;
@@ -147,6 +148,7 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
      */
     public void calcNewPos() {
         //super.calcNewPos();
+        int gravity = 1;
         this.velY += gravity;
         this.newX += this.velX;
         this.newY += this.velY;
@@ -155,12 +157,8 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
             // Play the level finished music:
             MidiPlayer bgm = referrer.getBgmSystem();
             if (bgm != null && referrer.musicAllowed()) {
-                bgm.init("/bgm/courseclear.mid");
-                bgm.addListener(this);
-                bgm.setLooping(false);
-                bgm.stopPlaying();
-                bgm.startPlaying(0);
-                this.timeByMusic = true;
+                bgm.setListener(this);
+                timeByMusic = bgm.playOnce(COURSE_CLEAR_MIDI_FILE);
             }
         }
 
@@ -169,7 +167,7 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
         if (aniCount == 50) {
             referrer.addObjects(createHearts(10));
         }
-        if (!this.timeByMusic && aniCount == 300) // 500 is way too much.
+        if (!timeByMusic && aniCount == 300) // 500 is way too much.
         {
             referrer.getGfx().startHeartEffect(320, 240, 320, 240, 1500, 1500, 30);
         }
@@ -191,13 +189,10 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
 
     }
 
-    public void actionPerformed(int event) {
-        if (event == MidiPlayer.EVENT_STOP) {
-            //referrer.getBgmSystem().removeListener(this);
-            if (timeByMusic) {
-                referrer.getGfx().startHeartEffect(320, 240, 320, 240, 1500, 1500, 30);
-            }
-            //System.out.println("Starting heart effect, aniCount="+aniCount);
+    @Override
+    public void musicFinished() {
+        if (timeByMusic) {
+            referrer.getGfx().startHeartEffect(320, 240, 320, 240, 1500, 1500, 30);
         }
     }
 
