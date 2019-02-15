@@ -1,7 +1,7 @@
 package frogma.soundsystem;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.net.URL;
 
 /**
@@ -37,16 +37,12 @@ public class SoundFX {
     public static final byte SND_HITENEMY = 16;
     public static final byte SND_RAIN = 17;
 
+    private static final int NUMBER_OF_SOUND_EFFECTS = 18;
 
-    private byte SND_COUNT = 18;
-
-    private AudioClip[][] snd;
-    private long[][] soundPlayTime;
-    private boolean soundsLoaded;
-    private boolean isEnabled;
+    private Clip[] snd;
+    private long[] soundPlayTime;
+    private boolean enabled;
     private long[] minTimeBetweenPlays;
-    private int[] polyCount;
-    private String[] sndPath;
 
     /**
      * The class constructor. This will load
@@ -56,24 +52,20 @@ public class SoundFX {
         if (enabled) {
             // Load audio clips:
             loadSounds();
-            soundsLoaded = true;
-            isEnabled = true;
+            this.enabled = true;
         } else {
-            soundsLoaded = false;
-            isEnabled = false;
+            this.enabled = false;
         }
     }
 
-    public void setEnabled(boolean value) {
-        this.isEnabled = value;
-        if (!isEnabled) {
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        if (!enabled) {
             // Stop all sounds:
             for (int i = 0; i < snd.length; i++) {
                 if (snd[i] != null) {
-                    for (int j = 0; j < polyCount[i]; j++) {
-                        if (snd[i][j] != null) {
-                            snd[i][j].stop();
-                        }
+                    if (snd[i] != null) {
+                        snd[i].stop();
                     }
                 }
             }
@@ -82,52 +74,27 @@ public class SoundFX {
 
     private void loadSounds() {
 
-        sndPath = new String[SND_COUNT];
+        String[] filenames = new String[NUMBER_OF_SOUND_EFFECTS];
+        filenames[0] = "jump2.wav";            // Jump sound
+        filenames[1] = "collide.wav";        // Collide with ground sound
+        filenames[2] = "bonus3.wav";            // Powerups
+        filenames[3] = "bell.wav";            // Coins, bonus objects
+        filenames[4] = "donald2.wav";        // Player gets hurt
+        filenames[5] = "donald3.wav";        // Die sound
+        filenames[6] = "bounce2.wav";        // Bounce
+        filenames[7] = "collide4.wav";        // Jump on enemy
+        filenames[8] = "cheat.wav";            // Cheat
+        filenames[9] = "antigrav.wav";        // Anti gravity machine
+        filenames[10] = "goal2.wav";            // The goal (princess)
+        filenames[11] = "bigcollide.wav";        // Big collision, the Evil Blocks
+        filenames[12] = "swim.wav";            // Swimming sound
+        filenames[13] = "pipetransfer.wav";    // Through the pipe..
+        filenames[14] = "fireball2.wav";        // fireball
+        filenames[15] = "hit2.wav";            // fireball hits wall
+        filenames[16] = "hitenemy2.wav";        // fireball hits enemy
+        filenames[17] = "rain.wav";        // fireball hits enemy
 
-        sndPath[0] = "jump2.wav";            // Jump sound
-        sndPath[1] = "collide.wav";        // Collide with ground sound
-        sndPath[2] = "bonus3.wav";            // Powerups
-        sndPath[3] = "bell.wav";            // Coins, bonus objects
-        sndPath[4] = "donald2.wav";        // Player gets hurt
-        sndPath[5] = "donald3.wav";        // Die sound
-        sndPath[6] = "bounce2.wav";        // Bounce
-        sndPath[7] = "collide4.wav";        // Jump on enemy
-        sndPath[8] = "cheat.wav";            // Cheat
-        sndPath[9] = "antigrav.wav";        // Anti gravity machine
-        sndPath[10] = "goal2.wav";            // The goal (princess)
-        sndPath[11] = "bigcollide.wav";        // Big collision, the Evil Blocks
-        sndPath[12] = "swim.wav";            // Swimming sound
-        sndPath[13] = "pipetransfer.wav";    // Through the pipe..
-        sndPath[14] = "fireball2.wav";        // fireball
-        sndPath[15] = "hit2.wav";            // fireball hits wall
-        sndPath[16] = "hitenemy2.wav";        // fireball hits enemy
-        sndPath[17] = "rain.wav";        // fireball hits enemy
-
-
-        polyCount = new int[SND_COUNT];
-
-        polyCount[0] = 1;
-        polyCount[1] = 1;
-        polyCount[2] = 1;
-        polyCount[3] = 1;
-        polyCount[4] = 1;
-        polyCount[5] = 1;
-        polyCount[6] = 1;
-        polyCount[7] = 1;
-        polyCount[8] = 1;
-        polyCount[9] = 1;
-        polyCount[10] = 1;
-        polyCount[11] = 1;
-        polyCount[12] = 1;
-        polyCount[13] = 1;
-        polyCount[14] = 1;
-        polyCount[15] = 1;
-        polyCount[16] = 1;
-        polyCount[17] = 1;
-
-
-        minTimeBetweenPlays = new long[SND_COUNT];
-
+        minTimeBetweenPlays = new long[NUMBER_OF_SOUND_EFFECTS];
         minTimeBetweenPlays[0] = 30;
         minTimeBetweenPlays[1] = 30;
         minTimeBetweenPlays[2] = 30;
@@ -147,13 +114,11 @@ public class SoundFX {
         minTimeBetweenPlays[16] = 30;
         minTimeBetweenPlays[17] = 300;
 
+        soundPlayTime = new long[NUMBER_OF_SOUND_EFFECTS];
+        snd = new Clip[NUMBER_OF_SOUND_EFFECTS];
 
-        soundPlayTime = new long[SND_COUNT][];
-        snd = new AudioClip[SND_COUNT][];
-
-        for (int i = 0; i < SND_COUNT; i++) {
-            soundPlayTime[i] = new long[polyCount[i]];
-            snd[i] = loadSnd(sndPath[i], polyCount[i]);
+        for (int i = 0; i < NUMBER_OF_SOUND_EFFECTS; i++) {
+            snd[i] = loadSoundEffect(filenames[i]);
         }
     }
 
@@ -163,19 +128,16 @@ public class SoundFX {
      * @param sndFile The file name of the wav file that is to be loaded.
      * @return The audioclip.
      */
-    private AudioClip[] loadSnd(String sndFile, int count) {
-        AudioClip[] ac = new AudioClip[count];
-        URL sndURL = null;
+    private Clip loadSoundEffect(String sndFile) {
         try {
-            //System.out.println("userdir: "+System.getProperty("user.dir"));
-            sndURL = getClass().getResource("/sounds/" + sndFile);
+            URL url = getClass().getResource("/sounds/" + sndFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(AudioSystem.getAudioInputStream(url));
+            return clip;
         } catch (Exception exc) {
             System.out.println("MALFORMED SOUND FILE URL..");
+            return null;
         }
-        for (int i = 0; i < count; i++) {
-            ac[i] = Applet.newAudioClip(sndURL);
-        }
-        return ac;
     }
 
     /**
@@ -185,32 +147,29 @@ public class SoundFX {
      *                 one of the public sound constants of this class.
      */
     public void play(byte sndIndex) {
-        if (isEnabled) {
-            for (int i = 0; i < polyCount[sndIndex]; i++) {
-                // Find a free sound:
-                if (snd[sndIndex][i] != null) {
-                    long t = System.currentTimeMillis();
-                    if (t - soundPlayTime[sndIndex][i] > minTimeBetweenPlays[sndIndex]) {
-                        // Play sound:
-                        soundPlayTime[sndIndex][i] = t;
-                        snd[sndIndex][i].play();
-                    }
-                }
+        if (enabled) {
+            // Find a free sound:
+            long t = System.currentTimeMillis();
+            if (t - soundPlayTime[sndIndex] > minTimeBetweenPlays[sndIndex]) {
+                // Play sound:
+                soundPlayTime[sndIndex] = t;
+                snd[sndIndex].stop();
+                snd[sndIndex].setMicrosecondPosition(0);
+                snd[sndIndex].start();
             }
         }
     }
 
     public void loop(byte sndIndex) {
-        if (isEnabled && snd[sndIndex][0] != null) {
-            snd[sndIndex][0].loop();
+        if (enabled && snd[sndIndex] != null) {
+            snd[sndIndex].loop(Clip.LOOP_CONTINUOUSLY);
         }
     }
 
     public void stop(byte sndIndex) {
-        if (isEnabled && snd[sndIndex][0] != null) {
-            snd[sndIndex][0].stop();
+        if (enabled && snd[sndIndex] != null) {
+            snd[sndIndex].stop();
         }
     }
-
 
 }
