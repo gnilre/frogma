@@ -246,59 +246,10 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      * @param game menu an object of Game that will be drawn when the corresponding state is set.
      */
     public void initialize(Game game) {
-        Graphics g;
-
         //henter forgrunnsvariabler
         this.fgHeight = game.getFGHeight();
-        int fgWidth = game.getFGWidth();
-        int fgTileSize = game.getFGTileSize();
-        Image fgTileSet = game.getFGTileImg();
-
-        boolean fgAlphaTweak;
-        if (game.isFgAlphaTable()) {
-            System.out.println("Using alpha table for FG..");
-            fgAlphaTweak = true;
-            Image[] fgTile = new Image[fgTileSet.getWidth(this) / fgTileSize];
-            byte[] useAlpha_fg = game.getFgAlphaTable();
-
-            // Create images:
-            for (int i = 0; i < fgTile.length; i++) {
-                if (useAlpha_fg[i] == 0) {
-                    // No alpha, create opaque image:
-                    fgTile[i] = createImage(fgTileSize, fgTileSize);
-                }
-            }
-
-            // Copy image contents:
-            for (int i = 0; i < fgTile.length; i++) {
-                if (useAlpha_fg[i] == 0) {
-                    g = fgTile[i].getGraphics();
-                    g.drawImage(fgTileSet, -i * fgTileSize, 0, null);
-                }
-            }
-
-        } else {
-            fgAlphaTweak = false;
-            System.out.println("No alpha table for FG available.");
-        }
-
-        //henter bakgrunnsvariabler
-        int bgTileSize = game.getBGTileSize();
-        Image bgTileSet = game.getBGTileImg();
-
-        if (fgAlphaTweak) {
-            Image[] bgTile = new Image[bgTileSet.getWidth(this) / bgTileSize];
-            for (int i = 0; i < bgTile.length; i++) {
-                bgTile[i] = createImage(bgTileSize, bgTileSize);
-            }
-            for (int i = 0; i < bgTile.length; i++) {
-                g = bgTile[i].getGraphics();
-                g.drawImage(bgTileSet, -i * bgTileSize, 0, null);
-            }
-        }
-
-        this.levelHeight = this.fgHeight * fgTileSize;
-        this.levelWidth = fgWidth * fgTileSize;
+        this.levelHeight = this.fgHeight * game.getFGTileSize();
+        this.levelWidth = game.getFGWidth() * game.getFGTileSize();
     }
 
     /**

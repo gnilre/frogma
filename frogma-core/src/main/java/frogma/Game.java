@@ -23,7 +23,6 @@ import java.io.File;
  */
 public class Game {
     private static final boolean DEBUG = false;
-    private static boolean alphaTablesEnabled = true;
 
     private int fgWidth;
     private int fgHeight;
@@ -43,7 +42,6 @@ public class Game {
     private int startPosX;
     private int startPosY;
     private int nrMonsters;
-    private int nrLevels;
     private int levelNr;
 
     private short[] bgTiles;
@@ -57,33 +55,24 @@ public class Game {
     private int[][] objectParam;
     private String[] levels;
     private String[] passwords;
-    private byte[] bgAlphaTable;
-    private byte[] fgAlphaTable;
-    private boolean useFgAlpha;
-    private boolean useBgAlpha;
     private boolean isMap;
-    private int bgTileColor[];
-    private int fgTileColor[];
 
     private String fgTileSet;
     private String bgTileSet;
     private String rfgTileSet;
     private String music;
-    public Image fgTileImage;
-    public Image bgTileImage;
-    public Image rfgTileImage;
-    private FilLeser fileReader;
+    private Image fgTileImage;
+    private Image bgTileImage;
+    private Image rfgTileImage;
     private FilLeser levelReader;
 
-    private Component user;
-
-    private String levelFormat;
+    private Component component;
 
     /**
      * Creates an game without levels, for use with the leveleditor.
      */
-    public Game(Component user) {
-        this.user = user;
+    public Game(Component component) {
+        this.component = component;
     }
 
     /**
@@ -91,10 +80,10 @@ public class Game {
      *
      * @param gameFile The path to the file containing filenames of levels and the levels' passwords.
      */
-    public Game(Component user, String gameFile) {
-        this.user = user;
-        fileReader = new FilLeser(gameFile);
-        nrLevels = fileReader.lesInt();
+    public Game(Component component, String gameFile) {
+        this.component = component;
+        FilLeser fileReader = new FilLeser(gameFile);
+        int nrLevels = fileReader.lesInt();
         levels = new String[nrLevels];
         passwords = new String[nrLevels];
 
@@ -109,7 +98,7 @@ public class Game {
     }
 
     // Whether the level file is a world map, not a level.
-    public boolean isMap() {
+    boolean isMap() {
         return isMap;
     }
 
@@ -121,7 +110,7 @@ public class Game {
      * more levels.
      */
 
-    public boolean setLevel() {
+    boolean setLevel() {
         if (levelNr >= levels.length) {
             return false;
         } else {
@@ -139,7 +128,7 @@ public class Game {
         }
     }
 
-    public boolean setLevel(int levelno) {
+    boolean setLevel(int levelno) {
         if (levelno >= levels.length) {
             return false;
         }
@@ -166,7 +155,7 @@ public class Game {
      * more levels or if the password was incorrect.
      */
 
-    public boolean setLevel(String password) {
+    boolean setLevel(String password) {
 
 
         for (int j = 0; j < passwords.length; j++) {
@@ -212,9 +201,9 @@ public class Game {
         return true;
     }
 
-    public boolean getVars() {
+    private boolean getVars() {
         levelReader.setStart();
-        levelFormat = levelReader.lesString();
+        String levelFormat = levelReader.lesString();
         boolean result;
         if (levelFormat.toLowerCase().equals("frogma level format version 1")) {
             result = getVersion1Vars();
@@ -228,7 +217,7 @@ public class Game {
         return result;
     }
 
-    public boolean getVersion1Vars() {
+    private boolean getVersion1Vars() {
         fgWidth = levelReader.lesInt();
         fgHeight = levelReader.lesInt();
         fgTileSize = levelReader.lesInt();
@@ -287,7 +276,7 @@ public class Game {
         }
 
         // Create object params:
-        ObjectProducer objProd = new ObjectProducer(null, user, null);
+        ObjectProducer objProd = new ObjectProducer(null, component, null);
         objectParam = new int[nrMonsters][10];
         for (int i = 0; i < nrMonsters; i++) {
             objectParam[i] = objProd.getInitParams(monsterType[i]);
@@ -303,7 +292,7 @@ public class Game {
     }
 
     // Read a file in the second format version:
-    public boolean getVersion2Vars() {
+    private boolean getVersion2Vars() {
         ByteBuffer fBuffer = null;
 
         // Read the file contents:
@@ -428,7 +417,7 @@ public class Game {
         return true;
     }
 
-    public void validateObjectIDs() {
+    private void validateObjectIDs() {
         boolean[] foundID;
         boolean foundError = false;
         int maxID;
@@ -467,9 +456,9 @@ public class Game {
         }
     }
 
-    public boolean loadImages() {
+    private boolean loadImages() {
 
-        ImageLoader imageLoader = new ImageLoader(this.user);
+        ImageLoader imageLoader = new ImageLoader(this.component);
         imageLoader.add(0, "/images/" + fgTileSet);
         imageLoader.add(1, "/images/" + bgTileSet);
         imageLoader.loadAll();
@@ -477,8 +466,6 @@ public class Game {
         fgTileImage = imageLoader.get(0);
         bgTileImage = imageLoader.get(1);
 
-        // Read alpha definition files:
-        getAlphaTables();
         return true;
     }
 
@@ -639,14 +626,6 @@ public class Game {
         return nrMonsters;
     }
 
-    public int getLevelCount() {
-        if (levels != null) {
-            return levels.length;
-        } else {
-            return 0;
-        }
-    }
-
     /**
      * Gets the y-coordinate of the positions of the monsters.
      *
@@ -678,15 +657,11 @@ public class Game {
         return objectID;
     }
 
-    public int getObjectID(int objIndex) {
-        return objectID[objIndex];
-    }
-
     public int[][] getObjectParams() {
         return objectParam;
     }
 
-    public int[] getObjectParam(int objIndex) {
+    int[] getObjectParam(int objIndex) {
         return objectParam[objIndex];
     }
 
@@ -753,115 +728,4 @@ public class Game {
         return music;
     }
 
-    public boolean isFgAlphaTable() {
-        return useFgAlpha;
-    }
-
-    public boolean isBgAlphaTable() {
-        return useBgAlpha;
-    }
-
-    public byte[] getFgAlphaTable() {
-        return fgAlphaTable;
-    }
-
-    public int[] getFgColorTable() {
-        return fgTileColor;
-    }
-
-    public byte[] getBgAlphaTable() {
-        return bgAlphaTable;
-    }
-
-    public int[] getBgColorTable() {
-        return bgTileColor;
-    }
-
-    public int getEggCount() {
-        int count = 0;
-        if (monsterType != null) {
-            for (int i = 0; i < monsterType.length; i++) {
-                if (monsterType[i] == Const.OBJ_FROGEGG) {
-                    count++;
-                } else if (monsterType[i] == Const.OBJ_BONUSBLOCK && objectParam[i][1] == 5) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    public void getAlphaTables() {
-        if (!alphaTablesEnabled) {
-            return;
-        }
-        String alphaFileName = "/images/" + fgTileSet.substring(0, fgTileSet.length() - 3) + "atf";
-        FilLeser alphaReader;
-        boolean fail_fg = false;
-        boolean fail_bg = false;
-
-        // FG Alpha:
-        //------------------------------------------------------------------------
-        int tileCount = (int) (fgTileImage.getWidth(null) / fgTileImage.getHeight(null));
-
-        if (tileCount < 1) {
-            useFgAlpha = false;
-            System.out.println("FG Alpha fetch failed because image is empty.");
-            fail_fg = true;
-        }
-
-        if (!fail_fg) {
-            try {
-                alphaReader = new FilLeser(alphaFileName);
-                fgAlphaTable = new byte[tileCount];
-                fgTileColor = new int[tileCount];
-                for (int i = 0; i < tileCount; i++) {
-                    fgAlphaTable[i] = alphaReader.lesByte();
-                    if (fgAlphaTable[i] == 3) {
-                        fgTileColor[i] = alphaReader.lesInt();
-                    }
-                }
-                useFgAlpha = true;
-                alphaReader.close();
-            } catch (Exception e) {
-                System.out.println("Unable to fetch alpha table for FG Tileset.");
-                useFgAlpha = false;
-            }
-        }
-
-        // BG Alpha:
-        //------------------------------------------------------------------------
-        alphaFileName = "/images/" + bgTileSet.substring(0, bgTileSet.length() - 3) + "atf";
-        tileCount = (int) (bgTileImage.getWidth(null) / bgTileImage.getHeight(null));
-
-        if (tileCount < 1) {
-            useBgAlpha = false;
-            System.out.println("BG Alpha fetch failed because image is empty.");
-            fail_bg = true;
-        }
-
-        if (!fail_bg) {
-            try {
-                alphaReader = new FilLeser(alphaFileName);
-                bgAlphaTable = new byte[tileCount];
-                bgTileColor = new int[tileCount];
-                for (int i = 0; i < tileCount; i++) {
-                    bgAlphaTable[i] = alphaReader.lesByte();
-                    if (bgAlphaTable[i] == 3) {
-                        bgTileColor[i] = alphaReader.lesInt();
-                    }
-                }
-                useBgAlpha = true;
-                alphaReader.close();
-            } catch (Exception e) {
-                System.out.println("Unable to fetch alpha table for BG Tileset.");
-                useBgAlpha = false;
-            }
-        }
-
-    }
-
-    public static void useAlphaTables(boolean value) {
-        alphaTablesEnabled = value;
-    }
 }
