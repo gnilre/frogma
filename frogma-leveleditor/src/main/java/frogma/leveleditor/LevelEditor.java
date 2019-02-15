@@ -10,7 +10,6 @@ import frogma.misc.Misc;
 import frogma.resources.ByteBuffer;
 import frogma.resources.ImageLoader;
 
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,8 +32,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
@@ -79,8 +76,6 @@ import java.io.IOException;
  * @author Erling Andersen
  * @version 1.1
  */
-
-
 public class LevelEditor extends JFrame implements ActionListener {
 
     private static final byte TOOL_SELECT = 0;    // Used for selecting objects or regions of tiles
@@ -121,20 +116,7 @@ public class LevelEditor extends JFrame implements ActionListener {
 
     private IndexGenerator indexGen;
 
-    // Window components:
-    private JTabbedPane tab;
     private LevelPane component;
-    private JMenuBar menubar;
-    private JMenu file;
-    private JMenuItem newLevel;
-    private JMenuItem open;
-    private JMenuItem save;
-    private JMenuItem saveAs;
-    private JMenuItem saveAndRun;
-    private JMenuItem exit;
-    private JMenu configure;
-    private JMenuItem options;
-    private JToolBar myToolBar;
     private JToggleButton[] toolButton;
 
     // Some images:
@@ -162,40 +144,16 @@ public class LevelEditor extends JFrame implements ActionListener {
     private int[] layerWidth;
     private int[] layerHeight;
     private int[] layerTileSize;
-    private int[] layerIndex;
-
-    //private int layerWidth[1];
-    //private int layerHeight[1];
-    //private int layerWidth[0];
-    //private int layerHeight[0];
-    //private int layerWidth[2];
-    //private int layerHeight[2];
-    //private int sWidth;
-    //private int sHeight;
-    //private int fgTileSize;
-    //private int bgTileSize;
-    //private int rfgTileSize;
-    //final int sTileSize=8;
 
     // Useful tools:
     private ObjectProducer objProd;
-    private ImageLoader iLoader;
     private ObjectProps objProps;
-    private ToolWindow toolWin;
 
     // Arrays used for storing the tiles while editing:
     private short[][] tileArray = new short[4][];
 
-    //private short[] fgTileArray;//forgrunns tiles
-    //private short[] bgTileArray;//bakgrunns tiles
-    //private short[] rfgTileArray;
-    //private byte[] sTileArray;//solid tiles
-
     // Image paths:
     private String[] tileSetString = new String[4];
-    //private String fgTileSetString;
-    //private String bgTileSetString;
-    //private String rfgTileSetString;
     private String music;
 
     // Start position in level:
@@ -210,8 +168,6 @@ public class LevelEditor extends JFrame implements ActionListener {
     private int[] objectIndex;
     private int[][] objectParam;
     private ObjectClassParams[] paramInfo;
-    //*****Dette er forel�big alt som skal lagres****
-
 
     /**
      * Standard Constructor.
@@ -219,12 +175,6 @@ public class LevelEditor extends JFrame implements ActionListener {
      */
     public LevelEditor() {
         super("LevelEditor 1.0");
-
-		/*try{
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		}catch(Exception e){
-			// Ignore.
-		}*/
 
         // Set in-game state to false:
         Misc.setInGame(false);
@@ -244,69 +194,37 @@ public class LevelEditor extends JFrame implements ActionListener {
         layerTileSize = new int[4];
         layerWidth = new int[4];
         layerHeight = new int[4];
-        layerIndex = new int[4];
 
         layerTileSize[0] = 96;
         layerTileSize[1] = 32;
         layerTileSize[2] = 192;
         layerTileSize[3] = 8;
 
-        //layerWidth[1]=40;
-        //layerHeight[1]=40;
         layerWidth[1] = 40;
         layerHeight[1] = 40;
 
-        //layerWidth[0]=10;
-        //layerHeight[0]=10;
         layerWidth[0] = 10;
         layerHeight[0] = 10;
 
-        //layerWidth[2]=10;
-        //layerHeight[2]=10;
         layerWidth[2] = 10;
         layerHeight[2] = 10;
 
         layerWidth[3] = layerWidth[1] * layerTileSize[1] / layerTileSize[3];
         layerHeight[3] = layerHeight[1] * layerTileSize[1] / layerTileSize[3];
 
-        //fgTileSize=32;
-        //bgTileSize=96;
-        //rfgTileSize=192;
-
-        layerIndex[0] = 0;
-        layerIndex[1] = 0;
-        layerIndex[2] = 0;
-        layerIndex[3] = 0;
-
-        //fgTileIndex=0;
-        //bgTileIndex=0;
-        //rfgTileIndex=0;
-        //sTileIndex=0;
         dynObjIndex = 0;
         zoom = 1;
         state = 1;
-        //sWidth = layerWidth[1]*fgTileSize/sTileSize;
-        //sHeight = layerHeight[1]*fgTileSize/sTileSize;
 
-        //this.fgTileSetString ="tiles.png";
-        //this.bgTileSetString ="bg4.png";
-        //this.rfgTileSetString="bg4.png";
-        this.music = "lolo2.mid";
-
+        music = "lolo2.mid";
         tileSetString[0] = "bg4.png";
         tileSetString[1] = "tiles.png";
         tileSetString[2] = "bg4.png";
-
-        //sTileArray = new byte[sWidth*sHeight];
-        //fgTileArray=new short[layerWidth[1]*layerHeight[1]];
-        //bgTileArray=new short[layerWidth[0]*layerHeight[0]];
-        //rfgTileArray=new short[layerWidth[2]*layerHeight[2]];
 
         tileArray[0] = new short[layerWidth[0] * layerHeight[0]];
         tileArray[1] = new short[layerWidth[1] * layerHeight[1]];
         tileArray[2] = new short[layerWidth[2] * layerHeight[2]];
         tileArray[3] = new short[layerWidth[3] * layerHeight[3]];
-
 
         monsterType = new int[0];
         monsterStartPosX = new int[0];
@@ -314,12 +232,8 @@ public class LevelEditor extends JFrame implements ActionListener {
         objectIndex = new int[0];
         objectParam = new int[0][];
 
-
-        //System.out.println(this.layerHeight[0]+"\n"+this.layerWidth[0] +"\n"+this.sHeight+"\n"+this.sWidth );
-
-
         // Create an image loader with all the standard images:
-        iLoader = Const.createStandardImageLoader(this);
+        ImageLoader iLoader = Const.createStandardImageLoader(this);
 
         // Remove some images that won't be used:
         iLoader.remove(Const.IMG_LOGO);
@@ -340,12 +254,6 @@ public class LevelEditor extends JFrame implements ActionListener {
         tileSetImage[3] = iLoader.get(Const.IMG_SOLIDTILES);
         tileSetImage[4] = iLoader.get(Const.IMG_PLAYER);
 
-        //fgTileSet = iLoader.get(300);
-        //bgTileSet = iLoader.get(301);
-        //rfgTileSet = iLoader.get(301);
-        //sTileSet = iLoader.get(Const.IMG_SOLIDTILES);
-        //playerImage = iLoader.get(Const.IMG_PLAYER);
-
         // Create object producer:
         objProd = new ObjectProducer(null, this, iLoader);
 
@@ -361,13 +269,13 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         isSelectingLink = false;
 
-        this.toolWin = new ToolWindow(this);
+        ToolWindow toolWin = new ToolWindow(this);
         this.objProps = new ObjectProps(this, objProd, 0);
 
         this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
         this.setSize(800, 600);
 
-        myToolBar = new JToolBar();
+        JToolBar myToolBar = new JToolBar();
         myToolBar.setFloatable(false);
         myToolBar.setPreferredSize(new Dimension(800, 32));
         JLabel toolBarLabel = new JLabel("Tool:  ");
@@ -386,6 +294,8 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(myToolBar, BorderLayout.NORTH);
+        // Window components:
+        JTabbedPane tab;
         this.getContentPane().add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tab = new JTabbedPane(), new IndexPane(component = new LevelPane(this))), BorderLayout.CENTER);
 
         this.component.addKeyListener(new EditorKeyListener());
@@ -394,12 +304,9 @@ public class LevelEditor extends JFrame implements ActionListener {
         tab.add("rfgTileSet", new IndexPane(new PicturePanel(3)));
         tab.add("sTiles", new IndexPane(new PicturePanel(4)));
         tab.add("Dynamic Objects", new IndexPane(new PicturePanel(5)));
-        tab.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                component.setPanelSize();
-                component.repaint();
-
-            }
+        tab.addChangeListener(e -> {
+            component.setPanelSize();
+            component.repaint();
         });
 
         this.fgResize(20, 15);
@@ -409,13 +316,14 @@ public class LevelEditor extends JFrame implements ActionListener {
         int x = (int) winPos.getX();
         int y = (int) winPos.getY();
 
-        this.toolWin.setLocation(x + this.getWidth(), y);
-        this.objProps.setLocation(x + this.getWidth(), y + this.toolWin.getHeight());
+        toolWin.setLocation(x + this.getWidth(), y);
+        this.objProps.setLocation(x + this.getWidth(), y + toolWin.getHeight());
 
-        menubar = new JMenuBar();
-        file = new JMenu("File");
+        JMenuBar menubar = new JMenuBar();
+        JMenu file = new JMenu("File");
         file.setMnemonic('F');
-        newLevel = new JMenuItem("New");
+
+        JMenuItem newLevel = new JMenuItem("New");
         file.add(newLevel);
         newLevel.setMnemonic('N');
         newLevel.setAccelerator(KeyStroke.getKeyStroke('N', Event.CTRL_MASK));
@@ -424,7 +332,8 @@ public class LevelEditor extends JFrame implements ActionListener {
                 new Options(mySelf, true);
             }
         });
-        open = new JMenuItem("Open...");
+
+        JMenuItem open = new JMenuItem("Open...");
         file.add(open);
         open.setAccelerator(KeyStroke.getKeyStroke('O', Event.CTRL_MASK));
         open.setMnemonic('O');
@@ -433,7 +342,8 @@ public class LevelEditor extends JFrame implements ActionListener {
                 open(null);
             }
         });
-        save = new JMenuItem("Save");
+
+        JMenuItem save = new JMenuItem("Save");
         file.add(save);
         save.setAccelerator(KeyStroke.getKeyStroke('S', Event.CTRL_MASK));
         save.setMnemonic('S');
@@ -442,7 +352,8 @@ public class LevelEditor extends JFrame implements ActionListener {
                 save();
             }
         });
-        saveAs = new JMenuItem("Save as...");
+
+        JMenuItem saveAs = new JMenuItem("Save as...");
         file.add(saveAs);
         saveAs.setMnemonic('A');
         saveAs.addActionListener(new ActionListener() {
@@ -450,20 +361,8 @@ public class LevelEditor extends JFrame implements ActionListener {
                 saveAs();
             }
         });
-		/*saveAndRun = new JMenuItem("Save & Run");
-		file.add(saveAndRun);
-		saveAndRun.setAccelerator(KeyStroke.getKeyStroke('R',Event.CTRL_MASK));
-		saveAndRun.setMnemonic('R');
-		saveAndRun.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				save();
-				System.exit(1);
-				//System.out.println("Pressed Save & Run");
-				GameEngine gEng = new GameEngine(640,480,40,false);
-				gEng.run();
-			}
-		});*/
-        exit = new JMenuItem("Exit");
+
+        JMenuItem exit = new JMenuItem("Exit");
         exit.setMnemonic('X');
         exit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -472,9 +371,9 @@ public class LevelEditor extends JFrame implements ActionListener {
         });
         file.add(exit);
 
-        configure = new JMenu("Configure");
+        JMenu configure = new JMenu("Configure");
         configure.setMnemonic('C');
-        options = new JMenuItem("Options...");
+        JMenuItem options = new JMenuItem("Options...");
         options.setMnemonic('O');
         options.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -490,13 +389,30 @@ public class LevelEditor extends JFrame implements ActionListener {
         mySelf = this;
 
         this.setVisible(true);
-        //new Options(this, true);
     }
 
-    public void saveObjectParams(int[] objParam) {
-        if (state == 5 && currentTool == TOOL_SELECT && objSelectedIndex != -1) {
-            this.objectParam[objSelectedIndex] = objParam;
-        }
+    int getLayerTileSize(int layer) {
+        return layerTileSize[layer];
+    }
+
+    int getLayerWidth(int layer) {
+        return layerWidth[layer];
+    }
+
+    int getLayerHeight(int layer) {
+        return layerHeight[layer];
+    }
+
+    String getTileSetString(int layer) {
+        return tileSetString[layer];
+    }
+
+    String getBackgroundMusicFilename() {
+        return music;
+    }
+
+    void setBackgroundMusicFilename(String backgroundMusicFilename) {
+        music = backgroundMusicFilename;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -622,11 +538,9 @@ public class LevelEditor extends JFrame implements ActionListener {
         }
 
         objectIndex[monsterType.length - 1] = indexGen.createIndex();
-        //System.out.println("New ID: "+objectIndex[monsterType.length-1]);
         monsterType[monsterType.length - 1] = type;
         monsterStartPosX[monsterType.length - 1] = x;
         monsterStartPosY[monsterType.length - 1] = y;
-        //g.setClip(monsterStartPosX[monsterType.length-1],monsterStartPosY[monsterType.length-1],dynObjs[monsterType[monsterType.length-1]].getSolidWidth()*8,dynObjs[monsterType[monsterType.length-1]].getSolidHeight()*8 );
         monsterCount = monsterType.length;
         objectParam[monsterType.length - 1] = Misc.cloneIntArray(objProd.getInitParams(type));//dynObjs[type].getInitParams();//
 
@@ -662,7 +576,8 @@ public class LevelEditor extends JFrame implements ActionListener {
             return;
         }
 
-        objSelectedIndex = -1;    // Start without any selected objects.
+        // Start without any selected objects.
+        objSelectedIndex = -1;
 
         layerWidth = new int[4];
         layerHeight = new int[4];
@@ -683,28 +598,13 @@ public class LevelEditor extends JFrame implements ActionListener {
         layerTileSize[2] = game.getRFGTileSize();
         layerTileSize[3] = 8;
 
-        //layerWidth[1] = game.getlayerWidth[1]();
-        //layerHeight[1] = game.getlayerHeight[1]();
-        //layerWidth[0] = game.getlayerWidth[0]();
-        //layerHeight[0] = game.getlayerHeight[0]();
-        //layerWidth[2] = game.getlayerWidth[2]();
-        //layerHeight[2] = game.getlayerHeight[2]();
-        //sWidth = game.getSolidWidth();
-        //sHeight = game.getSolidHeight();
-        //fgTileSize = game.getFGTileSize();
-        //bgTileSize = game.getBGTileSize();
-        //rfgTileSize = game.getRFGTileSize();
-
         tileArray[0] = game.getBGTiles();
         tileArray[1] = game.getFGTiles();
         tileArray[2] = game.getRFGTiles();
 
         short[] sTileArray = game.getSolidTiles();
         tileArray[3] = new short[sTileArray.length];
-        for (int i = 0; i < sTileArray.length; i++) {
-            tileArray[3][i] = sTileArray[i];
-        }
-        //tileArray[3] = game.getSolidTiles();
+        System.arraycopy(sTileArray, 0, tileArray[3], 0, sTileArray.length);
 
         startPosX = game.getStartX();
         startPosY = game.getStartY();
@@ -735,13 +635,6 @@ public class LevelEditor extends JFrame implements ActionListener {
             }
         }
 
-        //fgTileSet = game.getFGTileImg();
-        //bgTileSet = game.getBGTileImg();
-        //rfgTileSet = game.getRFGTileImg();
-        //fgTileSetString = game.getFGTileSet();
-        //bgTileSetString = game.getBGTileSet();
-        //rfgTileSetString = game.getRFGTileSet();
-
         tileSetImage[0] = game.getBGTileImg();
         tileSetImage[1] = game.getFGTileImg();
         tileSetImage[2] = game.getRFGTileImg();
@@ -753,7 +646,6 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         component.setPanelSize();
         repaint();
-
     }
 
     /**
@@ -762,12 +654,9 @@ public class LevelEditor extends JFrame implements ActionListener {
     private void save() {
         if (theFile != null) {
             try {
-                //BufferedWriter buffer = new BufferedWriter(new FileWriter(theFile));
-                //buffer.write(varsToString());
                 FileOutputStream outStream = new FileOutputStream(theFile);
                 writeFileInFormat2(outStream);
                 outStream.close();
-                //buffer.close();
             } catch (IOException ioe) {
             }
         } else {
@@ -780,17 +669,13 @@ public class LevelEditor extends JFrame implements ActionListener {
      */
     private void saveAs() {
         JFileChooser fc = new JFileChooser();
-        int returnVal = fc.showSaveDialog(this);
+        fc.showSaveDialog(this);
         theFile = fc.getSelectedFile();
         try {
-  		/*BufferedWriter buffer = new BufferedWriter(new FileWriter(theFile));
-  		buffer.write(varsToString());
-  		buffer.close();
-  		*/
             FileOutputStream outStream = new FileOutputStream(theFile);
             writeFileInFormat2(outStream);
             outStream.close();
-        } catch (IOException ioe) {
+        } catch (IOException ignored) {
         }
     }
 
@@ -801,52 +686,47 @@ public class LevelEditor extends JFrame implements ActionListener {
      * @return The String which are going to be written to a file.
      */
     public String varsToString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("frogma level format version 1\n");
-        sb.append(layerWidth[1] + "\n");
-        sb.append(layerHeight[1] + "\n");
-        sb.append(layerTileSize[1] + "\n");
-        sb.append(layerWidth[0] + "\n");
-        sb.append(layerHeight[0] + "\n");
-        sb.append(layerTileSize[0] + "\n");
-        sb.append(layerWidth[2] + "\n");
-        sb.append(layerHeight[2] + "\n");
-        sb.append(layerTileSize[2] + "\n");
-        sb.append(layerWidth[3] + "\n");
-        sb.append(layerHeight[3] + "\n");
-        sb.append(startPosX + "\n");
-        sb.append(startPosY + "\n");
+        sb.append(layerWidth[1]).append("\n");
+        sb.append(layerHeight[1]).append("\n");
+        sb.append(layerTileSize[1]).append("\n");
+        sb.append(layerWidth[0]).append("\n");
+        sb.append(layerHeight[0]).append("\n");
+        sb.append(layerTileSize[0]).append("\n");
+        sb.append(layerWidth[2]).append("\n");
+        sb.append(layerHeight[2]).append("\n");
+        sb.append(layerTileSize[2]).append("\n");
+        sb.append(layerWidth[3]).append("\n");
+        sb.append(layerHeight[3]).append("\n");
+        sb.append(startPosX).append("\n");
+        sb.append(startPosY).append("\n");
         for (int i = 0; i < tileArray[1].length; i++) {
-            sb.append(tileArray[1][i] + "\n");
+            sb.append(tileArray[1][i]).append("\n");
         }
         for (int i = 0; i < tileArray[0].length; i++) {
-            sb.append(tileArray[0][i] + "\n");
+            sb.append(tileArray[0][i]).append("\n");
         }
         for (int i = 0; i < tileArray[2].length; i++) {
-            sb.append(tileArray[2][i] + "\n");
+            sb.append(tileArray[2][i]).append("\n");
         }
         for (int i = 0; i < tileArray[3].length; i++) {
-            sb.append(tileArray[3][i] + "\n");
+            sb.append(tileArray[3][i]).append("\n");
         }
-        sb.append(monsterCount + "\n");
+        sb.append(monsterCount).append("\n");
         for (int i = 0; i < monsterCount; i++) {
-            sb.append(monsterType[i] + "\n");
-        }
-        for (int i = 0; i < monsterCount; i++) {
-            sb.append(monsterStartPosX[i] + "\n");
+            sb.append(monsterType[i]).append("\n");
         }
         for (int i = 0; i < monsterCount; i++) {
-            sb.append(monsterStartPosY[i] + "\n");
+            sb.append(monsterStartPosX[i]).append("\n");
         }
-        sb.append(tileSetString[1] + "\n");
-        sb.append(tileSetString[0] + "\n");
-        sb.append(tileSetString[2] + "\n");
-        sb.append(music + "\n");
-
-        //System.out.println(fgTileSetString);
-        //System.out.println(bgTileSetString);
-        //System.out.println(rfgTileSetString);
-        //System.out.println(music);
+        for (int i = 0; i < monsterCount; i++) {
+            sb.append(monsterStartPosY[i]).append("\n");
+        }
+        sb.append(tileSetString[1]).append("\n");
+        sb.append(tileSetString[0]).append("\n");
+        sb.append(tileSetString[2]).append("\n");
+        sb.append(music).append("\n");
 
         return sb.toString();
     }
@@ -877,7 +757,7 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         // Write to the bytebuffer:
 
-        buf.putStringAscii(new String("frogma level format version 2\n"));
+        buf.putStringAscii("frogma level format version 2\n");
         buf.putInt(layerWidth[1]);
         buf.putInt(layerHeight[1]);
         buf.putInt(layerTileSize[1]);
@@ -931,23 +811,17 @@ public class LevelEditor extends JFrame implements ActionListener {
         if (buf.hasHadErrors()) {
             System.out.println("There were errors writing to the ByteBuffer.");
             successfulWrite = false;
-        } else {
-            //System.out.println("ByteBuffer OK.");
         }
 
         // Write bytebuffer to the BufferedWriter:
-        //tmpString = buf.toString();
         try {
-            //bufWriter.write(tmpString,0,tmpString.length());
             buf.compress(30);
-
             buf.appendChecksums(30, buf.getSize() - 30);
             outStream.write(buf.getBytes());
         } catch (IOException ioe) {
             // Report error:
             System.out.println("Error writing to file.");
             successfulWrite = false;
-
         }
         // FINISHED.
         if (successfulWrite) {
@@ -962,17 +836,14 @@ public class LevelEditor extends JFrame implements ActionListener {
      *
      * @param fgTileSize a multiple of 8. (standard is 32 pixels)
      */
-    private void setFgTileSize(int fgTileSize) {
-        if ((fgTileSize % 8) != 0) System.out.println("Ugyldig tileSize");
-
-
-        else {
+    void setFgTileSize(int fgTileSize) {
+        if ((fgTileSize % 8) != 0) {
+            System.out.println("Ugyldig tileSize");
+        } else {
             this.layerTileSize[1] = fgTileSize;
             this.sResize();
-
             this.repaint();
         }
-
     }
 
     /**
@@ -980,14 +851,12 @@ public class LevelEditor extends JFrame implements ActionListener {
      *
      * @param bgTileSize multiple of 8
      */
-    private void setBgTileSize(int bgTileSize) {
-        if ((bgTileSize % 8) != 0) System.out.println("Ugyldig tileSize");
-
-        else {
+    void setBgTileSize(int bgTileSize) {
+        if ((bgTileSize % 8) != 0) {
+            System.out.println("Ugyldig tileSize");
+        } else {
             this.layerTileSize[0] = bgTileSize;
-
         }
-
     }
 
     /**
@@ -995,14 +864,12 @@ public class LevelEditor extends JFrame implements ActionListener {
      *
      * @param rfgTileSize multiple of 8
      */
-    private void setRfgTileSize(int rfgTileSize) {
-        if ((rfgTileSize % 8) != 0) System.out.println("Ugyldig tileSize");
-
-        else {
+    void setRfgTileSize(int rfgTileSize) {
+        if ((rfgTileSize % 8) != 0) {
+            System.out.println("Ugyldig tileSize");
+        } else {
             this.layerTileSize[2] = rfgTileSize;
-
         }
-
     }
 
     private int getInternalObjectIndex(int objID) {
@@ -1023,14 +890,6 @@ public class LevelEditor extends JFrame implements ActionListener {
             return monsterType[iIndex];
         }
         return -1;
-    }
-
-    public int[] getObjectParam(int objID) {
-        int iIndex = getInternalObjectIndex(objID);
-        if (iIndex != -1) {
-            return objectParam[iIndex];
-        }
-        return new int[10];
     }
 
     private LevelPane getLevelPane() {
@@ -1078,7 +937,7 @@ public class LevelEditor extends JFrame implements ActionListener {
      * Changes the size of the forground tile array. The solid tile array will automatically be updated.
      * Will crop the old array if the new size is smaller than the old.
      */
-    private void fgResize(int fgWidth, int fgHeight) {
+    void fgResize(int fgWidth, int fgHeight) {
         if (layerWidth[1] > 0 && layerHeight[1] > 0) {
             int oldWidth = this.layerWidth[1];
             int oldHeight = this.layerHeight[1];
@@ -1110,7 +969,7 @@ public class LevelEditor extends JFrame implements ActionListener {
      * The background will move (layerWidth[0]-640)/(layerWidth[1]-640) times as fast Horozontally at the forground.
      * The background will move (layerHeight[0]-640)/(layerHeight[1]-640) times as fast Vertically at the forground.
      */
-    private void bgResize(int bgWidth, int bgHeight) {
+    void bgResize(int bgWidth, int bgHeight) {
         if (layerWidth[0] * layerTileSize[0] > 640 && layerHeight[0] * layerTileSize[0] > 480) {
             int oldWidth = this.layerWidth[0];
             int oldHeight = this.layerHeight[0];
@@ -1138,15 +997,13 @@ public class LevelEditor extends JFrame implements ActionListener {
      * Changes the size of the frontmost tilearray. Same rules apply here as on bgResize
      */
 
-    private void rfgResize(int rfgWidth, int rfgHeight) {
+    void rfgResize(int rfgWidth, int rfgHeight) {
         if (layerWidth[2] * layerTileSize[2] > layerWidth[1] * layerTileSize[1] && layerHeight[2] * layerTileSize[2] > layerHeight[1] * layerTileSize[1]) {
             int oldWidth = this.layerWidth[2];
             int oldHeight = this.layerHeight[2];
             int curWidth;
             int curHeight;
             short[] oldArray = this.tileArray[2];
-            this.layerWidth[2] = layerWidth[2];
-            this.layerHeight[2] = layerHeight[2];
             this.tileArray[2] = new short[this.layerWidth[2] * this.layerHeight[2]];
             if (oldWidth > this.layerWidth[2]) curWidth = layerWidth[2];
             else curWidth = oldWidth;
@@ -1183,25 +1040,20 @@ public class LevelEditor extends JFrame implements ActionListener {
         for (int i = 0; i < curHeight; i++)
             for (int j = 0; j < curWidth; j++)
                 this.tileArray[3][i * layerWidth[3] + j] = oldArray[i * oldWidth + j];
-
     }
 
-    private void neue(int fgTileSize, int bgTileSize, int rfgTileSize, int fgWidth, int fgHeight, int bgWidth, int bgHeight, int rfgWidth, int rfgHeight) {
+    void neue(int fgTileSize, int bgTileSize, int rfgTileSize, int fgWidth, int fgHeight, int bgWidth, int bgHeight, int rfgWidth, int rfgHeight) {
         this.layerTileSize[1] = fgTileSize;
         this.layerTileSize[0] = bgTileSize;
         this.layerTileSize[2] = rfgTileSize;
         this.layerWidth[1] = fgWidth;
         this.layerHeight[1] = fgHeight;
-        //this.fgTileArray = new short[layerWidth[1]*layerHeight[1]];
         this.layerWidth[0] = bgWidth;
         this.layerHeight[0] = bgHeight;
-        //this.bgTileArray = new short[layerWidth[0]*layerHeight[0]];
         this.layerWidth[2] = rfgWidth;
         this.layerHeight[2] = rfgHeight;
-        //this.rfgTileArray = new short[layerWidth[2]*layerHeight[2]];
         this.layerWidth[3] = layerWidth[1] * layerTileSize[1] / layerTileSize[3];
         this.layerHeight[3] = layerHeight[1] * layerTileSize[1] / layerTileSize[3];
-        //this.sTileArray = new byte[sWidth*sHeight];
 
         tileArray[0] = new short[bgWidth * bgHeight];
         tileArray[1] = new short[fgWidth * fgHeight];
@@ -1209,7 +1061,7 @@ public class LevelEditor extends JFrame implements ActionListener {
         tileArray[3] = new short[layerWidth[3] * layerHeight[3]];
     }
 
-    private void setImages(String fgTileSetString, String bgTileSetString, String rfgTileSetString) {
+    void setImages(String fgTileSetString, String bgTileSetString, String rfgTileSetString) {
         this.tileSetString[1] = fgTileSetString;
         this.tileSetString[0] = bgTileSetString;
         this.tileSetString[2] = rfgTileSetString;
@@ -1483,9 +1335,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                 }
 
                 if (objSelectedIndex != -1) {
-                    //System.out.println("objParam.length: "+objectParam.length);
-                    //System.out.println("objectIndex: "+objSelectedIndex);
-                    //System.out.println("type: "+monsterType[objSelectedIndex]);
                     if (isSelectingLink && linkSelObjectIndex >= 0 && linkSelObjectIndex != objSelectedIndex) {
                         isSelectingLink = false;
                         objectParam[linkSelObjectIndex][linkSelParamIndex] = lEdit.getObjectID(objSelectedIndex);
@@ -1506,17 +1355,6 @@ public class LevelEditor extends JFrame implements ActionListener {
 
             }
         }
-
-        public void mouseReleased(MouseEvent e) {
-			/*if(state==4)
-			{
-				Graphics g=getGraphics();
-				g.setXORMode(Color.yellow);
-				g.drawRect(selStartX,selStartY,lastSelStopX-selStartX,lastSelStopY-selStartY);
-				g.dispose();
-			}*/
-        }
-
     }
 
     public class LevelPaneMouseMotionListener extends MouseMotionAdapter {
@@ -1711,41 +1549,12 @@ public class LevelEditor extends JFrame implements ActionListener {
             mmListener = new LevelPaneMouseMotionListener(lEdit);
             this.addMouseListener(mListener);
             this.addMouseMotionListener(mmListener);
-		        /*this.addMouseMotionListener(new MouseMotionAdapter(){
-					public void mouseDragged(MouseEvent e){
-					    if(state==1||state==2||state==3||state==4){
-							paintToArray(e);
-						}else if(state==4){
-							Graphics g=getGraphics();
-							lastSelStopX=selStopX;
-							lastSelStopY=selStopY;
-							selStopX=(int)Math.ceil(e.getPoint().getX()/(fgTileSize/zoom))*(fgTileSize/zoom);
-							selStopY=(int)Math.ceil(e.getPoint().getY()/(fgTileSize/zoom))*(fgTileSize/zoom);
-							g.setXORMode(Color.yellow);
-							g.drawRect(selStartX,selStartY,lastSelStopX-selStartX,lastSelStopY-selStartY);
-							g.drawRect(selStartX,selStartY,selStopX-selStartX,selStopY-selStartY);
-							g.dispose();
-
-						}else if(state==5&&dynObjIndex>0){
-							Graphics g=getGraphics();
-							selStartX=(int)e.getPoint().getX();
-							selStartY=(int)e.getPoint().getY();
-							g.setXORMode(Color.yellow);
-							g.fillRect(lastSelStartX,lastSelStartY,32,32);
-							g.fillRect(selStartX,selStartY,32,32);
-							g.dispose();
-						}
-					}
-
-				});*/
         }
 
         /**
          * Method that draws a tile where the mouseclick e is recorded
-         *
-         * @param e
          */
-        void paintToArray(MouseEvent e) {
+        void paintToArray(MouseEvent mouseEvent) {
 
             if (state == 1 || state == 2 || state == 3) {
 
@@ -1775,7 +1584,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                 }
 
 
-                Point treff = e.getPoint();
+                Point treff = mouseEvent.getPoint();
                 int zoomSize = (int) (curTileSize / zoom);
                 int x_pos = (int) (treff.getX() / zoomSize);
                 int y_pos = (int) (treff.getY() / zoomSize);
@@ -1790,10 +1599,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+                        if ((mouseEvent.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
                             tileTypeToSet = curTileIndex + 1;
                             okToProceed = true;
-                        } else if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
+                        } else if ((mouseEvent.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1821,8 +1630,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                                 cury = sy + (int) (((ey - sy) * step) / steps);
 
                                 curTileArray[cury * curWidth + curx] = (short) (tileTypeToSet);
-                                //g.setClip(curx*zoomSize,cury*zoomSize,zoomSize,zoomSize);
-                                //paint(g);
 
                             }
                             g.setClip(sx * zoomSize, sy * zoomSize, (ex - sx) * zoomSize, (ey - sy) * zoomSize);
@@ -1855,8 +1662,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                             for (int j = sy; j <= ey; j++) {
                                 for (int i = sx; i <= ex; i++) {
                                     curTileArray[j * curWidth + i] = (short) (tileTypeToSet);
-                                    //g.setClip(i*zoomSize,j*zoomSize,zoomSize,zoomSize);
-                                    //paint(g);
                                 }
                             }
                             g.setClip(sx * zoomSize, sy * zoomSize, (ex - sx) * zoomSize, (ey - sy) * zoomSize);
@@ -1872,9 +1677,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Just draw one tile.
-                        if (e.getModifiers() == MouseEvent.BUTTON1_MASK)
+                        if (mouseEvent.getModifiers() == MouseEvent.BUTTON1_MASK)
                             curTileArray[y_pos * curWidth + x_pos] = (short) (curTileIndex + 1);
-                        else if (e.getModifiers() == MouseEvent.BUTTON3_MASK)
+                        else if (mouseEvent.getModifiers() == MouseEvent.BUTTON3_MASK)
                             curTileArray[y_pos * curWidth + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
@@ -1887,7 +1692,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                 }
             } else if (state == 4) {
 
-                Point treff = e.getPoint();
+                Point treff = mouseEvent.getPoint();
                 int zoomSize = (int) (8 / zoom);
                 int x_pos = (int) (treff.getX() / zoomSize);
                 int y_pos = (int) (treff.getY() / zoomSize);
@@ -1901,10 +1706,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if ((e.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
+                        if ((mouseEvent.getModifiers() & MouseEvent.BUTTON1_MASK) == MouseEvent.BUTTON1_MASK) {
                             tileTypeToSet = tileIndex[3] + 1;
                             okToProceed = true;
-                        } else if ((e.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
+                        } else if ((mouseEvent.getModifiers() & MouseEvent.BUTTON3_MASK) == MouseEvent.BUTTON3_MASK) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1981,9 +1786,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Draw one tile only:
-                        if (e.getModifiers() == MouseEvent.BUTTON1_MASK)
+                        if (mouseEvent.getModifiers() == MouseEvent.BUTTON1_MASK)
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = (byte) (tileIndex[3] + 1);
-                        else if (e.getModifiers() == MouseEvent.BUTTON3_MASK)
+                        else if (mouseEvent.getModifiers() == MouseEvent.BUTTON3_MASK)
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
@@ -2008,50 +1813,16 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         /**
          * Overrides superclass' paint method. use g.clip first for optimizing
-         *
-         * @param g
          */
         public void paint(Graphics g) {
 
-
             if (state == 1 || state == 2 || state == 3 || state == 4 || state == 5) {
                 Image curTileSet;
-
-                //tileSetImg[LevelEditor.LAYER_BACKGROUND] = bgTileSet;
-                //tileSetImg[LevelEditor.LAYER_MIDGROUND] = fgTileSet;
-                //tileSetImg[LevelEditor.LAYER_FOREGROUND] = rfgTileSet;
-                //tileSetImg[LevelEditor.LAYER_SOLIDS] = sTileSet;
 
                 int curWidth = 0;
                 int curHeight = 0;
                 int curTileSize = 0;
                 short[] curTileArray = null;
-                //Velger om forgrunn eller bakgrunn skal tegnes
-                //if(state==1||state==4||state==5)
-                //{
-			/*if(lEdit.layerVisible(LevelEditor.LAYER_MIDGROUND)){
-				curTileSet=fgTileSet;
-				curTileArray=fgTileArray;
-				curWidth=layerWidth[1];
-				curHeight=layerHeight[1];
-				curTileSize=fgTileSize;
-			}
-			//else if(state==2)
-			if(lEdit.layerVisible(LevelEditor.LAYER_BACKGROUND)){
-				curTileSet=bgTileSet;
-				curTileArray=bgTileArray;
-				curWidth=layerWidth[0];
-				curHeight=layerHeight[0];
-				curTileSize=bgTileSize;
-			}
-			//else
-			if(lEdit.layerVisible(LevelEditor.LAYER_FOREGROUND)){
-				curTileSet=rfgTileSet;
-				curTileArray=rfgTileArray;
-				curWidth=layerWidth[2];
-				curHeight=layerHeight[2];
-				curTileSize=rfgTileSize;
-			}*/
 
                 int zoomSize;
                 Rectangle rect = g.getClipBounds();
@@ -2059,14 +1830,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                 int startTileY;
                 int stopTileX;
                 int stopTileY;
-                int dx1, dy1, dx2, dy2, sx, sy;
-                long t1 = 0, t2 = 0;
-
-                int scrX, scrY, scrW, scrH;
-                scrX = (int) rect.getX();
-                scrY = (int) rect.getY();
-                scrW = (int) rect.getWidth();
-                scrH = (int) rect.getHeight();
+                int dx1, dy1, dx2, dy2;
 
                 boolean clearedRect = false;
 
@@ -2092,98 +1856,41 @@ public class LevelEditor extends JFrame implements ActionListener {
                         if (curWidth > rect.getWidth()) {
                             dx1 = layerWidth[1] * layerTileSize[1] - (int) rect.getWidth();
                             dx2 = curWidth * curTileSize - (int) rect.getWidth();
-                            sx = ((int) rect.getX() * dx2) / dx1;
-                        } else {
-                            sx = 0;
                         }
                         // y:
                         if (curHeight > rect.getHeight()) {
                             dy1 = layerHeight[1] * layerTileSize[1] - (int) rect.getHeight();
                             dy2 = curHeight * curTileSize - (int) rect.getHeight();
-                            sy = ((int) rect.getY() * dy2) / dy1;
-                        } else {
-                            sy = 0;
                         }
 
-                        //System.out.println("TileSet: "+curTileSet);
-
-                        if (rect != null) {
-
-                            /*Checks wether the given rectangle is larger than the drawingArea.
-                             *if this happens to be, it limits the end tiles to the width of the drawingaerea.
-                             *a lot of un-nessecary code here. Needs to be cleaned up.*/
-                            int midlWidth, midlHeight;
-                            if (rect.getX() + rect.getWidth() > curWidth * zoomSize) {
-                                midlWidth = (int) (curWidth * zoomSize - rect.getX());
-                            } else {
-                                midlWidth = (int) rect.getWidth();
-                            }
-                            if (rect.getY() + rect.getHeight() > curHeight * zoomSize) {
-                                midlHeight = (int) (curHeight * zoomSize - rect.getY());
-                            } else {
-                                midlHeight = (int) rect.getHeight();
-                            }
-
-                            if (!clearedRect) {
-                                //We clear the rectangle:
-                                g.setColor(Color.black);
-                                g.fillRect((int) rect.getX(), (int) rect.getY(), (int) rect.getWidth(), (int) rect.getHeight());
-                                clearedRect = true;
-                            }
-
-                            //then set the first and last tile to draw.
-                            startTileX = (int) (rect.getX() / zoomSize);
-                            startTileY = (int) (rect.getY() / zoomSize);
-                            stopTileX = (int) (Math.ceil((rect.getX() + midlWidth) / zoomSize));
-                            stopTileY = (int) (Math.ceil((rect.getY() + midlHeight) / zoomSize));
-
+                        /*Checks wether the given rectangle is larger than the drawingArea.
+                         *if this happens to be, it limits the end tiles to the width of the drawingaerea.
+                         *a lot of un-nessecary code here. Needs to be cleaned up.*/
+                        int midlWidth, midlHeight;
+                        if (rect.getX() + rect.getWidth() > curWidth * zoomSize) {
+                            midlWidth = (int) (curWidth * zoomSize - rect.getX());
                         } else {
+                            midlWidth = (int) rect.getWidth();
+                        }
+                        if (rect.getY() + rect.getHeight() > curHeight * zoomSize) {
+                            midlHeight = (int) (curHeight * zoomSize - rect.getY());
+                        } else {
+                            midlHeight = (int) rect.getHeight();
+                        }
 
-                            System.out.println("No Clip Bounds!!");
-
+                        if (!clearedRect) {
+                            //We clear the rectangle:
                             g.setColor(Color.black);
-                            g.fillRect(0, 0, (int) rect.getWidth(), (int) rect.getHeight());
-                            startTileX = 0;
-                            startTileY = 0;
-                            stopTileX = 0;//curWidth;
-                            stopTileY = 0;//curHeight;
-
+                            g.fillRect((int) rect.getX(), (int) rect.getY(), (int) rect.getWidth(), (int) rect.getHeight());
+                            clearedRect = true;
                         }
 
-                        if (curLayer == 0) {
-                            //System.out.println("TileSize: "+curTileSize);
-                            //System.out.println("Layer "+curLayer+":");
-						/*System.out.println("x: "+startTileX+"-"+stopTileX);
-						System.out.println("y: "+startTileY+"-"+stopTileY);
-						System.out.println("w: "+rect.getWidth());
-						System.out.println("h: "+rect.getHeight());
-						System.out.println("ZoomSize: "+zoomSize);
-						*/
-                        }
+                        //then set the first and last tile to draw.
+                        startTileX = (int) (rect.getX() / zoomSize);
+                        startTileY = (int) (rect.getY() / zoomSize);
+                        stopTileX = (int) (Math.ceil((rect.getX() + midlWidth) / zoomSize));
+                        stopTileY = (int) (Math.ceil((rect.getY() + midlHeight) / zoomSize));
 
-				/*startTileX = (int)rect.getX()/curTileSize;
-				startTileY = (int)rect.getY()/curTileSize;
-				stopTileX = startTileX+(int)Math.ceil(rect.getWidth()/curTileSize);
-				stopTileY = startTileY+(int)Math.ceil(rect.getHeight()/curTileSize);
-
-				startTileX--;
-				startTileY--;
-				stopTileX++;
-				stopTileY++;
-
-				if(startTileX<0)startTileX=0;
-				if(startTileY<0)startTileY=0;
-				if(stopTileX<0)stopTileX=0;
-				if(stopTileY<0)stopTileY=0;
-
-				if(startTileX>curWidth)startTileX=curWidth;
-				if(startTileY>curWidth)startTileY=curWidth;
-				if(stopTileX>curWidth)stopTileX=curWidth;
-				if(stopTileY>curWidth)stopTileY=curWidth;*/
-
-                        t1 = System.currentTimeMillis();
-
-                        //int dx1,dx2,dy1,dy2;
                         int sx1, sx2, sy1, sy2;
                         for (int i = startTileX; i < stopTileX; i++) {
                             for (int j = startTileY; j < stopTileY; j++) {
@@ -2199,25 +1906,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                                     dy2 = dy1 + curTileSize;
 
                                     g.drawImage(curTileSet, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, this);
-                                    //g.drawImage(curTileSet,i*zoomSize,j*zoomSize,(i+1)*zoomSize,(j+1)*zoomSize,(curTileArray[j*curWidth+i]-1)*curTileSize,0,(curTileArray[j*curWidth+i])*curTileSize,curTileSize,this);
-
-                                    //g.drawImage(curTileSet,i*curTileSize,j*curTileSize,(i+1)*curTileSize,(j+1)*curTileSize,(curTileArray[j*curWidth+i]-1)*curTileSize,0,(curTileArray[j*curWidth+i])*curTileSize,curTileSize,this);
-
                                 }
-
                             }
                         }
-
-                        t2 = System.currentTimeMillis();
-                        if (t2 - t1 > 100) {
-                            //System.out.println("Layer "+curLayer+": "+(t2-t1)+" ms.");
-                            //System.out.println("tile count: "+((stopTileX-startTileX)*(stopTileY-startTileY)));
-                            //System.out.println("x:"+rect.getX()+" y:"+rect.getY()+" w:"+rect.getWidth()+" h:"+rect.getHeight());
-                            //System.out.println("Free memory: "+Runtime.getRuntime().freeMemory());
-                            //System.out.println("Total memory: "+Runtime.getRuntime().totalMemory());
-                        }
                     }
-
                 }
 
 
@@ -2613,23 +2305,16 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         /**
          * standard constructor
-         *
-         * @param panel
          */
         IndexPane(JPanel panel) {
             super(panel);
             this.panel = panel;
             this.setPreferredSize(new Dimension(150, 500));
             addComponentListener(new ComponentAdapter() {
-
-
+                @Override
                 public void componentResized(ComponentEvent e) {
-
                     setPanelWidth();
-
-
                 }
-
             });
         }
 
@@ -2641,15 +2326,9 @@ public class LevelEditor extends JFrame implements ActionListener {
                 if (panel instanceof PicturePanel) {
                     PicturePanel pa = (PicturePanel) panel;
                     pa.setWidth(getWidth() - 200);
-                } else if (panel instanceof LevelPane) {
-				/*LevelPane pa=(LevelPane)panel;
-				pa.setWidth(getWidth()-200);*/
                 }
-
             }
         }
-
-
     }
 
 
@@ -2676,8 +2355,6 @@ public class LevelEditor extends JFrame implements ActionListener {
          * 3=rfgTiles
          * 4=sTiles
          * 5=DynamicObjects
-         *
-         * @param type
          */
         PicturePanel(int type) {
             super();
@@ -2755,8 +2432,6 @@ public class LevelEditor extends JFrame implements ActionListener {
         /**
          * Sets the width of this panel. Used to make it shrink when the divider in the split pane is moved.
          * used internaly
-         *
-         * @param width
          */
         void setWidth(int width) {
             this.setPreferredSize(new Dimension(width, this.getHeight()));
@@ -2798,9 +2473,8 @@ public class LevelEditor extends JFrame implements ActionListener {
                     curTileSize = 8;
                     curTileIndex = tileIndex[3];
                 }
-                //System.out.println(curTileSize);
 
-                tWidth = (int) Math.ceil((this.getWidth() - 8) / (curTileSize + 8));
+                tWidth = (this.getWidth() - 8) / (curTileSize + 8);
                 if (tWidth == 0) tWidth = 1;
 
                 int tileNumber = (int) (curTileSet.getWidth(this) / (double) curTileSize);
@@ -2848,293 +2522,6 @@ public class LevelEditor extends JFrame implements ActionListener {
 
 
 //*****************************************************************************************
-
-    /**
-     * Internal class for handling options in the leveleditor.
-     * <p>
-     * The class makes a dialog-window where you can change settings in the
-     * editor, e.g. tilesizes, tilesets etc...
-     *
-     * @author Andreas W. Bjerkhaug
-     */
-    public class Options extends JDialog {
-        private JLabel fgTileSizeLabel;
-        private JLabel bgTileSizeLabel;
-        private JLabel rfgTileSizeLabel;
-        private JLabel fgWidthLabel;
-        private JLabel fgHeightLabel;
-        private JLabel bgWidthLabel;
-        private JLabel bgHeightLabel;
-        private JLabel rfgWidthLabel;
-        private JLabel rfgHeightLabel;
-        private JLabel fgImgLabel;
-        private JLabel bgImgLabel;
-        private JLabel rfgImgLabel;
-        private JLabel musicLabel;
-        private JTextField fgTileSizeArea;
-        private JTextField bgTileSizeArea;
-        private JTextField rfgTileSizeArea;
-        private JTextField fgWidthArea;
-        private JTextField fgHeightArea;
-        private JTextField bgWidthArea;
-        private JTextField bgHeightArea;
-        private JTextField rfgWidthArea;
-        private JTextField rfgHeightArea;
-        private JTextField fgImgArea;
-        private JTextField bgImgArea;
-        private JTextField rfgImgArea;
-        private JTextField musicArea;
-        private JButton[] browse;
-        private JButton ok;
-        private JButton cancel;
-        private JPanel panel1;
-        private JPanel panel2;
-        private LevelEditor myEditor;
-        private boolean neue;
-        private Options mySelf;
-
-        /**
-         * Standard construcor, makes the dialog window.
-         */
-        Options(LevelEditor myEditor, boolean neue) {
-            this.myEditor = myEditor;
-            this.setTitle("Options");
-            this.neue = neue;
-
-            mySelf = this;
-
-            fgTileSizeLabel = new JLabel("Foreground tilesize:");
-            bgTileSizeLabel = new JLabel("Background tilesize:");
-            rfgTileSizeLabel = new JLabel("RForeground tilesize:");
-            fgWidthLabel = new JLabel("Foreground width:");
-            fgHeightLabel = new JLabel("Foreground height:");
-            bgWidthLabel = new JLabel("Background width:");
-            bgHeightLabel = new JLabel("Background height:");
-            rfgWidthLabel = new JLabel("RForeground width:");
-            rfgHeightLabel = new JLabel("RForeground height:");
-            fgImgLabel = new JLabel("Foreground tileset:");
-            bgImgLabel = new JLabel("Background tileset:");
-            rfgImgLabel = new JLabel("RForeground tileset:");
-            musicLabel = new JLabel("Midi-file:");
-            fgTileSizeArea = new JTextField(myEditor.layerTileSize[1] + "");
-            fgTileSizeArea.setColumns(4);
-            bgTileSizeArea = new JTextField(myEditor.layerTileSize[0] + "");
-            bgTileSizeArea.setColumns(4);
-            rfgTileSizeArea = new JTextField(myEditor.layerTileSize[2] + "");
-            rfgTileSizeArea.setColumns(4);
-            fgWidthArea = new JTextField(myEditor.layerWidth[1] + "");
-            fgWidthArea.setColumns(4);
-            fgHeightArea = new JTextField(myEditor.layerHeight[1] + "");
-            fgHeightArea.setColumns(4);
-            bgWidthArea = new JTextField(myEditor.layerWidth[0] + "");
-            bgWidthArea.setColumns(4);
-            bgHeightArea = new JTextField(myEditor.layerHeight[0] + "");
-            bgHeightArea.setColumns(4);
-            rfgWidthArea = new JTextField(myEditor.layerWidth[2] + "");
-            rfgWidthArea.setColumns(4);
-            rfgHeightArea = new JTextField(myEditor.layerHeight[2] + "");
-            rfgHeightArea.setColumns(4);
-            fgImgArea = new JTextField(myEditor.tileSetString[1]);
-            fgImgArea.setColumns(4);
-            bgImgArea = new JTextField(myEditor.tileSetString[0]);
-            bgImgArea.setColumns(4);
-            rfgImgArea = new JTextField(myEditor.tileSetString[2]);
-            rfgImgArea.setColumns(4);
-            musicArea = new JTextField(myEditor.music);
-            musicArea.setColumns(4);
-
-            browse = new JButton[4];
-            browse[0] = new JButton("browse...");
-            browse[1] = new JButton("browse...");
-            browse[2] = new JButton("browse...");
-            browse[3] = new JButton("browse...");
-            browse[0].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser fc = new JFileChooser();
-                    fc.setDialogTitle("Browse...");
-                    int returnVal = fc.showOpenDialog(mySelf);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        fgImgArea.setText(fc.getSelectedFile().getName());
-                    }
-                }
-            });
-            browse[1].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser fc = new JFileChooser();
-                    fc.setDialogTitle("Browse...");
-                    int returnVal = fc.showOpenDialog(mySelf);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        bgImgArea.setText(fc.getSelectedFile().getName());
-                    }
-                }
-            });
-            browse[2].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser fc = new JFileChooser();
-                    fc.setDialogTitle("Browse...");
-                    int returnVal = fc.showOpenDialog(mySelf);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        rfgImgArea.setText(fc.getSelectedFile().getName());
-                    }
-                }
-            });
-            browse[3].addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JFileChooser fc = new JFileChooser();
-                    fc.setDialogTitle("Browse...");
-                    int returnVal = fc.showOpenDialog(mySelf);
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        musicArea.setText(fc.getSelectedFile().getName());
-                    }
-
-                }
-            });
-
-            ok = new JButton("Ok");
-            ok.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    ok();
-                }
-            });
-            cancel = new JButton("Cancel");
-            cancel.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    dispose();
-                }
-            });
-            panel1 = new JPanel(new GridLayout(13, 3));
-            panel2 = new JPanel();
-            panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
-            panel1.add(fgTileSizeLabel);
-            panel1.add(fgTileSizeArea);
-            panel1.add(new JLabel(""));
-            panel1.add(bgTileSizeLabel);
-            panel1.add(bgTileSizeArea);
-            panel1.add(new JLabel(""));
-            panel1.add(rfgTileSizeLabel);
-            panel1.add(rfgTileSizeArea);
-            panel1.add(new JLabel(""));
-            panel1.add(fgWidthLabel);
-            panel1.add(fgWidthArea);
-            panel1.add(new JLabel(""));
-            panel1.add(fgHeightLabel);
-            panel1.add(fgHeightArea);
-            panel1.add(new JLabel(""));
-            panel1.add(bgWidthLabel);
-            panel1.add(bgWidthArea);
-            panel1.add(new JLabel(""));
-            panel1.add(bgHeightLabel);
-            panel1.add(bgHeightArea);
-            panel1.add(new JLabel(""));
-            panel1.add(rfgWidthLabel);
-            panel1.add(rfgWidthArea);
-            panel1.add(new JLabel(""));
-            panel1.add(rfgHeightLabel);
-            panel1.add(rfgHeightArea);
-            panel1.add(new JLabel(""));
-            panel1.add(fgImgLabel);
-            panel1.add(fgImgArea);
-            panel1.add(browse[0]);
-            panel1.add(bgImgLabel);
-            panel1.add(bgImgArea);
-            panel1.add(browse[1]);
-            panel1.add(rfgImgLabel);
-            panel1.add(rfgImgArea);
-            panel1.add(browse[2]);
-            panel1.add(musicLabel);
-            panel1.add(musicArea);
-            panel1.add(browse[3]);
-
-
-            panel2.add(ok);
-            panel2.add(cancel);
-
-            this.getContentPane().add(panel1, BorderLayout.WEST);
-            this.getContentPane().add(panel2, BorderLayout.EAST);
-            this.pack();
-            this.setResizable(false);
-            this.setVisible(true);
-        }
-
-        /**
-         * Method that makes the chosen changes when you press the ok-button-
-         */
-        void ok() {
-            int fgTileSize;
-            try {
-                fgTileSize = Integer.parseInt(fgTileSizeArea.getText());
-            } catch (NumberFormatException nfe) {
-                fgTileSize = 32;
-            }
-
-
-            int bgTileSize;
-            try {
-                bgTileSize = Integer.parseInt(bgTileSizeArea.getText());
-            } catch (NumberFormatException nfe) {
-                bgTileSize = 96;
-            }
-
-            int rfgTileSize;
-            try {
-                rfgTileSize = Integer.parseInt(rfgTileSizeArea.getText());
-            } catch (NumberFormatException nfe) {
-                rfgTileSize = 192;
-            }
-
-
-            int fgWidth;
-            int fgHeight;
-            try {
-                fgWidth = Integer.parseInt(fgWidthArea.getText());
-                fgHeight = Integer.parseInt(fgHeightArea.getText());
-            } catch (NumberFormatException nfe) {
-                fgWidth = 40;
-                fgHeight = 40;
-            }
-
-
-            int bgWidth;
-            int bgHeight;
-            try {
-                bgWidth = Integer.parseInt(bgWidthArea.getText());
-                bgHeight = Integer.parseInt(bgHeightArea.getText());
-            } catch (NumberFormatException nfe) {
-                bgWidth = 10;
-                bgHeight = 10;
-            }
-
-
-            int rfgWidth;
-            int rfgHeight;
-            try {
-                rfgWidth = Integer.parseInt(rfgWidthArea.getText());
-                rfgHeight = Integer.parseInt(rfgHeightArea.getText());
-            } catch (NumberFormatException nfe) {
-                rfgWidth = 10;
-                rfgHeight = 10;
-            }
-
-            myEditor.tileSetString[1] = fgImgArea.getText();
-            myEditor.tileSetString[0] = bgImgArea.getText();
-            myEditor.tileSetString[2] = rfgImgArea.getText();
-            myEditor.music = musicArea.getText();
-
-            myEditor.setImages(tileSetString[1], tileSetString[0], tileSetString[2]);
-
-            if (!neue) {
-                myEditor.setFgTileSize(fgTileSize);
-                myEditor.setBgTileSize(bgTileSize);
-                myEditor.setRfgTileSize(rfgTileSize);
-                myEditor.fgResize(fgWidth, fgHeight);
-                myEditor.bgResize(bgWidth, bgHeight);
-                myEditor.rfgResize(rfgWidth, rfgHeight);
-            } else {
-                myEditor.neue(fgTileSize, bgTileSize, rfgTileSize, fgWidth, fgHeight, bgWidth, bgHeight, rfgWidth, rfgHeight);
-            }
-            dispose();
-        }
-    }
 
     class EditorKeyListener implements KeyListener {
         int kc;
@@ -3384,7 +2771,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                 txtParamValue[i].setText("" + objectParam[objIndex][i]);
 
                 if (name[i] == null) {
-                    name[i] = new String("Param " + (i + 1));
+                    name[i] = "Param " + (i + 1);
                 }
                 if (type[i] == Const.PARAM_TYPE_OBJECT_REFERENCE) {
                     lblParam[i].setText(name[i]);
@@ -3434,17 +2821,10 @@ public class LevelEditor extends JFrame implements ActionListener {
         private final static int SECTION_LAYERTOGGLES = 1;
         private final static int SECTION_LAYERLOCKED = 2;
         private final static int SECTION_LAYERVISIBLE = 4;
-        private final static int SECTION_TOOLTOGGLES = 8;
-        private final static int SECTION_ALL = 15;
-
 
         private LevelEditor lEdit;
-        private int activeTool = TOOL_DRAW;
         private int activeLayer = 0;
-        private boolean[] layerLocked;
-        private boolean[] layerVisible;
 
-        private JButton[] btnTool;
         private JToggleButton[] tglLayer;
         private JCheckBox[] chkLayerLocked;
         private JCheckBox[] chkLayerVisible;
@@ -3467,7 +2847,6 @@ public class LevelEditor extends JFrame implements ActionListener {
         private JTextField txtGridCustomWidth;
         private JTextField txtGridCustomHeight;
 
-
         ToolWindow(LevelEditor lEdit) {
             super(lEdit, "Tools", false);
             this.lEdit = lEdit;
@@ -3476,6 +2855,7 @@ public class LevelEditor extends JFrame implements ActionListener {
         }
 
         private void initLayout() {
+
             Container mainPane = this.getContentPane();
             Container layerPane = new Container();
             Container layerLockedPane = new Container();
@@ -3486,7 +2866,6 @@ public class LevelEditor extends JFrame implements ActionListener {
             GridBagLayout layerLayout = new GridBagLayout();
             GridBagLayout toolLayout = new GridBagLayout();
             GridBagConstraints layerCon = new GridBagConstraints();
-            GridBagConstraints toolCon = new GridBagConstraints();
             String[] layerName = new String[5];
             Font theFont;
 
@@ -3505,19 +2884,11 @@ public class LevelEditor extends JFrame implements ActionListener {
             lblImgLayerLocked = new JLabel(imgILayerLock);
             lblImgLayerVisible = new JLabel(imgILayerVisible);
 
-            layerName[0] = new String("Background");
-            layerName[1] = new String("Midground");
-            layerName[2] = new String("Foreground");
-            layerName[3] = new String("Solids");
-            layerName[4] = new String("Objects");
-
-            //layerLocked = new boolean[5];
-            //layerVisible = new boolean[5];
-
-            //for(int i=0;i<5;i++){
-            //	layerLocked[i] = false;
-            //	layerVisible[i] = true;
-            //}
+            layerName[0] = "Background";
+            layerName[1] = "Midground";
+            layerName[2] = "Foreground";
+            layerName[3] = "Solids";
+            layerName[4] = "Objects";
 
             mainPane.setLayout(new GridLayout(2, 1));
             mainPane.add(layerPane);
@@ -3583,7 +2954,6 @@ public class LevelEditor extends JFrame implements ActionListener {
             toolPane.setLayout(toolLayout);
 
             // Grid Options:
-
             chkSnapToGrid = new JCheckBox("Snap Objects to Grid", true);
             rdbGridAuto = new JRadioButton("Auto", true);
             rdbGridCustom = new JRadioButton("Custom Size");
@@ -3667,50 +3037,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
         }
 
-        public int getActiveTool() {
-            return this.activeTool;
-        }
-
-        public void setActiveTool(int theTool) {
-            this.activeTool = theTool;
-            updateControls(SECTION_TOOLTOGGLES);
-        }
-
-        public int getActiveLayer() {
-            return this.activeLayer;
-        }
-
         void setActiveLayer(int theLayer) {
             this.activeLayer = theLayer;
             updateControls(SECTION_LAYERTOGGLES);
-        }
-
-        public boolean isLayerLocked(int layerIndex) {
-            if (layerIndex < layerLocked.length) {
-                return layerLocked[layerIndex];
-            }
-            return true;
-        }
-
-        public boolean isLayerVisible(int layerIndex) {
-            if (layerIndex < layerVisible.length) {
-                return layerVisible[layerIndex];
-            }
-            return false;
-        }
-
-        public void setLayerLocked(int layerIndex, boolean value) {
-            if (layerIndex < layerLocked.length) {
-                layerLocked[layerIndex] = value;
-                updateControls(SECTION_LAYERLOCKED);
-            }
-        }
-
-        public void setLayerVisible(int layerIndex, boolean value) {
-            if (layerIndex < layerVisible.length) {
-                layerVisible[layerIndex] = value;
-                updateControls(SECTION_LAYERVISIBLE);
-            }
         }
 
         void updateControls(int section) {
@@ -3731,10 +3060,6 @@ public class LevelEditor extends JFrame implements ActionListener {
                 for (int i = 0; i < layerVisible.length; i++) {
                     chkLayerVisible[i].setSelected(layerVisible[i]);
                 }
-            }
-
-            if ((section & SECTION_TOOLTOGGLES) != 0) {
-                // nothing yet.
             }
 
         }
