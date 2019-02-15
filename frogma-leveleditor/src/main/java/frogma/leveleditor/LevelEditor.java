@@ -40,7 +40,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -54,6 +53,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -326,60 +326,36 @@ public class LevelEditor extends JFrame implements ActionListener {
         JMenuItem newLevel = new JMenuItem("New");
         file.add(newLevel);
         newLevel.setMnemonic('N');
-        newLevel.setAccelerator(KeyStroke.getKeyStroke('N', Event.CTRL_MASK));
-        newLevel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new Options(mySelf, true);
-            }
-        });
+        newLevel.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
+        newLevel.addActionListener(e -> new Options(mySelf, true));
 
         JMenuItem open = new JMenuItem("Open...");
         file.add(open);
-        open.setAccelerator(KeyStroke.getKeyStroke('O', Event.CTRL_MASK));
+        open.setAccelerator(KeyStroke.getKeyStroke('O', InputEvent.CTRL_DOWN_MASK));
         open.setMnemonic('O');
-        open.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                open(null);
-            }
-        });
+        open.addActionListener(e -> open(null));
 
         JMenuItem save = new JMenuItem("Save");
         file.add(save);
-        save.setAccelerator(KeyStroke.getKeyStroke('S', Event.CTRL_MASK));
+        save.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK));
         save.setMnemonic('S');
-        save.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                save();
-            }
-        });
+        save.addActionListener(e -> save());
 
         JMenuItem saveAs = new JMenuItem("Save as...");
         file.add(saveAs);
         saveAs.setMnemonic('A');
-        saveAs.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                saveAs();
-            }
-        });
+        saveAs.addActionListener(e -> saveAs());
 
         JMenuItem exit = new JMenuItem("Exit");
         exit.setMnemonic('X');
-        exit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+        exit.addActionListener(e -> System.exit(0));
         file.add(exit);
 
         JMenu configure = new JMenu("Configure");
         configure.setMnemonic('C');
         JMenuItem options = new JMenuItem("Options...");
         options.setMnemonic('O');
-        options.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new Options(mySelf, false);
-            }
-        });
+        options.addActionListener(e -> new Options(mySelf, false));
         configure.add(options);
 
         menubar.add(file);
