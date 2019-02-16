@@ -162,7 +162,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      */
     private void switchToFullScreen(int width, int height) {
 
-        this.setSize(this.screenWidth, this.screenHeight);
         if (fullscreen && graphicsDevice.isFullScreenSupported()) {
             if (debug) System.out.println("Systemet støtter fullskjermsvisning");
             this.currentlyInFullscreen = true;
@@ -184,10 +183,13 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             if (debug) System.out.println("Bufferstrategy opprettet");
 
         } else {
-            this.currentlyInFullscreen = false;
-            this.sW = this.screenWidth;
-            this.sH = this.screenHeight;
-            this.setVisible(true);
+            // Run windowed:
+            currentlyInFullscreen = false;
+            sW = screenWidth;
+            sH = screenHeight;
+            getContentPane().setPreferredSize(new Dimension(screenWidth, screenHeight));
+            pack();
+            setVisible(true);
         }
     }
 
@@ -651,7 +653,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             if (currentlyInFullscreen) {
                 myStrategy.show();
             } else {
-                g = this.getGraphics();
+                g = this.getContentPane().getGraphics();
                 if (g != null) {
                     g.drawImage(windowBuffer, 0, 0, this);
                 }
