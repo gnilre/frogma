@@ -1101,7 +1101,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         startPosX = objX / zoom;
                         startPosY = objY / zoom;
 
-                    } else if (e.getButton() == 1) {
+                    } else if (isMouseButton1Pressed(e)) {
+
+                        // TODO: Fix at knappen kan holdes nede
+
                         // Add object:
 
                         int objX, objY;
@@ -1128,7 +1131,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                         lEdit.addObject(dynObjIndex - 1, objX, objY);
 
 
-                    } else if (e.getButton() == 3) {
+                    } else if (isMouseButton3Pressed(e)) {
                         // Remove object if hit:
 
                         int length;
@@ -1327,6 +1330,14 @@ public class LevelEditor extends JFrame implements ActionListener {
 
             }
         }
+    }
+
+    private boolean isMouseButton1Pressed(MouseEvent e) {
+        return (e.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) != 0;
+    }
+
+    private boolean isMouseButton3Pressed(MouseEvent e) {
+        return (e.getModifiersEx() & InputEvent.BUTTON3_DOWN_MASK) != 0;
     }
 
     public class LevelPaneMouseMotionListener extends MouseMotionAdapter {
@@ -1571,10 +1582,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if (mouseEvent.getButton() == 1) {
+                        if (isMouseButton1Pressed(mouseEvent)) {
                             tileTypeToSet = curTileIndex + 1;
                             okToProceed = true;
-                        } else if (mouseEvent.getButton() == 3) {
+                        } else if (isMouseButton3Pressed(mouseEvent)) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1649,9 +1660,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Just draw one tile.
-                        if (mouseEvent.getButton() == 1)
+                        if (isMouseButton1Pressed(mouseEvent))
                             curTileArray[y_pos * curWidth + x_pos] = (short) (curTileIndex + 1);
-                        else if (mouseEvent.getButton() == 3)
+                        else if (isMouseButton3Pressed(mouseEvent))
                             curTileArray[y_pos * curWidth + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
@@ -1678,10 +1689,10 @@ public class LevelEditor extends JFrame implements ActionListener {
                         int step, steps;
                         boolean okToProceed = false;
 
-                        if (mouseEvent.getButton() == 1) {
+                        if (isMouseButton1Pressed(mouseEvent)) {
                             tileTypeToSet = tileIndex[3] + 1;
                             okToProceed = true;
-                        } else if (mouseEvent.getButton() == 3) {
+                        } else if (isMouseButton3Pressed(mouseEvent)) {
                             tileTypeToSet = 0;
                             okToProceed = true;
                         }
@@ -1758,9 +1769,9 @@ public class LevelEditor extends JFrame implements ActionListener {
 
                     } else {
                         // Draw one tile only:
-                        if (mouseEvent.getButton() == 1)
+                        if (isMouseButton1Pressed(mouseEvent))
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = (byte) (tileIndex[3] + 1);
-                        else if (mouseEvent.getButton() == 3)
+                        else if (isMouseButton3Pressed(mouseEvent))
                             tileArray[3][y_pos * layerWidth[3] + x_pos] = 0;
                         Graphics g = getGraphics();
                         g.setClip(x_pos * zoomSize, y_pos * zoomSize, zoomSize, zoomSize);
