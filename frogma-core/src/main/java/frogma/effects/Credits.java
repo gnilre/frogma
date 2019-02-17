@@ -1,48 +1,50 @@
 package frogma.effects;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
-import java.util.StringTokenizer;
 
 
 /**
  * <p>Title: Credits</p>
- * <p>Description: Will create images out of a given string. Each line is morped into the next. getNextImage will return the next image in the animation</p>
+ * <p>Description: Will create images out of a given string. Each line is morphed into the next. getNextImage will return the next image in the animation</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  *
  * @author Johannes Odland
  * @version 1.0
  */
-
-
 public class Credits {
 
-    private static final int DEFAULT_FORCE = 10;
+    private static final double DEFAULT_FORCE = 10;
+
+    //---Configuration---
+    private final Color textColor;
+    private final Color backgroundColor;
+    private final String[] creditStrings;
 
     //-----Images---
-    private Image buffer;
-    private MemoryImageSource myMIS;
-    private BufferedImage start;
-    private BufferedImage slutt;
-    private BufferedImage render;
+    private Image memoryImage;
+    private MemoryImageSource memoryImageSource;
+    private BufferedImage startTextImage;
+    private BufferedImage sluttTextImage;
+    private BufferedImage renderImage;
 
     //----points
-    private int[] pix;
-    private Punkt[] pixels;
+    private int[] imagePixels;
+    private Punkt[] movingPixels;
     private double force;
 
-    //---strings
-    private String[] splitCred;
-
-
     //----flags
-
     private boolean next;
     private boolean finished;
     private int currentString;
-    private short firstImage;
+    private int firstImage;
 
     //--parameters
     private int width;
@@ -54,36 +56,23 @@ public class Credits {
      * Sets width and height of images to be used internally.
      * Will allways return an Image of 640x480 pixels
      *
-     * @param cred   string with credits to be shown
      * @param width  width of image to be used
      * @param height of image to be used
      */
-    public Credits(String cred, int width, int height) {
+    public Credits(int width, int height, Color textColor, Color backgroundColor, String... creditStrings) {
 
-        //initializing
         this.width = 640;
         this.height = 80;
-        int n = 0;
+        this.textColor = textColor;
+        this.backgroundColor = backgroundColor;
+        this.creditStrings = creditStrings;
+
         next = true;
         finished = false;
         currentString = 0;
-        start = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        slutt = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        render = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
-        firstImage = 0;
-
-        StringTokenizer st = new StringTokenizer(cred, "\n");
-        splitCred = new String[st.countTokens()];
-
-        //splitting string
-        while (st.hasMoreElements()) {
-            splitCred[n] = (String) st.nextElement();
-            if (splitCred[n] == null) break;
-            n++;
-        }
-        String[] midl = new String[n];
-        System.arraycopy(splitCred, 0, midl, 0, n);
-        splitCred = midl;
+        startTextImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        sluttTextImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        renderImage = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
 
     }
 
@@ -94,129 +83,116 @@ public class Credits {
      */
     public boolean isFinished() {
         return finished;
-
     }
-
 
     /**
      * Sets the next textstrings to be morped
      *
      * @param first  start text
      * @param second end text
-     * @param points three point that set position of first and second text, and a origin for the force.
-     * @param force  force of the force :)
      */
-    private void newText(String first, String second, Point[] points, double force) {
-        pix = new int[width * height];
-        myMIS = new MemoryImageSource(width, height, pix, 0, width);
-        myMIS.setAnimated(true);
-        buffer = Toolkit.getDefaultToolkit().createImage(myMIS);
+    private void newText(String first, String second) {
 
-        this.force = force;
+        imagePixels = new int[width * height];
+        memoryImageSource = new MemoryImageSource(width, height, imagePixels, 0, width);
+        memoryImageSource.setAnimated(true);
+        memoryImage = Toolkit.getDefaultToolkit().createImage(memoryImageSource);
+        force = Credits.DEFAULT_FORCE;
 
+        drawText(first, startTextImage);
+        drawText(second, sluttTextImage);
 
-        Graphics g = start.getGraphics();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, width, height);
-        g.setFont(new Font("Arial", Font.BOLD, 36));
-        g.setColor(Color.blue);
-        g.drawString(first, (int) points[0].getX(), (int) points[0].getY());
-        g = slutt.getGraphics();
-        g.setColor(Color.black);
-        g.fillRect(0, 0, width, height);
-        g.setFont(new Font("Arial", Font.BOLD, 36));
-        g.setColor(Color.blue);
-        g.drawString(second, (int) points[1].getX(), (int) points[1].getY());
-        g.dispose();
-        int count;
-        int countStart = 0;
-        int countSlutt;
+        int startTextPixelCount = 0;
         for (int i = 0; i < width * height; i++) {
-
-            pix[i] = start.getRGB(i % width, i / width);
-            if (pix[i] == Color.blue.getRGB()) countStart++;
+            imagePixels[i] = this.startTextImage.getRGB(i % width, i / width);
+            if (imagePixels[i] == textColor.getRGB()) startTextPixelCount++;
         }
-        //System.out.println(countStart);
 
-        pixels = new Punkt[countStart];
+        movingPixels = new Punkt[startTextPixelCount];
 
-        countSlutt = 0;
+        int endTextPixelCount = 0;
         int[] destArray = new int[width * height];
         for (int i = 0; i < width * height; i++) {
-
-            destArray[i] = slutt.getRGB(i % width, i / width);
-            if (destArray[i] == Color.blue.getRGB()) countSlutt++;
+            destArray[i] = this.sluttTextImage.getRGB(i % width, i / width);
+            if (destArray[i] == textColor.getRGB()) endTextPixelCount++;
         }
-        //System.out.println(countSlutt);
 
-        Punkt[] dests = new Punkt[countSlutt];
+        Punkt[] dests = new Punkt[endTextPixelCount];
 
-
-        count = 0;
-        for (int i = 0; i < pix.length; i++) {
-            if (pix[i] == Color.blue.getRGB()) {
-                pixels[count] = new Punkt(i % width, i / width, Punkt.TYPE_STANDARD);
+        int count = 0;
+        for (int i = 0; i < imagePixels.length; i++) {
+            if (imagePixels[i] == textColor.getRGB()) {
+                movingPixels[count] = new Punkt(i % width, i / width, Punkt.TYPE_STANDARD);
                 count++;
             }
         }
         count = 0;
         for (int i = 0; i < destArray.length; i++) {
-            if (destArray[i] == Color.blue.getRGB()) {
+            if (destArray[i] == textColor.getRGB()) {
                 dests[count] = new Punkt(i % width, i / width, Punkt.TYPE_STANDARD);
                 count++;
             }
         }
 
-        if (countStart >= countSlutt) {
-
+        if (startTextPixelCount >= endTextPixelCount) {
 
             for (int i = 0; i < dests.length; i++) {
                 boolean flag = true;
                 while (flag) {
                     Punkt punkt = dests[(int) (Math.random() * dests.length)];
                     if (!punkt.isSet()) {
-                        punkt.setDest((int) pixels[i].getPosX(), (int) pixels[i].getPosY());
-                        pixels[i].setDest((int) punkt.getPosX(), (int) punkt.getPosY());
+                        punkt.setDest((int) movingPixels[i].getPosX(), (int) movingPixels[i].getPosY());
+                        movingPixels[i].setDest((int) punkt.getPosX(), (int) punkt.getPosY());
                         flag = false;
 
                     }
-
                 }
             }
 
-            for (int i = countSlutt; i < countStart; i++) {
-
-                pixels[i].setDest((int) (Math.random() * width), (int) (Math.random() * height));
-                pixels[i].setType(Punkt.TYPE_DISSAPPEARABLE);
+            for (int i = endTextPixelCount; i < startTextPixelCount; i++) {
+                movingPixels[i].setDest((int) (Math.random() * width), (int) (Math.random() * height));
+                movingPixels[i].setType(Punkt.TYPE_DISSAPPEARABLE);
             }
 
+        } else {
 
-        } else if (countStart < countSlutt) {
-            Punkt[] oldPix = pixels;
-            pixels = new Punkt[countSlutt];
-            System.arraycopy(oldPix, 0, pixels, 0, oldPix.length);
-            for (int i = oldPix.length; i < pixels.length; i++) {
-                pixels[i] = (Punkt) oldPix[(int) (Math.random() * oldPix.length)].clone();
+            Punkt[] oldPix = movingPixels;
+            movingPixels = new Punkt[endTextPixelCount];
+            System.arraycopy(oldPix, 0, movingPixels, 0, oldPix.length);
+            for (int i = oldPix.length; i < movingPixels.length; i++) {
+                movingPixels[i] = (Punkt) oldPix[(int) (Math.random() * oldPix.length)].clone();
             }
 
-            for (Punkt pixel : pixels) {
+            for (Punkt pixel : movingPixels) {
                 boolean flag = true;
                 while (flag) {
-                    Punkt punkt = dests[(int) (Math.random() * pixels.length)];
+                    Punkt punkt = dests[(int) (Math.random() * movingPixels.length)];
                     if (!punkt.isSet()) {
                         punkt.setDest((int) pixel.getPosX(), (int) pixel.getPosY());
                         pixel.setDest((int) punkt.getPosX(), (int) punkt.getPosY());
                         flag = false;
-
                     }
-
                 }
             }
-
-
         }
+    }
 
+    private void drawText(String text, BufferedImage bufferedImage) {
 
+        Graphics g = bufferedImage.getGraphics();
+        g.setColor(backgroundColor);
+        g.fillRect(0, 0, width, height);
+
+        Font font = new Font("Arial", Font.BOLD, 36);
+        FontMetrics metrics = g.getFontMetrics(font);
+        int x = (width - metrics.stringWidth(text)) / 2;
+        int y = ((height - metrics.getHeight()) / 2) + metrics.getAscent();
+
+        g.setColor(textColor);
+        g.setFont(font);
+        g.drawString(text, x, y);
+
+        g.dispose();
     }
 
     /**
@@ -225,62 +201,55 @@ public class Credits {
      * @return next image to be shown
      */
     public Image getNextImage() {
-        if (this.currentString > splitCred.length - 2 && this.next) {
-            this.finished = true;
 
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-            return render;
+        if (this.currentString > creditStrings.length - 2 && next) {
+            delayBeforeNext();
+            finished = true;
+            return renderImage;
 
-
-        } else if (this.next) {
-            Point[] points = {new Point(50, 55), new Point(50, 55), new Point(270, 35)};
-            this.newText(this.splitCred[this.currentString], this.splitCred[this.currentString + 1], points, DEFAULT_FORCE);
-            this.currentString++;
-            this.next = false;
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-
+        } else if (next) {
+            delayBeforeNext();
+            newText(this.creditStrings[currentString], creditStrings[currentString + 1]);
+            currentString++;
+            next = false;
         }
+
         if (firstImage == 0) {
-            blur2();
+            drawImageToBuffer();
             firstImage = 1;
-            Graphics g = render.getGraphics();
-            g.setColor(Color.black);
+            Graphics g = renderImage.getGraphics();
+            g.setColor(backgroundColor);
             g.fillRect(0, 0, 640, 480);
-            g.drawImage(slutt, 0, 150, null);
-            return render;
+            g.drawImage(sluttTextImage, 0, 150, null);
+            return renderImage;
         } else if (firstImage == 1) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // ignore
-            }
+            delayBeforeNext();
             firstImage = 2;
         }
 
         move();
 
-        Graphics g = render.getGraphics();
-        g.setColor(Color.black);
+        Graphics g = renderImage.getGraphics();
+        g.setColor(backgroundColor);
         g.fillRect(0, 0, 640, 480);
-        g.drawImage(slutt, 0, 150, null);
+        g.drawImage(sluttTextImage, 0, 150, null);
 
-        return this.render;
+        return this.renderImage;
+    }
+
+    private void delayBeforeNext() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            // ignore
+        }
     }
 
     /**
      * moves all the points
      */
     public void move() {
-        for (Punkt pixel : pixels) {
+        for (Punkt pixel : movingPixels) {
             if (pixel.isVisible() && !pixel.isDone()) {
                 int oldX = (int) pixel.getPosX();
                 int oldY = (int) pixel.getPosY();
@@ -308,37 +277,6 @@ public class Credits {
 
                 }
 
-
-                //int signX,signY;
-
-				/*if (force>10)
-                {
-					if(oldX>point.getX())signX=1;
-				        else signX=-1;
-				        if(oldY>point.getY())signY=1;
-				        else signY=-1;
-
-				        int avstX=(int)(oldX-point.getX()),avstY=(int)(oldY-point.getY());
-				        int avst=(int)Math.sqrt(avstX*avstX+avstY*avstY);
-					velX+=this.force/(avst>>2)*signX;
-					velY+=this.force/(avst>>2)*signY;
-				}*/
-
-
-
-				/*if (velX>10) velX=10;
-                else if (velX<-10) velX=-10;
-				else if(velX>0&&velX<0.2)velX=0.2;
-				else if(velX<=0&&velX>-0.2)velX=-0.2;
-				if (velY>10) velY=10;
-				else if (velY<-10) velY=-10;
-				else if(velY>0&&velY<0.2)velY=0.2;
-				else if(velY<=0&&velY>-0.2)velY=-0.2;*/
-
-				/*if((velX+"").equals("NaN")) velX=0.01;
-                if((velY+"").equals("NaN") ) velY=0.01;*/
-                //if(i==92)System.out.println("velx,y "+velX+"  "+velY);
-
                 pixel.setVelX(velX);
                 pixel.setVelY(velY);
 
@@ -347,96 +285,88 @@ public class Credits {
                 if (oldY + velY > 0 && oldY + velY < height)
                     pixel.setPosY(oldY + velY);
 
-
                 if (pixel.getType() == Punkt.TYPE_DISSAPPEARABLE && (int) (Math.random() * 3) == 1)
                     pixel.hide();
             }
 
-
         }
-        if (force > 0 && force - 1 / force > 0 || force < 0 && force - 1 / force < 0)
-            force -= 1 / force;
-        else force = 0;
-        this.updatePix(pixels);
 
-        myMIS.newPixels(0, 0, width, height);
-        this.slutt.getGraphics().drawImage(buffer, 0, 0, null);
+        double updatedForce = force - 1 / force;
+        if ((force > 0 && updatedForce > 0) || (force < 0 && updatedForce < 0)) {
+            force = updatedForce;
+        } else {
+            force = 0;
+        }
 
+        clearPixels();
+        updatePixels();
+        drawImageToBuffer();
 
-        boolean flag = true;
-        for (Punkt pixel : pixels) {
+        boolean done = true;
+        for (Punkt pixel : movingPixels) {
             if (!pixel.isDone() && pixel.isVisible()) {
-                flag = false;
+                done = false;
                 break;
             }
         }
-        if (flag) {
+        if (done) {
             next = true;
         }
 
-
     }
 
-    /**
-     * uses javas ConvolveOp to blur out the images
-     */
-    private void blur2() {
-        /*float[] elements = { 0,0,0,0,1,0,0,0,0};
-
-
-
-	        myMIS.newPixels(0,0,width,height);
-	        this.start.getGraphics().drawImage(buffer,0,0,null);
-
-	        Kernel kernel = new Kernel(3, 3, elements);
-	        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL,null);
-	        cop.filter(start,slutt);*/
-
-        myMIS.newPixels(0, 0, width, height);
-        this.slutt.getGraphics().drawImage(buffer, 0, 0, null);
-
-
+    private void drawImageToBuffer() {
+        memoryImageSource.newPixels(0, 0, width, height);
+        sluttTextImage.getGraphics().drawImage(memoryImage, 0, 0, null);
     }
 
-    @SuppressWarnings("NumericOverflow")
-    private void updatePix(Punkt[] punkter) {
-        for (int i = 0; i < pix.length; i++) {
-            pix[i] = Color.black.getRGB();
+    private void clearPixels() {
+        int clearedValue = backgroundColor.getRGB();
+        for (int i = 0; i < imagePixels.length; i++) {
+            imagePixels[i] = clearedValue;
         }
-        for (Punkt punkt : punkter) {
-            int pX = (int) punkt.getPosX();
-            int pY = (int) punkt.getPosY();
-            if (punkt.visible) {
-                if ((pix[(pY) * width + (pX)] & 255) + 25 < 255) {
-                    pix[(int) punkt.getPosY() * width + (int) punkt.getPosX()] = ((((pix[(int) punkt.getPosY() * width + (int) punkt.getPosX()]) & 255) + 25)) | (255 << 24);
-                }
-            }
-            if (punkt.getPosX() > 1 && punkt.getPosX() < width - 1 && punkt.getPosY() > 1 && punkt.getPosY() < height - 1 && punkt.visible) {
+    }
 
-                if ((pix[(pY - 1) * width + (pX + 1)] & 255) + 25 < 255) {
-                    pix[(pY - 1) * width + (pX + 1)] = ((((pix[(pY - 1) * width + (pX + 1)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY - 1) * width + (pX)] & 255) + 25 < 255) {
-                    pix[(pY - 1) * width + (pX)] = ((((pix[(pY - 1) * width + (pX)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY - 1) * width + (pX - 1)] & 255) + 25 < 255) {
-                    pix[(pY - 1) * width + (pX - 1)] = ((((pix[(pY - 1) * width + (pX - 1)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY) * width + (pX + 1)] & 255) + 25 < 255) {
-                    pix[(pY) * width + (pX + 1)] = ((((pix[(pY) * width + (pX + 1)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY) * width + (pX - 1)] & 255) + 25 < 255) {
-                    pix[(pY) * width + (pX - 1)] = ((((pix[(pY) * width + (pX - 1)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY + 1) * width + (pX + 1)] & 255) + 25 < 255) {
-                    pix[(pY + 1) * width + (pX + 1)] = ((((pix[(pY + 1) * width + (pX + 1)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY + 1) * width + (pX)] & 255) + 25 < 255) {
-                    pix[(pY + 1) * width + (pX)] = ((((pix[(pY + 1) * width + (pX)]) & 255) + 25)) | (255 << 25);
-                }
-                if ((pix[(pY + 1) * width + (pX - 1)] & 255) + 25 < 255) {
-                    pix[(pY + 1) * width + (pX - 1)] = ((((pix[(pY + 1) * width + (pX - 1)]) & 255) + 25)) | (255 << 25);
-                }
+    private void updatePixels() {
+        for (Punkt punkt : movingPixels) {
+            updatePixel(punkt);
+        }
+    }
+
+    private void updatePixel(Punkt punkt) {
+        int pX = (int) punkt.getPosX();
+        int pY = (int) punkt.getPosY();
+
+        if (punkt.isVisible()) {
+            if ((imagePixels[(pY) * width + (pX)] & 255) + 25 < 255) {
+                imagePixels[pY * width + pX] = ((((imagePixels[pY * width + pX]) & 255) + 25)) | (255 << 24);
+            }
+        }
+        if (pX > 1 && pY < width - 1 && pY > 1 && pY < height - 1 && punkt.isVisible()) {
+
+            if ((imagePixels[(pY - 1) * width + (pX + 1)] & 255) + 25 < 255) {
+                imagePixels[(pY - 1) * width + (pX + 1)] = ((((imagePixels[(pY - 1) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY - 1) * width + (pX)] & 255) + 25 < 255) {
+                imagePixels[(pY - 1) * width + (pX)] = ((((imagePixels[(pY - 1) * width + (pX)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY - 1) * width + (pX - 1)] & 255) + 25 < 255) {
+                imagePixels[(pY - 1) * width + (pX - 1)] = ((((imagePixels[(pY - 1) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY) * width + (pX + 1)] & 255) + 25 < 255) {
+                imagePixels[(pY) * width + (pX + 1)] = ((((imagePixels[(pY) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY) * width + (pX - 1)] & 255) + 25 < 255) {
+                imagePixels[(pY) * width + (pX - 1)] = ((((imagePixels[(pY) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY + 1) * width + (pX + 1)] & 255) + 25 < 255) {
+                imagePixels[(pY + 1) * width + (pX + 1)] = ((((imagePixels[(pY + 1) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY + 1) * width + (pX)] & 255) + 25 < 255) {
+                imagePixels[(pY + 1) * width + (pX)] = ((((imagePixels[(pY + 1) * width + (pX)]) & 255) + 25)) | (127 << 25);
+            }
+            if ((imagePixels[(pY + 1) * width + (pX - 1)] & 255) + 25 < 255) {
+                imagePixels[(pY + 1) * width + (pX - 1)] = ((((imagePixels[(pY + 1) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
             }
         }
     }
@@ -476,9 +406,7 @@ public class Credits {
             this.posX = startX;
             this.posY = startY;
             this.type = type;
-            visible = type != TYPE_APPEARABLE;
-            velX = velY = 0;
-
+            this.visible = type != TYPE_APPEARABLE;
         }
 
         /**
@@ -651,15 +579,14 @@ public class Credits {
          *
          * @return clone of this point  (Punkt)
          */
+        @Override
         public Object clone() {
             try {
                 return super.clone();
             } catch (java.lang.CloneNotSupportedException e) {
                 return null;
             }
-
         }
-
 
     }
 

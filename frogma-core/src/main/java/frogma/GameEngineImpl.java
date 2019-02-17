@@ -112,7 +112,14 @@ public final class GameEngineImpl implements GameEngine {
 
         this.objProducer = new ObjectProducer(this, gfxEng, this.imgLoader);
         playBgm = PLAY_BGM;
-        credits = new Credits("Credits:\nAlf Børge Lervåg\nAndreas Wigmostad Bjerkhaug\nJohannes Odland\nErling Andersen", screenWidth, screenHeight);
+
+        credits = new Credits(screenWidth, screenHeight, Color.blue, Color.black,
+                "Credits:",
+                "Alf Børge Lervåg",
+                "Andreas Wigmostad Bjerkhaug",
+                "Johannes Odland",
+                "Erling Andersen"
+        );
 
         Stars.setEnabled(false);
         // Show the Loading image:
