@@ -6,8 +6,22 @@ import frogma.input.Input;
 import frogma.misc.Misc;
 import frogma.resources.ImageLoader;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -42,7 +56,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private int imageOffsetX;
     private int imageOffsetY;
     private int sW; //lagrer skjermvidde her. bruker kort variabel ettersom den skal brukes en del.
-    private int sH; //Samme bare skjermh�yde.
+    private int sH; //Samme bare skjermhøyde.
 
     private boolean fullscreen;
     private boolean currentlyInFullscreen;
@@ -55,10 +69,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private int fgHeight;
 
     private boolean doHeartEffect;    // Enabled / Disabled
-    private int heartSX, heartSY;    // Starting coords of the middle of the heart
-    private int heartEX, heartEY;    // Ending coords of the middle of the heart
-    private int heartTargetWidth;    // Target Width
-    private int heartTargetHeight;    // Target Height
+    private int heartX, heartY;    // Coords of the middle of the heart
+    private int heartTargetScale;    // Target scale
     private int heartFrameCount;    // How many frames to draw
     private int heartCurFrame;        // the current frame
 
@@ -66,13 +78,13 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private int levelWidth;
     private int levelHeight;
 
-    //****slutt p� level-spesifike variabler****
+    //****slutt på level-spesifike variabler****
 
     //**posisjoner**
 
     private BasicGameObject[] monsters;
 
-    //**slutt p� posisjoner***
+    //**slutt på posisjoner***
 
     private GameMenu myGameMenu;
     private Image stillScreenImage;
@@ -118,10 +130,12 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
     private void addListeners() {
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 exitGame();
             }
 
+            @Override
             public void windowActivated(WindowEvent e) {
                 setDisplayMode();
             }
@@ -130,7 +144,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
     private void setDisplayMode() {
         if (fullscreen && !currentlyInFullscreen && graphicsDevice.isFullScreenSupported()) {
-            if (debug) System.out.println("Vinduet har f�tt fokus igjen og vi skifter til fullscreen mode");
+            if (debug) System.out.println("Vinduet har fått fokus igjen og vi skifter til fullscreen mode");
             switchBackToFullScreen(sW, sH);
             isLost = false;
             if (referrer != null) referrer.setState(referrer.getPrevState());
@@ -228,6 +242,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
      *
      * @param image image that will be shown when draw() method is used in STATE_IMAGE mode
      */
+    @Override
     public void initialize(Image image) {
         this.stillScreenImage = image;
     }
@@ -503,38 +518,28 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     }
 
     private void doHeartEffect(Graphics g, ImageLoader imgLoader) {
-
         if (doHeartEffect) {
-            // Draw heart image on top:
-            int sx1, sx2, sy1, sy2;
-            int dx1, dx2, dy1, dy2;
-            int origWidth = 30;
-            int origHeight = 30;
 
-            int midX, midY;
-            midX = heartSX + ((heartEX - heartSX) * heartCurFrame) / heartFrameCount;
-            midY = heartSY + ((heartEY - heartSY) * heartCurFrame) / heartFrameCount;
+            int imageWidth = 30;
+            int imageHeight = 30;
 
-            int halfW = (origWidth + ((heartTargetWidth - origWidth) * heartCurFrame) / heartFrameCount) / 2;
-            int halfH = (origHeight + ((heartTargetHeight - origHeight) * heartCurFrame) / heartFrameCount) / 2;
+            int currentScale = 1 + (heartTargetScale * heartCurFrame / heartFrameCount);
+            int scaledWidth = imageWidth * currentScale;
+            int scaledHeight = imageHeight * currentScale;
 
-            sx1 = 0;
-            sx2 = origWidth;
-            sy1 = 0;
-            sy2 = origHeight;
-            dx1 = midX - halfW;
-            dy1 = midY - halfH;
-            dx2 = midX + halfW;
-            dy2 = midY + halfH;
+            int destX1 = heartX - (scaledWidth / 2);
+            int destY1 = heartY - (scaledHeight / 2);
+            int destX2 = destX1 + scaledWidth;
+            int destY2 = destY1 + scaledHeight;
 
-            g.drawImage(imgLoader.get(Const.IMG_SINGLEHEART), dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, null);
+            g.drawImage(imgLoader.get(Const.IMG_SINGLEHEART), destX1, destY1, destX2, destY2, 0, 0, imageWidth, imageHeight, null);
 
-            // Increase frame:
+            // Increase frame.
             heartCurFrame++;
-            if (heartCurFrame > heartFrameCount) {
-                // Don't go beyond the last frame, but
-                // keep drawing it until the effect is turned off:
-                heartCurFrame = heartFrameCount;
+            if (heartCurFrame == heartFrameCount) {
+                heartCurFrame = 0;
+                doHeartEffect = false;
+                referrer.levelFinished();
             }
         }
     }
@@ -603,12 +608,11 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         }
     }
 
-
     /**
      * Method that draws image to screen. Wether it draws an Image, a level, a menu or a combination of these
      * depend on which state the GraphicsEngine is in
      */
-    public void draw() {
+    void draw() {
 
         if (!isLost && this.currentlyInFullscreen && myStrategy.contentsLost()) {
             this.switchFromFullScreen();
@@ -703,30 +707,21 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         }
     }
 
-    public void startHeartEffect(int sx, int sy, int ex, int ey, int tW, int tH, int frameCount) {
-        this.heartSX = sx;
-        this.heartSY = sy;
-        this.heartEX = ex;
-        this.heartEY = ey;
-        this.heartTargetWidth = tW;
-        this.heartTargetHeight = tH;
-        this.heartFrameCount = frameCount;
+    @Override
+    public void startHeartEffect() {
+        int originalImageSize = 30; // The image is square.
+        this.heartX = screenWidth / 2;
+        this.heartY = screenHeight / 2;
+        this.heartTargetScale = screenWidth * 3 / originalImageSize;
+        this.heartFrameCount = 60;
         this.heartCurFrame = 0;
         this.doHeartEffect = true;
-    }
-
-    public void stopHeartEffect() {
-        this.doHeartEffect = false;
-        this.heartCurFrame = 0;
-    }
-
-    public int getHeartFrame() {
-        return this.heartCurFrame;
     }
 
     /**
      * Overriding super paint
      */
+    @Override
     public void paint(Graphics g) {
         //do nothing
     }
@@ -740,10 +735,12 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         this.monsters = monsters;
     }
 
+    @Override
     public void setLayerVisibility(int layerID, boolean visibility) {
         showLayer[layerID] = visibility;
     }
 
+    @Override
     public boolean getLayerVisibility(int layerID) {
         return showLayer[layerID];
     }

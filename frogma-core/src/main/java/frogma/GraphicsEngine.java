@@ -1,6 +1,6 @@
 package frogma;
 
-import java.awt.*;
+import java.awt.Image;
 
 public interface GraphicsEngine {
 
@@ -22,15 +22,11 @@ public interface GraphicsEngine {
 
     // ----------------------------------------------------------
 
-    void startHeartEffect(int sx, int sy, int ex, int ey, int tW, int tH, int frameCount);
-
-    void stopHeartEffect();
+    void startHeartEffect();
 
     void initialize(Image img);
 
     void setState(int newState);
-
-    int getHeartFrame();
 
     boolean getLayerVisibility(int layerIndex);
 

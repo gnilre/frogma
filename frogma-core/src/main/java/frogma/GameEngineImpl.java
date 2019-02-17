@@ -476,12 +476,13 @@ public final class GameEngineImpl implements GameEngine {
         targetX = renderX;
         targetY = renderY;
 
-        System.out.println("ferdig � sette level");
+        System.out.println("ferdig å sette level");
 
         // -- FINISHED INITIALIZING --
     }
 
 
+    @Override
     public void setState(GameState state) {
         // If any preparations should be done
         // before the state transition,
@@ -542,6 +543,7 @@ public final class GameEngineImpl implements GameEngine {
         }
     }
 
+    @Override
     public BasicGameObject getObjectFromID(int objID) {
         for (BasicGameObject obj : objs) {
             if (obj != null && obj.getID() == objID) {
@@ -551,18 +553,22 @@ public final class GameEngineImpl implements GameEngine {
         return null;
     }
 
+    @Override
     public GameState getPrevState() {
         return this.prevState;
     }
 
+    @Override
     public GameState getState() {
         return this.gameState;
     }
 
+    @Override
     public GameMenu getMenu() {
         return this.menu;
     }
 
+    @Override
     public GameMenu getPauseMenu() {
 
         return this.pauseMenu;
@@ -571,46 +577,56 @@ public final class GameEngineImpl implements GameEngine {
     /*  Returns the array of objects used in the game
      *  to represent monsters, bonus objects, whatever except the player.
      */
+    @Override
     public BasicGameObject[] getObjects() {
         return this.objs;
     }
 
     /*  Returns the CollDetect object used.
      */
+    @Override
     public CollDetect getCollDetect() {
         return this.collDet;
     }
 
+    @Override
     public ImageLoader getImgLoader() {
         return imgLoader;
     }
 
+    @Override
     public ObjectProducer getObjProducer() {
         return objProducer;
     }
 
     /*  Returns the SoundFX object.
      */
+    @Override
     public SoundFX getSndFX() {
         return this.sndFX;
     }
 
+    @Override
     public MidiPlayer getBgmSystem() {
         return this.bgmSystem;
     }
 
+    @Override
     public Input getPlayerInput() {
         return this.input;
     }
 
+    @Override
     public Cheat getCheat() {
         return this.cheat;
     }
 
+    @Override
     public GraphicsEngine getGfx() {
         return gfxEng;
     }
 
+    @Override
     public Player getPlayer() {
         return thePlayer;
     }
@@ -629,6 +645,7 @@ public final class GameEngineImpl implements GameEngine {
         thePlayer = new Player(4, 8, this, 2, playerImg);
     }
 
+    @Override
     public void stopBgm() {
         if (this.bgmSystem != null) {
             this.bgmSystem.stopPlaying();
@@ -647,6 +664,7 @@ public final class GameEngineImpl implements GameEngine {
         }
     }
 
+    @Override
     public void startOver() {
         gfxEng.initialize(loadLevImg);
         gfxEng.setState(GraphicsState.IMAGE);
@@ -662,6 +680,7 @@ public final class GameEngineImpl implements GameEngine {
 
     }
 
+    @Override
     public void gameOver() {
         if (bgmSystem != null) {
             bgmSystem.stopPlaying();
@@ -674,6 +693,7 @@ public final class GameEngineImpl implements GameEngine {
      * We want to add new object to the object list. This does it but _slow_.
      * Use with caution.
      */
+    @Override
     public void addObjects(BasicGameObject[] newObjects) {
         if (newObjects == null || newObjects.length == 0) {
             return;
@@ -748,6 +768,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return menu items as a string array
          */
+        @Override
         public String[] getMenuItemsAsStrings() {
             if (lang == NORWEGIAN) {
                 switch (state) {
@@ -775,6 +796,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return index of selected item
          */
+        @Override
         public int getSelectedMenuItem() {
             return this.selectedMenuItem;
         }
@@ -785,6 +807,7 @@ public final class GameEngineImpl implements GameEngine {
          * @return horizontal position of menu
          */
 
+        @Override
         public double getPosX() {
             return 0.30;
         }
@@ -794,6 +817,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return vertical position of menu
          */
+        @Override
         public double getPosY() {
             return 0.45;
         }
@@ -804,6 +828,7 @@ public final class GameEngineImpl implements GameEngine {
          * @return color of menu
          */
 
+        @Override
         public java.awt.Color getColor() {
             return new Color(255, 255, 255, 150);
 
@@ -812,6 +837,7 @@ public final class GameEngineImpl implements GameEngine {
         /**
          * Used to recive key input
          */
+        @Override
         public void triggerKeyEvent(KeyEvent kE) {
             switch (kE.getKeyCode()) {
                 case KeyEvent.VK_ENTER:
@@ -915,6 +941,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return menu items as an array of strings
          */
+        @Override
         public String[] getMenuItemsAsStrings() {
             switch (lang) {
                 case NORWEGIAN:
@@ -951,6 +978,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return index of selected item
          */
+        @Override
         public int getSelectedMenuItem() {
             return this.selectedMenuItem;
         }
@@ -960,6 +988,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return horizontal position
          */
+        @Override
         public double getPosX() {
             return 0.35;
         }
@@ -969,6 +998,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return vertical position
          */
+        @Override
         public double getPosY() {
 
             return 0.718;
@@ -979,6 +1009,7 @@ public final class GameEngineImpl implements GameEngine {
          *
          * @return color of menu
          */
+        @Override
         public java.awt.Color getColor() {
             return new Color(255, 255, 255, 100);
         }
@@ -986,6 +1017,7 @@ public final class GameEngineImpl implements GameEngine {
         /**
          * Used to recive key input
          */
+        @Override
         public void triggerKeyEvent(KeyEvent kE) {
 
             if (kE.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -1071,43 +1103,52 @@ public final class GameEngineImpl implements GameEngine {
         }
     }
 
+    @Override
     public void setNextLevel() {
-        gfxEng.stopHeartEffect();
         finishedLevel = true;
     }
 
+    @Override
     public void levelFinished() {
         setNextLevel();
     }
 
+    @Override
     public void setObjUpdateState(int objIndex, boolean state) {
         updateObj[objIndex] = (byte) (state ? 1 : 0);
     }
 
+    @Override
     public Game getCurrentLevel() {
         return gameLevel;
     }
 
+    @Override
     public int getScreenWidth() {
         return 640;
     }
 
+    @Override
     public int getScreenHeight() {
         return 480;
     }
 
+    @Override
     public int getLevelRenderX() {
         return renderX;
     }
 
+    @Override
     public int getLevelRenderY() {
         return renderY;
     }
 
+    @Override
     public int getCycleCount() {
         return cycleCount;
     }
 
+    @Override
     public boolean musicAllowed() {
         return playBgm;
     }

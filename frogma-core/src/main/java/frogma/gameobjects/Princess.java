@@ -23,36 +23,26 @@ import java.awt.Image;
  * @author Johannes Odland
  * @version 1.0
  */
-
 public class Princess extends DynamicObject implements MidiPlayerListener {
+
     private static final String COURSE_CLEAR_MIDI_FILE = "courseclear.mid";
+    private static final ObjectClassParams PARAMS = new ObjectClassParams();
+
     private Image objectImage;
     private int aniCount;
     private boolean timeByMusic = false;
-    private boolean killed = false;
 
-    // Static initialization of object parameter info:
-    static ObjectClassParams oparInfo;
-
-    static {
-        oparInfo = new ObjectClassParams();
-        //oparInfo.setParam(int pIndex, int type, int[] comboValues, String name, String[] comboName){
-    }
-
+    @Override
     public ObjectClassParams getParamInfo(int subType) {
-        return Princess.oparInfo;
+        return Princess.PARAMS;
     }
 
     /**
      * standard Counsructor.
      * Takes the GameEngine where it is created as a parameter.
-     *
-     * @param referrer
      */
     public Princess(GameEngine referrer, Image objImg) {
         super(6, 12, true, true, true, false, false, referrer);
-        //objectImage=Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/princess.png"));
-        //objectImage = referrer.imgLoader.get(Const.IMG_PRINCESS);
         objectImage = objImg;
         aniCount = 0;
     }
@@ -60,15 +50,11 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
     /**
      * Acts upon collition with static object
      * Triggered by CollDetect
-     *
-     * @param sce
      */
+    @Override
     public void collide(StaticCollEvent sce) {
-
         this.newY = sce.getInvokerNewY();
         this.velY = 0;
-
-        //this.velY = -20;
     }
 
     /**
@@ -76,6 +62,7 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
      *
      * @return image to be shown
      */
+    @Override
     public Image getImage() {
         return objectImage;
     }
@@ -85,22 +72,23 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
      *
      * @return image frame to be shown
      */
+    @Override
     public int getState() {
         if (aniCount == 0) {
             return 5;
         } else if (aniCount < 100) {
-            int val = (aniCount % 4) / 2 * 3 + 1;
-            //System.out.println(val);
-            return val;
+            return (aniCount % 4) / 2 * 3 + 1;
         } else {
             return 2;
         }
     }
 
+    @Override
     public int getImgSrcX() {
         return getState() * tileWidth * 8;
     }
 
+    @Override
     public int getImgSrcY() {
         return 0;
     }
@@ -108,10 +96,8 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
     /**
      * Acts upon collition with the player
      * Triggered by CollDetect
-     *
-     * @param dce
-     * @param collRole
      */
+    @Override
     public void collide(DynamicCollEvent dce, int collRole) {
         if (collRole == DynamicCollEvent.COLL_INVOKER) {
             this.newX = dce.getInvNewX();
@@ -122,30 +108,24 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
             referrer.getPlayer().setVelocity(0, -referrer.getPlayer().getVelY());
             referrer.getPlayer().setUseInput(false);
             referrer.getSndFX().play(SoundFX.SND_GOAL);
-            //Hearts foo[] = { new Hearts(referrer,this.posX,this.posY,Const.IMG_HEARTS), new Hearts(referrer,this.posX,this.posY,GameEngine.IMG_HEARTS),new Hearts(referrer,this.posX,this.posY,GameEngine.IMG_HEARTS), new Hearts(referrer,this.posX,this.posY,GameEngine.IMG_HEARTS) };
-            /*DynamicObject foo[] = new Hearts[4];
-			for(int i=0;i<4;i++){
-				foo[i] = referrer.objProducer.createObject(Const.OBJ_HEARTS,this.posX,this.posY,new int[10]);
-			}*/
-            referrer.addObjects(createHearts(10));
+            referrer.addObjects(createHearts());
         }
     }
 
     /**
      * Moves this object to new position
      */
-
+    @Override
     public void advanceCycle() {
         this.posX = this.newX;
         this.posY = this.newY;
-
         this.calcNewPos();
-
     }
 
     /**
      * Calculates next postition
      */
+    @Override
     public void calcNewPos() {
         //super.calcNewPos();
         int gravity = 1;
@@ -165,37 +145,29 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
         if (aniCount != 0) aniCount++;
         if (aniCount == 100) this.velY = -5;
         if (aniCount == 50) {
-            referrer.addObjects(createHearts(10));
+            referrer.addObjects(createHearts());
         }
-        if (!timeByMusic && aniCount == 300) // 500 is way too much.
-        {
-            referrer.getGfx().startHeartEffect(320, 240, 320, 240, 1500, 1500, 30);
-        }
-
-        if (referrer.getGfx().getHeartFrame() >= 30 && !killed) {
-            //System.out.println("Heart Effect is finished now..");
-            killed = true;
-            referrer.levelFinished();
+        if (!timeByMusic && aniCount == 300) {
+            referrer.getGfx().startHeartEffect();
         }
     }
 
-    private BasicGameObject[] createHearts(int count) {
-        BasicGameObject[] h = new Hearts[count];
-
-        for (int i = 0; i < count; i++) {
+    private BasicGameObject[] createHearts() {
+        BasicGameObject[] h = new Hearts[10];
+        for (int i = 0; i < 10; i++) {
             h[i] = referrer.getObjProducer().createObject(Const.OBJ_HEARTS, this.posX, this.posY, new int[10]);
         }
         return h;
-
     }
 
     @Override
     public void musicFinished() {
         if (timeByMusic) {
-            referrer.getGfx().startHeartEffect(320, 240, 320, 240, 1500, 1500, 30);
+            referrer.getGfx().startHeartEffect();
         }
     }
 
+    @Override
     public String getName() {
         return getClass().getName();
     }
