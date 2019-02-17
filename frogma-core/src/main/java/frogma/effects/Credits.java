@@ -55,11 +55,8 @@ public class Credits {
      * Standard constructor
      * Sets width and height of images to be used internally.
      * Will allways return an Image of 640x480 pixels
-     *
-     * @param width  width of image to be used
-     * @param height of image to be used
      */
-    public Credits(int width, int height, Color textColor, Color backgroundColor, String... creditStrings) {
+    public Credits(Color textColor, Color backgroundColor, String... creditStrings) {
 
         this.width = 640;
         this.height = 80;
@@ -220,7 +217,7 @@ public class Credits {
             Graphics g = renderImage.getGraphics();
             g.setColor(backgroundColor);
             g.fillRect(0, 0, 640, 480);
-            g.drawImage(sluttTextImage, 0, 150, null);
+            g.drawImage(sluttTextImage, 0, (480 - 80) / 2, null);
             return renderImage;
         } else if (firstImage == 1) {
             delayBeforeNext();
@@ -232,7 +229,7 @@ public class Credits {
         Graphics g = renderImage.getGraphics();
         g.setColor(backgroundColor);
         g.fillRect(0, 0, 640, 480);
-        g.drawImage(sluttTextImage, 0, 150, null);
+        g.drawImage(sluttTextImage, 0, (480 - 80) / 2, null);
 
         return this.renderImage;
     }

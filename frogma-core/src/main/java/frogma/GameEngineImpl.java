@@ -113,7 +113,7 @@ public final class GameEngineImpl implements GameEngine {
         this.objProducer = new ObjectProducer(this, gfxEng, this.imgLoader);
         playBgm = PLAY_BGM;
 
-        credits = new Credits(screenWidth, screenHeight, Color.blue, Color.black,
+        credits = new Credits(Color.blue, Color.black,
                 "Credits:",
                 "Alf Børge Lervåg",
                 "Andreas Wigmostad Bjerkhaug",
