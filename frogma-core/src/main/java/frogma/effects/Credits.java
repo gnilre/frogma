@@ -37,7 +37,7 @@ public class Credits {
 
     //----points
     private int[] imagePixels;
-    private Punkt[] movingPixels;
+    private Punkt[] movingPoints;
     private double force;
 
     //----flags
@@ -49,6 +49,8 @@ public class Credits {
     //--parameters
     private int width;
     private int height;
+    private int screenWidth;
+    private int screenHeight;
 
 
     /**
@@ -60,6 +62,8 @@ public class Credits {
 
         this.width = 640;
         this.height = 80;
+        this.screenWidth = 640;
+        this.screenHeight = 480;
         this.textColor = textColor;
         this.backgroundColor = backgroundColor;
         this.creditStrings = creditStrings;
@@ -69,7 +73,7 @@ public class Credits {
         currentString = 0;
         startTextImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         sluttTextImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        renderImage = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+        renderImage = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
 
     }
 
@@ -100,16 +104,16 @@ public class Credits {
         drawText(second, sluttTextImage);
 
         int startTextPixelCount = 0;
-        for (int i = 0; i < width * height; i++) {
+        for (int i = 0; i < imagePixels.length; i++) {
             imagePixels[i] = this.startTextImage.getRGB(i % width, i / width);
             if (imagePixels[i] == textColor.getRGB()) startTextPixelCount++;
         }
 
-        movingPixels = new Punkt[startTextPixelCount];
+        movingPoints = new Punkt[startTextPixelCount];
 
         int endTextPixelCount = 0;
         int[] destArray = new int[width * height];
-        for (int i = 0; i < width * height; i++) {
+        for (int i = 0; i < destArray.length; i++) {
             destArray[i] = this.sluttTextImage.getRGB(i % width, i / width);
             if (destArray[i] == textColor.getRGB()) endTextPixelCount++;
         }
@@ -119,14 +123,14 @@ public class Credits {
         int count = 0;
         for (int i = 0; i < imagePixels.length; i++) {
             if (imagePixels[i] == textColor.getRGB()) {
-                movingPixels[count] = new Punkt(i % width, i / width, Punkt.TYPE_STANDARD);
+                movingPoints[count] = new Punkt(i % width, i / width, PunktType.STANDARD);
                 count++;
             }
         }
         count = 0;
         for (int i = 0; i < destArray.length; i++) {
             if (destArray[i] == textColor.getRGB()) {
-                dests[count] = new Punkt(i % width, i / width, Punkt.TYPE_STANDARD);
+                dests[count] = new Punkt(i % width, i / width, PunktType.STANDARD);
                 count++;
             }
         }
@@ -138,8 +142,8 @@ public class Credits {
                 while (flag) {
                     Punkt punkt = dests[(int) (Math.random() * dests.length)];
                     if (!punkt.isSet()) {
-                        punkt.setDest((int) movingPixels[i].getPosX(), (int) movingPixels[i].getPosY());
-                        movingPixels[i].setDest((int) punkt.getPosX(), (int) punkt.getPosY());
+                        punkt.setDest((int) movingPoints[i].getPosX(), (int) movingPoints[i].getPosY());
+                        movingPoints[i].setDest((int) punkt.getPosX(), (int) punkt.getPosY());
                         flag = false;
 
                     }
@@ -147,23 +151,23 @@ public class Credits {
             }
 
             for (int i = endTextPixelCount; i < startTextPixelCount; i++) {
-                movingPixels[i].setDest((int) (Math.random() * width), (int) (Math.random() * height));
-                movingPixels[i].setType(Punkt.TYPE_DISSAPPEARABLE);
+                movingPoints[i].setDest((int) (Math.random() * width), (int) (Math.random() * height));
+                movingPoints[i].setType(PunktType.DISSAPPEARABLE);
             }
 
         } else {
 
-            Punkt[] oldPix = movingPixels;
-            movingPixels = new Punkt[endTextPixelCount];
-            System.arraycopy(oldPix, 0, movingPixels, 0, oldPix.length);
-            for (int i = oldPix.length; i < movingPixels.length; i++) {
-                movingPixels[i] = (Punkt) oldPix[(int) (Math.random() * oldPix.length)].clone();
+            Punkt[] oldPix = movingPoints;
+            movingPoints = new Punkt[endTextPixelCount];
+            System.arraycopy(oldPix, 0, movingPoints, 0, oldPix.length);
+            for (int i = oldPix.length; i < movingPoints.length; i++) {
+                movingPoints[i] = (Punkt) oldPix[(int) (Math.random() * oldPix.length)].clone();
             }
 
-            for (Punkt pixel : movingPixels) {
+            for (Punkt pixel : movingPoints) {
                 boolean flag = true;
                 while (flag) {
-                    Punkt punkt = dests[(int) (Math.random() * movingPixels.length)];
+                    Punkt punkt = dests[(int) (Math.random() * movingPoints.length)];
                     if (!punkt.isSet()) {
                         punkt.setDest((int) pixel.getPosX(), (int) pixel.getPosY());
                         pixel.setDest((int) punkt.getPosX(), (int) punkt.getPosY());
@@ -216,20 +220,35 @@ public class Credits {
             firstImage = 1;
             Graphics g = renderImage.getGraphics();
             g.setColor(backgroundColor);
-            g.fillRect(0, 0, 640, 480);
-            g.drawImage(sluttTextImage, 0, (480 - 80) / 2, null);
+            g.fillRect(0, 0, screenWidth, screenHeight);
+            g.drawImage(sluttTextImage, (screenWidth - width) / 2, (screenHeight - height) / 2, null);
             return renderImage;
         } else if (firstImage == 1) {
             delayBeforeNext();
             firstImage = 2;
         }
 
-        move();
+        movePoints();
+        updateForce();
+        clearPixels();
+        updatePixels();
+        drawImageToBuffer();
+
+        boolean done = true;
+        for (Punkt pixel : movingPoints) {
+            if (!pixel.isDone() && pixel.isVisible()) {
+                done = false;
+                break;
+            }
+        }
+        if (done) {
+            next = true;
+        }
 
         Graphics g = renderImage.getGraphics();
         g.setColor(backgroundColor);
-        g.fillRect(0, 0, 640, 480);
-        g.drawImage(sluttTextImage, 0, (480 - 80) / 2, null);
+        g.fillRect(0, 0, screenWidth, screenHeight);
+        g.drawImage(sluttTextImage, (screenWidth - width) / 2, (screenHeight - height) / 2, null);
 
         return this.renderImage;
     }
@@ -243,73 +262,21 @@ public class Credits {
     }
 
     /**
-     * moves all the points
+     * Moves all the points
      */
-    public void move() {
-        for (Punkt pixel : movingPixels) {
-            if (pixel.isVisible() && !pixel.isDone()) {
-                int oldX = (int) pixel.getPosX();
-                int oldY = (int) pixel.getPosY();
-                int destX = pixel.getDestX();
-                int destY = pixel.getDestY();
-                int signX, signY;
-                if (destX - oldX > 0) signX = 1;
-                else signX = -1;
-                if (destY - oldY > 0) signY = 1;
-                else signY = -1;
-
-                int velX, velY;
-
-                if (destY - oldY > 8 || destY - oldY < -8) {
-
-                    velY = destY - oldY >> 3;
-                } else {
-                    velY = signY;//(int)(destY-oldY);
-                }
-                if (destX - oldX > 8 || destX - oldX < -8) {
-
-                    velX = destX - oldX >> 3;
-                } else {
-                    velX = signX;//(int)(destX-oldX);
-
-                }
-
-                pixel.setVelX(velX);
-                pixel.setVelY(velY);
-
-                if (oldX + velX > 0 && oldX + velX < width)
-                    pixel.setPosX(oldX + velX);
-                if (oldY + velY > 0 && oldY + velY < height)
-                    pixel.setPosY(oldY + velY);
-
-                if (pixel.getType() == Punkt.TYPE_DISSAPPEARABLE && (int) (Math.random() * 3) == 1)
-                    pixel.hide();
-            }
-
+    private void movePoints() {
+        for (Punkt point : movingPoints) {
+            point.move();
         }
+    }
 
+    private void updateForce() {
         double updatedForce = force - 1 / force;
-        if ((force > 0 && updatedForce > 0) || (force < 0 && updatedForce < 0)) {
+        if (force > 0 && updatedForce > 0) {
             force = updatedForce;
         } else {
             force = 0;
         }
-
-        clearPixels();
-        updatePixels();
-        drawImageToBuffer();
-
-        boolean done = true;
-        for (Punkt pixel : movingPixels) {
-            if (!pixel.isDone() && pixel.isVisible()) {
-                done = false;
-                break;
-            }
-        }
-        if (done) {
-            next = true;
-        }
-
     }
 
     private void drawImageToBuffer() {
@@ -325,47 +292,52 @@ public class Credits {
     }
 
     private void updatePixels() {
-        for (Punkt punkt : movingPixels) {
-            updatePixel(punkt);
+
+        int maxR = textColor.getRed();
+        int maxG = textColor.getGreen();
+        int maxB = textColor.getBlue();
+
+        for (Punkt punkt : movingPoints) {
+
+            int pX = (int) punkt.getPosX();
+            int pY = (int) punkt.getPosY();
+
+            if (pX > 1 && pY < width - 1 && pY > 1 && pY < height - 1 && punkt.isVisible()) {
+                int i = pY * width + pX;
+
+                imagePixels[i] = brighten(imagePixels[i], maxR, maxG, maxB);
+
+                imagePixels[i - width] = brighten(imagePixels[i - width], maxR, maxG, maxB);
+                imagePixels[i - 1] = brighten(imagePixels[i - 1], maxR, maxG, maxB);
+                imagePixels[i + 1] = brighten(imagePixels[i + 1], maxR, maxG, maxB);
+                imagePixels[i + width] = brighten(imagePixels[i + width], maxR, maxG, maxB);
+
+                imagePixels[i - width - 1] = brighten(imagePixels[i - width - 1], maxR, maxG, maxB);
+                imagePixels[i - width + 1] = brighten(imagePixels[i - width + 1], maxR, maxG, maxB);
+                imagePixels[i + width - 1] = brighten(imagePixels[i + width - 1], maxR, maxG, maxB);
+                imagePixels[i + width + 1] = brighten(imagePixels[i + width + 1], maxR, maxG, maxB);
+
+            }
         }
     }
 
-    private void updatePixel(Punkt punkt) {
-        int pX = (int) punkt.getPosX();
-        int pY = (int) punkt.getPosY();
+    private int brighten(int rgb1, int maxR, int maxG, int maxB) {
 
-        if (punkt.isVisible()) {
-            if ((imagePixels[(pY) * width + (pX)] & 255) + 25 < 255) {
-                imagePixels[pY * width + pX] = ((((imagePixels[pY * width + pX]) & 255) + 25)) | (255 << 24);
-            }
-        }
-        if (pX > 1 && pY < width - 1 && pY > 1 && pY < height - 1 && punkt.isVisible()) {
+        int r1 = (rgb1 >> 16) & 0xFF;
+        int g1 = (rgb1 >> 8) & 0xFF;
+        int b1 = (rgb1) & 0xFF;
 
-            if ((imagePixels[(pY - 1) * width + (pX + 1)] & 255) + 25 < 255) {
-                imagePixels[(pY - 1) * width + (pX + 1)] = ((((imagePixels[(pY - 1) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY - 1) * width + (pX)] & 255) + 25 < 255) {
-                imagePixels[(pY - 1) * width + (pX)] = ((((imagePixels[(pY - 1) * width + (pX)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY - 1) * width + (pX - 1)] & 255) + 25 < 255) {
-                imagePixels[(pY - 1) * width + (pX - 1)] = ((((imagePixels[(pY - 1) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY) * width + (pX + 1)] & 255) + 25 < 255) {
-                imagePixels[(pY) * width + (pX + 1)] = ((((imagePixels[(pY) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY) * width + (pX - 1)] & 255) + 25 < 255) {
-                imagePixels[(pY) * width + (pX - 1)] = ((((imagePixels[(pY) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY + 1) * width + (pX + 1)] & 255) + 25 < 255) {
-                imagePixels[(pY + 1) * width + (pX + 1)] = ((((imagePixels[(pY + 1) * width + (pX + 1)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY + 1) * width + (pX)] & 255) + 25 < 255) {
-                imagePixels[(pY + 1) * width + (pX)] = ((((imagePixels[(pY + 1) * width + (pX)]) & 255) + 25)) | (127 << 25);
-            }
-            if ((imagePixels[(pY + 1) * width + (pX - 1)] & 255) + 25 < 255) {
-                imagePixels[(pY + 1) * width + (pX - 1)] = ((((imagePixels[(pY + 1) * width + (pX - 1)]) & 255) + 25)) | (127 << 25);
-            }
-        }
+        int r3 = r1 + 25 <= maxR ? r1 + 25 : maxR;
+        int g3 = g1 + 25 <= maxG ? g1 + 25 : maxG;
+        int b3 = b1 + 25 <= maxB ? b1 + 25 : maxB;
+
+        return (0xFF << 24) | (r3 << 16) | (g3 << 8) | b3;
+    }
+
+    private enum PunktType {
+        STANDARD,
+        APPEARABLE,
+        DISSAPPEARABLE
     }
 
     /**
@@ -378,9 +350,6 @@ public class Credits {
      * @version 1.0
      */
     private class Punkt implements java.lang.Cloneable {
-        final static int TYPE_STANDARD = 0;
-        final static int TYPE_DISSAPPEARABLE = 1;
-        final static int TYPE_APPEARABLE = 2;
 
         private double posX;
         private double posY;
@@ -388,7 +357,7 @@ public class Credits {
         private int destY;
         private double velX;
         private double velY;
-        private int type;
+        private PunktType type;
         private boolean visible;
         private boolean set = false;
 
@@ -399,11 +368,37 @@ public class Credits {
          * @param startY vertical position of point
          * @param type   sets wether the point will appear, stay, or dissappear during animation
          */
-        Punkt(int startX, int startY, int type) {
+        Punkt(int startX, int startY, PunktType type) {
             this.posX = startX;
             this.posY = startY;
             this.type = type;
-            this.visible = type != TYPE_APPEARABLE;
+            this.visible = type != PunktType.APPEARABLE;
+        }
+
+        void move() {
+            if (isVisible() && !isDone()) {
+
+                double dx = destX - posX;
+                if (dx > 8 || dx < -8) {
+                    velX = dx / 8;
+                } else {
+                    velX = dx > 0 ? 1 : -1;
+                }
+
+                double dy = destY - posY;
+                if (dy > 8 || dy < -8) {
+                    velY = dy / 8;
+                } else {
+                    velY = dy > 0 ? 1 : -1;
+                }
+
+                posX += velX;
+                posY += velY;
+
+                if (isDisappearable() && (int) (Math.random() * 3) == 1) {
+                    hide();
+                }
+            }
         }
 
         /**
@@ -429,9 +424,9 @@ public class Credits {
          * <p>Point.TYPE_APPEARABLE   : this point will be shown during animation</p>
          * <p>Point.TYPE_DISSAPPEARABLE   : this point will dissapear during animation</p>
          */
-        public void setType(int type) {
+        public void setType(PunktType type) {
             this.type = type;
-            visible = type != TYPE_APPEARABLE;
+            visible = type != PunktType.APPEARABLE;
         }
 
         /**
@@ -440,7 +435,7 @@ public class Credits {
          * @return Punkt type
          * @see #setType
          */
-        public int getType() {
+        public PunktType getType() {
             return type;
         }
 
@@ -482,43 +477,6 @@ public class Credits {
         public double getPosY() {
             return posY;
         }
-
-        /**
-         * returns horizontal destination
-         *
-         * @return horizontal destination
-         */
-        int getDestX() {
-            return destX;
-        }
-
-        /**
-         * returns vertical destination
-         *
-         * @return vertical destination
-         */
-        int getDestY() {
-            return destY;
-        }
-
-        /**
-         * returns horisontal accelleration
-         *
-         * @return horisontal accelleration
-         */
-        public double getVelX() {
-            return velX;
-        }
-
-        /**
-         * returns vertical accelleration
-         *
-         * @return vertical accelleration
-         */
-        public double getVelY() {
-            return velY;
-        }
-
 
         /**
          * sets horizontal position
@@ -563,12 +521,17 @@ public class Credits {
          */
         boolean isDone() {
             if (Math.abs(destX - posX) <= 1 && Math.abs(destY - posY) <= 1) {
-                this.posX = this.destX;
-                this.posY = this.destY;
-                if (this.type == Punkt.TYPE_DISSAPPEARABLE) this.hide();
-
+                posX = destX;
+                posY = destY;
+                if (isDisappearable()) {
+                    hide();
+                }
                 return true;
             } else return false;
+        }
+
+        boolean isDisappearable() {
+            return type == PunktType.DISSAPPEARABLE;
         }
 
         /**
