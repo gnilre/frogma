@@ -1,10 +1,13 @@
 package frogma.gameobjects.models;
 
-import frogma.*;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
+import frogma.ObjectProps;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
+import frogma.gameobjects.Player;
 
-import java.awt.*;
+import java.awt.Graphics;
 
 /**
  * <p>Title: </p>
@@ -515,6 +518,10 @@ public abstract class DynamicObject implements BasicGameObject {
 
     public void setSpriteOffsetY(int value) {
         spriteOffsetY = value;
+    }
+
+    protected Player getPlayer() {
+        return referrer.getPlayer();
     }
 
 }

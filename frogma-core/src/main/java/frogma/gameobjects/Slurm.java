@@ -1,11 +1,12 @@
 package frogma.gameobjects;
 
-import frogma.*;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.DynamicObject;
 
-import java.awt.*;
+import java.awt.Image;
 
 /**
  * <p>Title: Slurm</p>
@@ -19,289 +20,271 @@ import java.awt.*;
 
 public class Slurm extends DynamicObject {
 
-    public static Image objectImage;
-    byte mode;
-    byte action;
-    int frameCounter;
-    int on;
-    static byte MLEFT = 0;
-    static byte MRIGHT = 1;
-    static byte MFALLING = 2;
-    int gravity = 2;
-    int topCounter;
-    int stateCounter;
-    int turnCount;
-    int nrTiles;
-    int monsterSpeed = 2;
-    boolean getOut;
+    private static final ObjectClassParams OBJECT_CLASS_PARAMS = new ObjectClassParams();
 
-    Player player;
+    private static final int MAX_FRAMES_DANGEROUS = 100;
 
-
-    // Static initialization of object parameter info:
-    static ObjectClassParams oparInfo;
-
-    static {
-        oparInfo = new ObjectClassParams();
-        //oparInfo.setParam(int pIndex, int type, int[] comboValues, String name, String[] comboName){
+    private enum Mode {
+        FALLING,
+        FACING_LEFT,
+        FACING_RIGHT
     }
 
-    public ObjectClassParams getParamInfo(int subType) {
-        return Slurm.oparInfo;
+    private enum Action {
+        DORMANT,
+        DANGEROUS
     }
 
+    private static final int FRAME_LEFT_1 = 0;
+    private static final int FRAME_LEFT_2 = 1;
+    private static final int FRAME_ANGRY_LEFT = 2;
+    private static final int FRAME_ANGRY_RIGHT = 3;
+    private static final int FRAME_RIGHT_1 = 5;
+    private static final int FRAME_RIGHT_2 = 4;
+
+    private Mode mode;
+    private Action action;
+    private Image image;
+
+    private int on;
+    private int turnCount;
+    private boolean getOut;
+    private int topCounter;
+    private int frameCounter;
+    private int numberOfFramesDangerous;
 
     /**
      * Standard constructor
-     *
-     * @param referrer
      */
     public Slurm(GameEngine referrer, Image objImg) {
         super(7, 4, true, true, true, true, true, referrer);
-        //this.objectImage=Toolkit.getDefaultToolkit().createImage(getClass().getResource("images/worm.png"));
-        //this.objectImage = referrer.imgLoader.get(Const.IMG_SLURM);
-        this.objectImage = objImg;
-        this.mode = this.MFALLING;
+        on = 0;
+        turnCount = 0;
         getOut = false;
+        image = objImg;
         topCounter = 0;
         frameCounter = 0;
-        this.action = 1;
-        on = 0;
-        stateCounter = 0;
-        turnCount = 0;
-        nrTiles = 8;
+        numberOfFramesDangerous = 0;
+        setFalling();
+        setDormant();
     }
 
-    public void init() {
-        super.init();
-        if (referrer != null) player = (Player) referrer.getPlayer();
-    }
-
-    /**
-     * This method is called the first time a static collition is triggered, and makes slurm deside which direction to go
-     */
-    public void findDirection() {
-        //if((int)(Math.random()*2)==1)this.mode=this.MLEFT;
-        //else this.mode=this.MRIGHT;
-        if (this.mode == this.MRIGHT) {
-            this.mode = this.MLEFT;
-        } else {
-            this.mode = this.MRIGHT;
-        }
-
+    @Override
+    public ObjectClassParams getParamInfo(int subType) {
+        return Slurm.OBJECT_CLASS_PARAMS;
     }
 
     /**
      * Acts upon collition with static object
      * Triggered by CollDetect
-     *
-     * @param sce
      */
+    @Override
     public void collide(StaticCollEvent sce) {
-        //this.newX = sce.getInvokerNewX();
-        this.newY = sce.getInvokerNewY();
-        boolean collideLeft = (sce.getInvCollType() == sce.COLL_LEFT || sce.getInvCollType() == sce.COLL_BOTTOMLEFT);
-        boolean collideRight = (sce.getInvCollType() == sce.COLL_RIGHT || sce.getInvCollType() == sce.COLL_BOTTOMRIGHT);
-        if (this.mode == this.MFALLING) {
 
+        newY = sce.getInvokerNewY();
+        boolean collideLeft = (sce.getInvCollType() == StaticCollEvent.COLL_LEFT || sce.getInvCollType() == StaticCollEvent.COLL_BOTTOMLEFT);
+        boolean collideRight = (sce.getInvCollType() == StaticCollEvent.COLL_RIGHT || sce.getInvCollType() == StaticCollEvent.COLL_BOTTOMRIGHT);
 
-            this.findDirection();
-        } else if (this.mode == this.MLEFT && collideLeft) {
-            this.newX = sce.getInvokerNewX();
-            this.changeDirection(true);
-            if (this.getOut) {
-
-                this.newX += 5;
-                this.getOut = false;
+        if (isFalling()) {
+            setFacingRight();
+        } else if (isFacingLeft() && collideLeft) {
+            newX = sce.getInvokerNewX();
+            changeDirection();
+            if (getOut) {
+                newX += 5;
+                getOut = false;
             }
 
-        } else if (this.mode == this.MRIGHT && collideRight) {
-            this.newX = sce.getInvokerNewX();
-            this.changeDirection(true);
-            if (this.getOut) {
-
-                this.newX -= 5;
-                this.getOut = false;
+        } else if (isFacingRight() && collideRight) {
+            newX = sce.getInvokerNewX();
+            changeDirection();
+            if (getOut) {
+                newX -= 5;
+                getOut = false;
             }
         }
 
-
-        nrTiles = sce.getAffectedCount();
-        if (nrTiles < 7 && this.mode != this.MFALLING && !this.getOut) {
-            //System.out.println("found to few tiles "+sce.getAffectedCount() );
-            this.changeDirection(true);
+        if (sce.getAffectedCount() < 7 && !isFalling() && !getOut) {
+            changeDirection();
         }
     }
 
     /**
-     * Makes Slurm turn around on a cent. If dyn is true, the turn is counted. To many turns within a certain
-     * amount of time will make Slurm stop op and hide. In this state it is possible to push him over edges.
-     *
-     * @param dyn
+     * Makes Slurm turn around on a cent. The turn count is incremented. Too many turns within a certain
+     * amount of time will make Slurm stop and hide. In this state it is possible to push him over edges.
      */
-    public void changeDirection(boolean dyn) {
-        if (this.mode == this.MLEFT) {
+    private void changeDirection() {
+        if (isFacingLeft()) {
+            setFacingRight();
+            newX += 5;
 
-            this.mode = this.MRIGHT;
-            if (dyn) this.newX += 5;
-
-        } else if (this.mode == this.MRIGHT) {
-
-            this.mode = this.MLEFT;
-            if (dyn) this.newX -= 5;
+        } else if (isFacingRight()) {
+            setFacingLeft();
+            newX -= 5;
         }
-
         turnCount += 4;
-
     }
 
     /**
      * Acts upon collition with the player
      * Triggered by CollDetect
-     *
-     * @param dce
-     * @param collRole
      */
+    @Override
     public void collide(DynamicCollEvent dce, int collRole) {
 
         if (collRole == DynamicCollEvent.COLL_INVOKER) {
-            this.newX = dce.getInvNewX();
-            this.newY = dce.getInvNewY();
-            this.changeDirection(true);
+
+            newX = dce.getInvNewX();
+            newY = dce.getInvNewY();
+            changeDirection();
+
         } else {
-            //this.newX = dce.getAffNewX();
-            //this.newY = dce.getAffNewY();
+
             boolean topHit = (dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOM);
-            /*
-            boolean topHit = (
-						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOM ||
-						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOMLEFT ||
-						dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT
-						);
-			*/
-            boolean frontHit = (this.mode == this.MRIGHT && (dce.getAffectedCollType() == dce.COLL_LEFT ||
-                    dce.getAffectedCollType() == dce.COLL_TOPLEFT ||
-                    dce.getAffectedCollType() == dce.COLL_BOTTOMLEFT)
-                    || this.mode == this.MLEFT && (dce.getAffectedCollType() == dce.COLL_RIGHT ||
-                    dce.getAffectedCollType() == dce.COLL_TOPRIGHT ||
-                    dce.getAffectedCollType() == dce.COLL_BOTTOMRIGHT));
-            boolean leftHit = (dce.getAffectedCollType() == dce.COLL_LEFT ||
-                    dce.getAffectedCollType() == dce.COLL_TOPLEFT ||
-                    dce.getAffectedCollType() == dce.COLL_BOTTOMLEFT);
-            boolean rightHit = (dce.getAffectedCollType() == dce.COLL_RIGHT ||
-                    dce.getAffectedCollType() == dce.COLL_TOPRIGHT ||
-                    dce.getAffectedCollType() == dce.COLL_BOTTOMRIGHT);
 
-            if (this.mode == this.MRIGHT && topHit && action == 1) {
+            boolean frontHit = (isFacingRight() && (dce.getAffectedCollType() == DynamicCollEvent.COLL_LEFT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPLEFT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMLEFT)
+                    || (isFacingLeft() && (dce.getAffectedCollType() == DynamicCollEvent.COLL_RIGHT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPRIGHT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT)));
 
-                player.setVelocity(this.velX * 2, player.getVelY());
-                if (this.on == 0) {
-                    this.topCounter += 1;
+            boolean leftHit = (dce.getAffectedCollType() == DynamicCollEvent.COLL_LEFT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPLEFT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMLEFT);
 
+            boolean rightHit = (dce.getAffectedCollType() == DynamicCollEvent.COLL_RIGHT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPRIGHT ||
+                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT);
+
+            if (isFacingRight() && topHit && isDormant()) {
+
+                getPlayer().setVelocity(velX * 2, getPlayer().getVelY());
+                if (on == 0) {
+                    topCounter += 1;
                 }
-                this.on = 4;
-                if (topCounter > 3 && this.action == 1) this.action = 0;
-
-            } else if (this.mode == this.MLEFT && topHit && action == 1) {
-
-                player.setVelocity(this.velX * 2, player.getVelY());
-                if (this.on == 0) {
-
-                    this.topCounter += 1;
-
+                on = 4;
+                if (topCounter > 3 && isDormant()) {
+                    setDangerous();
                 }
-                this.on = 4;
-                if (topCounter > 3 && this.action == 1) this.action = 0;
-            }
-            if (topHit && action == 0 && !player.getProp(ObjectProps.PROP_BLINKING)) {
-                //spilleren skal skades
-                player.decreaseHealth(20);
+
+            } else if (isFacingLeft() && topHit && isDormant()) {
+
+                getPlayer().setVelocity(velX * 2, getPlayer().getVelY());
+                if (on == 0) {
+                    topCounter += 1;
+                }
+                on = 4;
+                if (topCounter > 3 && isDormant()) {
+                    setDangerous();
+                }
 
             }
+
+            if (topHit && isDangerous()) {
+                // Spilleren skal skades!
+                getPlayer().decreaseHealth(20);
+            }
+
             if (frontHit) {
-                this.changeDirection(true);
-                this.newX = dce.getAffNewX();
-
+                changeDirection();
+                newX = dce.getAffNewX();
             }
+
             if (getOut) {
-                if (rightHit && !referrer.getCollDetect().isStaticCollision(this, newX + 1, newY)) this.newX += 1;
-
-                else if (leftHit && !referrer.getCollDetect().isStaticCollision(this, newX - 1, newY)) this.newX -= 1;
-
+                if (rightHit && !referrer.getCollDetect().isStaticCollision(this, newX + 1, newY)) {
+                    newX += 1;
+                } else if (leftHit && !referrer.getCollDetect().isStaticCollision(this, newX - 1, newY)) {
+                    newX -= 1;
+                }
             }
+
         }
     }
 
     /**
      * Moves this object to new position
      */
+    @Override
     public void advanceCycle() {
-        this.posX = this.newX;
-        this.posY = this.newY;
 
-        if (this.mode == this.MFALLING) {
-            this.velX = 0;
-        } else if (this.mode == this.MLEFT && action == 1) {
-            this.velX = -monsterSpeed;
-        } else if (this.mode == this.RIGHT && action == 1) {
-            this.velX = monsterSpeed;
+        posX = newX;
+        posY = newY;
+
+        if (isFalling()) {
+            velX = 0;
+        } else if (isFacingLeft() && isDormant()) {
+            velX = -2;
+        } else if (isFacingRight() && isDormant()) {
+            velX = 2;
         } else {
-            this.velX = 0;
+            velX = 0;
         }
-
-
-        calcNewPos();
-
     }
 
     /**
      * Calculates new position;
      */
+    @Override
     public void calcNewPos() {
+
         velY = 8;
         newX = posX + velX;
         newY = posY + velY;
 
-        if (this.on > 0) {
-            this.on--;
-
+        if (on > 0) {
+            on--;
         }
-        if (action == 0) {
-            this.frameCounter++;
-            if (frameCounter > 500) {
-                action = 1;
-                frameCounter = 0;
-                this.topCounter = 0;
+        if (isDangerous()) {
+            numberOfFramesDangerous++;
+            if (numberOfFramesDangerous > MAX_FRAMES_DANGEROUS) {
+                setDormant();
+                numberOfFramesDangerous = 0;
+                topCounter = 0;
             }
         }
 
-        if (stateCounter > 16) stateCounter = 0;
-        stateCounter++;
-        if (turnCount > 0) turnCount--;
+        frameCounter++;
+        if (frameCounter > 16) {
+            frameCounter = 0;
+        }
+        if (turnCount > 0) {
+            turnCount--;
+        }
         if (turnCount > 3) {
-            this.action = 0;
+            setDangerous();
             getOut = true;
         }
     }
 
     /**
-     * returns the frame GraphicsEngine will draw from the image returned by getImage
+     * Returns the frame GraphicsEngine will draw from the image returned by getImage
+     * <p>
+     * 0 = Left#1
+     * 1 = Left#2
+     * 2 = Angry Left
+     * 3 = Angry Right
+     * 4 = Right#1
+     * 5 = Right#2
      *
      * @return image frame to be shown
      */
+    @Override
     public int getState() {
-        if (this.action == 1) {
-            if (this.mode == this.MLEFT && stateCounter < 8) return 0;
-            else if (this.mode == this.MLEFT && stateCounter >= 8) return 1;
-            else if (this.mode == this.MRIGHT && stateCounter < 8) return 5;
-            else if (this.mode == this.MRIGHT && stateCounter >= 8) return 4;
-            else return 0;
-        } else {
-            if (this.mode == this.MLEFT) return 2;
-            else if (this.mode == this.MRIGHT) return 3;
-            else return 2;
+        if (isDormant()) {
+            if (isFacingRight()) {
+                return frameCounter < 8 ? FRAME_RIGHT_1 : FRAME_RIGHT_2;
+            } else if (isFacingLeft()) {
+                return frameCounter < 8 ? FRAME_LEFT_1 : FRAME_LEFT_2;
+            }
+        } else if (isDangerous()) {
+            if (isFacingRight()) {
+                return FRAME_ANGRY_RIGHT;
+            } else {
+                return FRAME_ANGRY_LEFT;
+            }
         }
-
+        return FRAME_LEFT_1;
     }
 
     /**
@@ -309,11 +292,54 @@ public class Slurm extends DynamicObject {
      *
      * @return image to be shown
      */
+    @Override
     public Image getImage() {
-        return this.objectImage;
+        return image;
     }
 
+    @Override
     public String getName() {
         return getClass().getName();
     }
+
+    private boolean isFalling() {
+        return mode == Mode.FALLING;
+    }
+
+    private void setFalling() {
+        mode = Mode.FALLING;
+    }
+
+    private boolean isFacingLeft() {
+        return mode == Mode.FACING_LEFT;
+    }
+
+    private void setFacingLeft() {
+        mode = Mode.FACING_LEFT;
+    }
+
+    private boolean isFacingRight() {
+        return mode == Mode.FACING_RIGHT;
+    }
+
+    private void setFacingRight() {
+        mode = Mode.FACING_RIGHT;
+    }
+
+    private boolean isDormant() {
+        return action == Action.DORMANT;
+    }
+
+    private void setDormant() {
+        action = Action.DORMANT;
+    }
+
+    private boolean isDangerous() {
+        return action == Action.DANGEROUS;
+    }
+
+    private void setDangerous() {
+        action = Action.DANGEROUS;
+    }
+
 }
