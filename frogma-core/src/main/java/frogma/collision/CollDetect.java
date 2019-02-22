@@ -584,9 +584,6 @@ public final class CollDetect {
         int curX = 0;
         int curY = 0;
 
-        int velX = obj.getVelX();
-        int velY = obj.getVelY();
-
         int objNewX = obj.getNewX();
         int objNewY = obj.getNewY();
         int objCurX = obj.getPosX();
@@ -754,84 +751,77 @@ public final class CollDetect {
                 invCollType = CollisionType.COLL_BOTTOMRIGHT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY, 1, objH, CollisionType.COLL_LEFT);
-                addAffArea(tileX, tileY + objH, objW, 1, CollisionType.COLL_TOP);
-                addAffArea(tileX + objW, tileY + objH, 1, 1, CollisionType.COLL_TOPLEFT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX + objW, tileY, 1, objH);
+                addAffArea(tileX, tileY + objH, objW, 1);
+                addAffArea(tileX + objW, tileY + objH, 1, 1);
             }
             else if (coll_left && coll_bottom) {
                 // invoker topright collision
                 invCollType = CollisionType.COLL_TOPRIGHT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY + 1, 1, objH, CollisionType.COLL_LEFT);
-                addAffArea(tileX, tileY, objW, 1, CollisionType.COLL_BOTTOM);
-                addAffArea(tileX + objW, tileY, 1, 1, CollisionType.COLL_BOTTOMLEFT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX + objW, tileY + 1, 1, objH);
+                addAffArea(tileX, tileY, objW, 1);
+                addAffArea(tileX + objW, tileY, 1, 1);
             }
             else if (coll_right && coll_top) {
                 // invoker bottomleft collision
                 invCollType = CollisionType.COLL_BOTTOMLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, 1, objH, CollisionType.COLL_RIGHT);
-                addAffArea(tileX + 1, tileY + objH, objW, 1, CollisionType.COLL_TOP);
-                addAffArea(tileX, tileY + objH, 1, 1, CollisionType.COLL_TOPRIGHT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX, tileY, 1, objH);
+                addAffArea(tileX + 1, tileY + objH, objW, 1);
+                addAffArea(tileX, tileY + objH, 1, 1);
             }
             else if (coll_right && coll_bottom) {
                 // invoker topleft collision
                 invCollType = CollisionType.COLL_TOPLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY + 1, 1, objH, CollisionType.COLL_RIGHT);
-                addAffArea(tileX + 1, tileY, objW, 1, CollisionType.COLL_BOTTOM);
-                addAffArea(tileX, tileY, 1, 1, CollisionType.COLL_BOTTOMRIGHT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX, tileY + 1, 1, objH);
+                addAffArea(tileX + 1, tileY, objW, 1);
+                addAffArea(tileX, tileY, 1, 1);
             }
             else if (coll_left) {
                 // invoker right collision
                 invCollType = CollisionType.COLL_RIGHT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX + objW, tileY, 1, objH + addY, CollisionType.COLL_LEFT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX + objW, tileY, 1, objH + addY);
             }
             else if (coll_right) {
                 // invoker left collision
                 invCollType = CollisionType.COLL_LEFT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, 1, objH + addY, CollisionType.COLL_RIGHT);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX, tileY, 1, objH + addY);
             }
             else if (coll_top) {
                 // invoker bottom collision
                 invCollType = CollisionType.COLL_BOTTOM;
                 affCount = objW + addX + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY + objH, objW + addX, 1, CollisionType.COLL_TOP);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX, tileY + objH, objW + addX, 1);
             }
             else if (coll_bottom) {
                 // invoker top collision
                 invCollType = CollisionType.COLL_TOP;
                 affCount = objW + addX + (objW * objH) + 8;
                 resizeAff(affCount);
-                addAffArea(tileX, tileY, objW, objH, (byte) -1);
-                addAffArea(tileX, tileY, objW + addX, 1, CollisionType.COLL_BOTTOM);
+                addAffArea(tileX, tileY, objW, objH);
+                addAffArea(tileX, tileY, objW + addX, 1);
             }
             // -----------------------------------------------------------
 
-            float posdx = prevX - obj.getPosX();
-            float posdy = prevY - obj.getPosY();
-            float t = 0;
-            if (!(velX == 0 && velY == 0)) {
-                t = (posdx * posdx + posdy * posdy) / ((float) (velX * velX + velY * velY));
-            }
-
             compactAff(); //Remove empty array cells
-            result.initialize(obj, affType, invCollType, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
+            result.initialize(obj, affType, invCollType, prevX, prevY);
             return true;
         }
         else {
@@ -870,7 +860,7 @@ public final class CollDetect {
      * Internal method for adding an area of the static tile 2d array to the affected
      * tiles arrays. This method is used to reduce the size of the code.
      */
-    private void addAffArea(int x, int y, int width, int height, byte collType) {
+    private void addAffArea(int x, int y, int width, int height) {
         if (width < 1 || height < 1) {
             // No area to add.
             return;
@@ -1106,8 +1096,6 @@ public final class CollDetect {
     }
 
     public StaticCollEvent getSolidTiles(BasicGameObject obj, int x, int y) {
-        int[] stile_x;
-        int[] stile_y;
         byte[] stile_type;
         int extra_x = 0;
         int extra_y = 0;
@@ -1122,14 +1110,10 @@ public final class CollDetect {
             extra_y = 1;
         }
 
-        stile_x = new int[(obj.getSolidWidth() + extra_x) * (obj.getSolidHeight() + extra_y)];
-        stile_y = new int[(obj.getSolidWidth() + extra_x) * (obj.getSolidHeight() + extra_y)];
         stile_type = new byte[(obj.getSolidWidth() + extra_x) * (obj.getSolidHeight() + extra_y)];
 
         for (int j = sy; j < sy + obj.getSolidHeight() + extra_y; j++) {
             for (int i = sx; i < sx + obj.getSolidWidth() + extra_x; i++) {
-                stile_x[index] = i;
-                stile_y[index] = j;
                 stile_type[index] = getSTile(i, j);
                 index++;
             }
