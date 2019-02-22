@@ -1,13 +1,16 @@
 package frogma.collision;
 
-import frogma.*;
+import java.awt.Rectangle;
+
+import frogma.Cheat;
+import frogma.Game;
+import frogma.GameEngine;
+import frogma.ObjectProps;
+import frogma.gameobjects.Bullet;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.models.BasicGameObject;
-import frogma.gameobjects.Bullet;
 import frogma.misc.Misc;
 import frogma.tiles.TileType;
-
-import java.awt.*;
 
 /**
  * <p>Title: CollDetect</p>
@@ -35,11 +38,8 @@ public final class CollDetect {
 
     // Private vars for use in checkStaticCollision:
     // They're defined as Class vars for convenience.
-    private int[] affX;
-    private int[] affY;
     private byte[] affType;
-    private byte[] affCollType;
-    private int affArrStart;
+    private int affTypeIndex;
     private boolean foundGroundCollisionCase1 = false;
     private StaticCollEvent sceGCCase1 = new StaticCollEvent();
     private byte[] tilesNotSolid = new byte[]{TileType.TILE_NO_SOLID};
@@ -128,7 +128,8 @@ public final class CollDetect {
 
         if (player.getVelX() > 0) {
             playerEX += player.getVelX();
-        } else {
+        }
+        else {
             playerSX += player.getVelX();
         }
         if (player.getVelY() > 0) {
@@ -168,7 +169,8 @@ public final class CollDetect {
                     }
                     if (velX < 0) {
                         sx += (velX - STILE_SIZE);
-                    } else {
+                    }
+                    else {
                         ex += (velX + STILE_SIZE);
                     }
                     sx = sx / STILE_SIZE;
@@ -188,7 +190,8 @@ public final class CollDetect {
                                     objs[i].collide(sceGCCase1);
                                     foundGroundCollisionCase1 = true;
                                 }
-                            } else {
+                            }
+                            else {
                                 // A similar collision has been encountered
                                 // before. Use this instead of creating a new
                                 // StaticCollEvent:
@@ -307,21 +310,24 @@ public final class CollDetect {
                             // Do Static collision:
                             checkStaticCollision(bullet[i], sce);
                             bullet[i].collide(sce);
-                        } else {
+                        }
+                        else {
                             // Do Dynamic collision:
                             dce = checkDynamicCollision(bullet[i], minTimeObj);
                             if (dce != null) {
                                 dce.doCollision();
                             }
                         }
-                    } else {
+                    }
+                    else {
                         // Do dynamic collision:
                         dce = checkDynamicCollision(bullet[i], minTimeObj);
                         if (dce != null) {
                             dce.doCollision();
                         }
                     }
-                } else {
+                }
+                else {
                     // No dynamic collision, but perhaps a statical?
                     if (staticColl[i] == 1) {
                         // Do static collision:
@@ -384,19 +390,22 @@ public final class CollDetect {
 
         if (Math.abs(obj1NewX - obj1CurX) > Math.abs(obj1NewY - obj1CurY)) {
             obj1Steps = Math.abs(obj1NewX - obj1CurX);
-        } else {
+        }
+        else {
             obj1Steps = Math.abs(obj1NewY - obj1CurY);
         }
 
         if (Math.abs(obj2NewX - obj2CurX) > Math.abs(obj2NewY - obj2CurY)) {
             obj2Steps = Math.abs(obj2NewX - obj2CurX);
-        } else {
+        }
+        else {
             obj2Steps = Math.abs(obj2NewY - obj2CurY);
         }
 
         if (obj1Steps > obj2Steps) {
             nSteps = obj1Steps;
-        } else {
+        }
+        else {
             nSteps = obj2Steps;
         }
 
@@ -410,7 +419,8 @@ public final class CollDetect {
             if (obj1 instanceof Player) {
                 if (obj1.getProp(ObjectProps.PROP_BLINKING) && !obj2.getProp(ObjectProps.PROP_SOLIDTOBLINKINGPLAYER)) {
                     msg("I can walk through that object! Yay look at me! I am invincible!");
-                } else {
+                }
+                else {
                     msg("Objects are stuck at positions " + curX1 + ", " + curY1 + " & " + curX2 + ", " + curY2);
 
 					/*
@@ -441,7 +451,8 @@ public final class CollDetect {
                 // Collision!
                 collided = true;
                 break;
-            } else {
+            }
+            else {
                 prevX1 = curX1;
                 prevX2 = curX2;
                 prevY1 = curY1;
@@ -456,31 +467,38 @@ public final class CollDetect {
                 if (curX1 < curX2) {
                     // obj1 right side:
                     collType = CollisionType.COLL_LEFT;
-                } else {
+                }
+                else {
                     // obj1 left side:
                     collType = CollisionType.COLL_RIGHT;
                 }
-            } else if (objIntersect(obj1, obj2, prevX1, curY1, prevX2, curY2)) {
+            }
+            else if (objIntersect(obj1, obj2, prevX1, curY1, prevX2, curY2)) {
                 // Vertical collision.
                 if (curY1 < curY2) {
                     // obj1 bottom side:
                     collType = CollisionType.COLL_BOTTOM;
-                } else {
+                }
+                else {
                     // obj1 top side:
                     collType = CollisionType.COLL_TOP;
                 }
-            } else {
+            }
+            else {
                 // Corner collision.
                 if (curX1 < curX2 && curY1 < curY2) {
                     // obj1 bottom right corner:
                     collType = CollisionType.COLL_BOTTOMRIGHT;
-                } else if (curX1 < curX2 && curY1 > curY2) {
+                }
+                else if (curX1 < curX2 && curY1 > curY2) {
                     // obj1 top right corner:
                     collType = CollisionType.COLL_TOPRIGHT;
-                } else if (curX1 > curX2 && curY1 > curY2) {
+                }
+                else if (curX1 > curX2 && curY1 > curY2) {
                     // obj1 top left corner:
                     collType = CollisionType.COLL_TOPLEFT;
-                } else {
+                }
+                else {
                     // obj1 bottom left corner:
                     collType = CollisionType.COLL_BOTTOMLEFT;
                 }
@@ -494,7 +512,8 @@ public final class CollDetect {
 
             if (!(vx == 0 && vy == 0)) {
                 t = (dx * dx + dy * dy) / (vx * vx + vy * vy);
-            } else {
+            }
+            else {
                 dx = prevX2 - obj2.getPosX();
                 dy = prevY2 - obj2.getPosY();
                 vx = obj2.getVelX();
@@ -508,15 +527,18 @@ public final class CollDetect {
             if (!obj2.getProp(ObjectProps.PROP_SOLIDTOPLAYER)) {
                 // Player shouldn't stop when colliding with this.
                 ret = new DynamicCollEvent(obj1, obj2, collType, obj1.getNewX(), obj1.getNewY(), obj2.getNewX(), obj2.getNewY(), (float) 0);
-            } else if (!obj2.getProp(ObjectProps.PROP_SOLIDTOBLINKINGPLAYER) && obj1.getProp(ObjectProps.PROP_BLINKING)) {
+            }
+            else if (!obj2.getProp(ObjectProps.PROP_SOLIDTOBLINKINGPLAYER) && obj1.getProp(ObjectProps.PROP_BLINKING)) {
                 // Player shouldn't stop when colliding with this.
                 ret = new DynamicCollEvent(obj1, obj2, collType, obj1.getNewX(), obj1.getNewY(), obj2.getNewX(), obj2.getNewY(), (float) 0);
-            } else {
+            }
+            else {
                 // Solid object. Correct new position.
                 ret = new DynamicCollEvent(obj1, obj2, collType, prevX1, prevY1, prevX2, prevY2, t);//(float)(curStep/nSteps));
             }
             return ret;
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -614,7 +636,8 @@ public final class CollDetect {
 
         if (Math.abs(objNewX - objCurX) > Math.abs(objNewY - objCurY)) {
             nSteps = Math.abs(objNewX - objCurX);
-        } else {
+        }
+        else {
             nSteps = Math.abs(objNewY - objCurY);
         }
 
@@ -646,7 +669,8 @@ public final class CollDetect {
             if (dx > 0 && isStaticCollision(obj, curX, collY)) {
                 // Collided with left side of object.
                 coll_left = true;
-            } else if (dx < 0 && isStaticCollision(obj, curX, collY)) {
+            }
+            else if (dx < 0 && isStaticCollision(obj, curX, collY)) {
                 // Collided with right side of object.
                 coll_right = true;
             }
@@ -654,7 +678,8 @@ public final class CollDetect {
                 if (isStaticCollision(obj, collX, objNewY)) {
                     if (dy > 0) {
                         coll_top = true;
-                    } else {
+                    }
+                    else {
                         coll_bottom = true;
                     }
                 }
@@ -664,7 +689,8 @@ public final class CollDetect {
             if (dy > 0 && isStaticCollision(obj, collX, curY)) {
                 // Collided with top of object.
                 coll_top = true;
-            } else if (dy < 0 && isStaticCollision(obj, collX, curY)) {
+            }
+            else if (dy < 0 && isStaticCollision(obj, collX, curY)) {
                 // Collided with bottom of object.
                 coll_bottom = true;
             }
@@ -672,7 +698,8 @@ public final class CollDetect {
                 if (isStaticCollision(obj, objNewX, collY)) {
                     if (dx > 0) {
                         coll_left = true;
-                    } else {
+                    }
+                    else {
                         coll_right = true;
                     }
                 }
@@ -683,15 +710,18 @@ public final class CollDetect {
                     // Corner collision.
                     if (dx > 0) {
                         coll_left = true;
-                    } else {
+                    }
+                    else {
                         coll_right = true;
                     }
                     if (dy > 0) {
                         coll_top = true;
-                    } else {
+                    }
+                    else {
                         coll_bottom = true;
                     }
-                } else {
+                }
+                else {
                     // Invalid collision.. shouldn't happen.
                     msg("Collision but collision type not found. :(");
                     msg("Noe merkelig hendte under kollisjonstesting.. Hva skjer??? ;(");
@@ -701,13 +731,15 @@ public final class CollDetect {
 
             if (getTileOffX(curX) > 0) {
                 addX = 1;
-            } else {
+            }
+            else {
                 addX = 0;
             }
 
             if (getTileOffY(curY) > 0) {
                 addY = 1;
-            } else {
+            }
+            else {
                 addY = 0;
             }
 
@@ -716,7 +748,7 @@ public final class CollDetect {
 
             // Add affected tiles:
             // -----------------------------------------------------------
-            affArrStart = 0;
+            affTypeIndex = 0;
             if (coll_left && coll_top) {
                 // invoker bottomright collision
                 invCollType = CollisionType.COLL_BOTTOMRIGHT;
@@ -726,7 +758,8 @@ public final class CollDetect {
                 addAffArea(tileX + objW, tileY, 1, objH, CollisionType.COLL_LEFT);
                 addAffArea(tileX, tileY + objH, objW, 1, CollisionType.COLL_TOP);
                 addAffArea(tileX + objW, tileY + objH, 1, 1, CollisionType.COLL_TOPLEFT);
-            } else if (coll_left && coll_bottom) {
+            }
+            else if (coll_left && coll_bottom) {
                 // invoker topright collision
                 invCollType = CollisionType.COLL_TOPRIGHT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
@@ -735,7 +768,8 @@ public final class CollDetect {
                 addAffArea(tileX + objW, tileY + 1, 1, objH, CollisionType.COLL_LEFT);
                 addAffArea(tileX, tileY, objW, 1, CollisionType.COLL_BOTTOM);
                 addAffArea(tileX + objW, tileY, 1, 1, CollisionType.COLL_BOTTOMLEFT);
-            } else if (coll_right && coll_top) {
+            }
+            else if (coll_right && coll_top) {
                 // invoker bottomleft collision
                 invCollType = CollisionType.COLL_BOTTOMLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
@@ -744,7 +778,8 @@ public final class CollDetect {
                 addAffArea(tileX, tileY, 1, objH, CollisionType.COLL_RIGHT);
                 addAffArea(tileX + 1, tileY + objH, objW, 1, CollisionType.COLL_TOP);
                 addAffArea(tileX, tileY + objH, 1, 1, CollisionType.COLL_TOPRIGHT);
-            } else if (coll_right && coll_bottom) {
+            }
+            else if (coll_right && coll_bottom) {
                 // invoker topleft collision
                 invCollType = CollisionType.COLL_TOPLEFT;
                 affCount = objW + addX + objH + addY + (objW * objH) + 8;
@@ -753,28 +788,32 @@ public final class CollDetect {
                 addAffArea(tileX, tileY + 1, 1, objH, CollisionType.COLL_RIGHT);
                 addAffArea(tileX + 1, tileY, objW, 1, CollisionType.COLL_BOTTOM);
                 addAffArea(tileX, tileY, 1, 1, CollisionType.COLL_BOTTOMRIGHT);
-            } else if (coll_left) {
+            }
+            else if (coll_left) {
                 // invoker right collision
                 invCollType = CollisionType.COLL_RIGHT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
                 addAffArea(tileX + objW, tileY, 1, objH + addY, CollisionType.COLL_LEFT);
-            } else if (coll_right) {
+            }
+            else if (coll_right) {
                 // invoker left collision
                 invCollType = CollisionType.COLL_LEFT;
                 affCount = objH + addY + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
                 addAffArea(tileX, tileY, 1, objH + addY, CollisionType.COLL_RIGHT);
-            } else if (coll_top) {
+            }
+            else if (coll_top) {
                 // invoker bottom collision
                 invCollType = CollisionType.COLL_BOTTOM;
                 affCount = objW + addX + (objW * objH) + 8;
                 resizeAff(affCount);
                 addAffArea(tileX, tileY, objW, objH, (byte) -1);
                 addAffArea(tileX, tileY + objH, objW + addX, 1, CollisionType.COLL_TOP);
-            } else if (coll_bottom) {
+            }
+            else if (coll_bottom) {
                 // invoker top collision
                 invCollType = CollisionType.COLL_TOP;
                 affCount = objW + addX + (objW * objH) + 8;
@@ -794,7 +833,8 @@ public final class CollDetect {
             compactAff(); //Remove empty array cells
             result.initialize(obj, affType, invCollType, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
             return true;
-        } else {
+        }
+        else {
             // No collision:
             return false;
         }
@@ -806,11 +846,8 @@ public final class CollDetect {
      * @param affCount The new size of the arrays
      */
     private void resizeAff(int affCount) {
-        this.affX = new int[affCount];
-        this.affY = new int[affCount];
         this.affType = new byte[affCount];
-        this.affCollType = new byte[affCount];
-        this.affArrStart = 0;
+        this.affTypeIndex = 0;
     }
 
     /**
@@ -819,25 +856,14 @@ public final class CollDetect {
      */
     private void compactAff() {
 
-        // Prepare new arrays:
-        int[] newAffX = new int[affArrStart];
-        int[] newAffY = new int[affArrStart];
-        byte[] newAffType = new byte[affArrStart];
-        byte[] newAffCollType = new byte[affArrStart];
+        // Prepare new array:
+        byte[] newAffType = new byte[affTypeIndex];
 
         // Copy contents:
-        for (int i = 0; i < affArrStart; i++) {
-            newAffX[i] = this.affX[i];
-            newAffY[i] = this.affY[i];
-            newAffType[i] = this.affType[i];
-            newAffCollType[i] = this.affType[i];
-        }
+        System.arraycopy(this.affType, 0, newAffType, 0, affTypeIndex);
 
-        // Set as current arrays:
-        this.affX = newAffX;
-        this.affY = newAffY;
+        // Set as current array:
         this.affType = newAffType;
-        this.affCollType = newAffCollType;
     }
 
     /**
@@ -854,15 +880,8 @@ public final class CollDetect {
         for (int j = y; j < (y + height); j++) {
             for (int i = x; i < (x + width); i++) {
                 if (isTile(i, j)) {
-                    //try{
-                    affX[affArrStart] = i;
-                    affY[affArrStart] = j;
-                    affType[affArrStart] = getSTile(i, j);
-                    affCollType[affArrStart] = collType;
-                    affArrStart++;
-                    //}catch(Exception e){
-                    //	msg("Error in addAffArea. affArrStart="+affArrStart+" , length of array="+affX.length);
-                    //}
+                    affType[affTypeIndex] = getSTile(i, j);
+                    affTypeIndex++;
                 }
             }
         }
@@ -1019,7 +1038,8 @@ public final class CollDetect {
     private byte getSTile(int x, int y) {
         if (x < 0 || x >= this.curLevel.getSolidWidth() || y < 0 || y >= this.curLevel.getSolidHeight()) {
             return 1;
-        } else {
+        }
+        else {
             return (byte) this.sTiles[(y * this.curLevel.getSolidWidth()) + x];
         }
     }
@@ -1033,7 +1053,8 @@ public final class CollDetect {
     private int getTileX(int nx) {
         if (nx >= 0) {
             return nx / STILE_SIZE;
-        } else {
+        }
+        else {
             return (nx / STILE_SIZE) - 1;
         }
     }
@@ -1047,7 +1068,8 @@ public final class CollDetect {
     private int getTileY(int ny) {
         if (ny >= 0) {
             return ny / STILE_SIZE;
-        } else {
+        }
+        else {
             return (ny / STILE_SIZE) - 1;
         }
     }
@@ -1215,7 +1237,8 @@ public final class CollDetect {
 
         if (maxDx > maxDy) {
             stepCount = maxDx;
-        } else {
+        }
+        else {
             stepCount = maxDy;
         }
         if (stepCount == 0) {
