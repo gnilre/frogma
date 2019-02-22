@@ -1,12 +1,12 @@
 package frogma.gameobjects;
 
+import java.awt.Image;
+
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
 import frogma.gameobjects.models.DynamicObject;
-
-import java.awt.Image;
 
 /**
  * <p>Title: Slurm</p>
@@ -87,7 +87,8 @@ public class Slurm extends DynamicObject {
 
         if (isFalling()) {
             setFacingRight();
-        } else if (isFacingLeft() && collideLeft) {
+        }
+        else if (isFacingLeft() && collideLeft) {
             newX = sce.getInvokerNewX();
             changeDirection();
             if (getOut) {
@@ -95,7 +96,8 @@ public class Slurm extends DynamicObject {
                 getOut = false;
             }
 
-        } else if (isFacingRight() && collideRight) {
+        }
+        else if (isFacingRight() && collideRight) {
             newX = sce.getInvokerNewX();
             changeDirection();
             if (getOut) {
@@ -117,8 +119,8 @@ public class Slurm extends DynamicObject {
         if (isFacingLeft()) {
             setFacingRight();
             newX += 5;
-
-        } else if (isFacingRight()) {
+        }
+        else if (isFacingRight()) {
             setFacingLeft();
             newX -= 5;
         }
@@ -138,52 +140,41 @@ public class Slurm extends DynamicObject {
             newY = dce.getInvNewY();
             changeDirection();
 
-        } else {
+        }
+        else {
+
+            byte collisionType = dce.getAffectedCollType();
 
             boolean topHit = (dce.getInvokerCollType() == DynamicCollEvent.COLL_BOTTOM);
 
-            boolean frontHit = (isFacingRight() && (dce.getAffectedCollType() == DynamicCollEvent.COLL_LEFT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPLEFT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMLEFT)
-                    || (isFacingLeft() && (dce.getAffectedCollType() == DynamicCollEvent.COLL_RIGHT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPRIGHT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT)));
+            boolean leftHit = collisionType == DynamicCollEvent.COLL_LEFT ||
+                    collisionType == DynamicCollEvent.COLL_TOPLEFT ||
+                    collisionType == DynamicCollEvent.COLL_BOTTOMLEFT;
 
-            boolean leftHit = (dce.getAffectedCollType() == DynamicCollEvent.COLL_LEFT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPLEFT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMLEFT);
+            boolean rightHit = collisionType == DynamicCollEvent.COLL_RIGHT ||
+                    collisionType == DynamicCollEvent.COLL_TOPRIGHT ||
+                    collisionType == DynamicCollEvent.COLL_BOTTOMRIGHT;
 
-            boolean rightHit = (dce.getAffectedCollType() == DynamicCollEvent.COLL_RIGHT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_TOPRIGHT ||
-                    dce.getAffectedCollType() == DynamicCollEvent.COLL_BOTTOMRIGHT);
+            boolean frontHit = (isFacingRight() && leftHit || (isFacingLeft() && rightHit));
 
-            if (isFacingRight() && topHit && isDormant()) {
+            if (topHit) {
+                if (isDormant()) {
 
-                getPlayer().setVelocity(velX * 2, getPlayer().getVelY());
-                if (on == 0) {
-                    topCounter += 1;
+                    // Let the player ride on top:
+                    getPlayer().setVelocity(velX * 2, getPlayer().getVelY());
+
+                    if (on == 0) {
+                        topCounter += 1;
+                    }
+                    on = 4;
+                    if (topCounter > 3 && isDormant()) {
+                        setDangerous();
+                    }
                 }
-                on = 4;
-                if (topCounter > 3 && isDormant()) {
-                    setDangerous();
+                else if (isDangerous()) {
+                    // Hurt the player!
+                    getPlayer().decreaseHealth(20);
                 }
-
-            } else if (isFacingLeft() && topHit && isDormant()) {
-
-                getPlayer().setVelocity(velX * 2, getPlayer().getVelY());
-                if (on == 0) {
-                    topCounter += 1;
-                }
-                on = 4;
-                if (topCounter > 3 && isDormant()) {
-                    setDangerous();
-                }
-
-            }
-
-            if (topHit && isDangerous()) {
-                // Spilleren skal skades!
-                getPlayer().decreaseHealth(20);
             }
 
             if (frontHit) {
@@ -194,7 +185,8 @@ public class Slurm extends DynamicObject {
             if (getOut) {
                 if (rightHit && !referrer.getCollDetect().isStaticCollision(this, newX + 1, newY)) {
                     newX += 1;
-                } else if (leftHit && !referrer.getCollDetect().isStaticCollision(this, newX - 1, newY)) {
+                }
+                else if (leftHit && !referrer.getCollDetect().isStaticCollision(this, newX - 1, newY)) {
                     newX -= 1;
                 }
             }
@@ -213,11 +205,14 @@ public class Slurm extends DynamicObject {
 
         if (isFalling()) {
             velX = 0;
-        } else if (isFacingLeft() && isDormant()) {
+        }
+        else if (isFacingLeft() && isDormant()) {
             velX = -2;
-        } else if (isFacingRight() && isDormant()) {
+        }
+        else if (isFacingRight() && isDormant()) {
             velX = 2;
-        } else {
+        }
+        else {
             velX = 0;
         }
     }
@@ -274,13 +269,16 @@ public class Slurm extends DynamicObject {
         if (isDormant()) {
             if (isFacingRight()) {
                 return frameCounter < 8 ? FRAME_RIGHT_1 : FRAME_RIGHT_2;
-            } else if (isFacingLeft()) {
+            }
+            else if (isFacingLeft()) {
                 return frameCounter < 8 ? FRAME_LEFT_1 : FRAME_LEFT_2;
             }
-        } else if (isDangerous()) {
+        }
+        else if (isDangerous()) {
             if (isFacingRight()) {
                 return FRAME_ANGRY_RIGHT;
-            } else {
+            }
+            else {
                 return FRAME_ANGRY_LEFT;
             }
         }
