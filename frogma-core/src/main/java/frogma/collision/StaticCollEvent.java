@@ -39,9 +39,7 @@ public class StaticCollEvent {
     private static final byte TILE_BOUNCE_ALL = 20;
 
     private BasicGameObject invoker;
-    private int[] posX;
-    private int[] posY;
-    private byte[] tileType;
+    private byte[] tileTypes;
     private byte invCollType;
     private int invokerNewX;
     private int invokerNewY;
@@ -53,18 +51,14 @@ public class StaticCollEvent {
      * if not used correctly.
      *
      * @param invoker     The dynamic object that invoked the collision
-     * @param posX        The X coordinates of the tiles (array)
-     * @param posY        The Y coordinates of the tiles (array)
-     * @param tileType    The tile types of the affected tiles (array)
+     * @param tileTypes   The tile types of the affected tiles (array)
      * @param invCollType The collision type of the invoker
      * @param invokerNewX The new x position of the invoker to avoid collision
      * @param invokerNewY The new y position of the invoker to avoid collision
      */
-    public StaticCollEvent(BasicGameObject invoker, int[] posX, int[] posY, byte[] tileType, byte invCollType, int invokerNewX, int invokerNewY) {
+    public StaticCollEvent(BasicGameObject invoker, byte[] tileTypes, byte invCollType, int invokerNewX, int invokerNewY) {
         this.invoker = invoker;
-        this.posX = posX;
-        this.posY = posY;
-        this.tileType = tileType;
+        this.tileTypes = tileTypes;
         this.invCollType = invCollType;
         this.invokerNewX = invokerNewX;
         this.invokerNewY = invokerNewY;
@@ -74,11 +68,9 @@ public class StaticCollEvent {
         // Nothing. Should be initialized later on.
     }
 
-    public void initialize(BasicGameObject invoker, int[] posX, int[] posY, byte[] tileType, byte invCollType, int invNewX, int invNewY) {
+    public void initialize(BasicGameObject invoker, byte[] tileType, byte invCollType, int invNewX, int invNewY) {
         this.invoker = invoker;
-        this.posX = posX;
-        this.posY = posY;
-        this.tileType = tileType;
+        this.tileTypes = tileType;
         this.invCollType = invCollType;
         this.invokerNewX = invNewX;
         this.invokerNewY = invNewY;
@@ -105,42 +97,12 @@ public class StaticCollEvent {
     }
 
     /**
-     * Returns the x coordinate of the specified tile
-     *
-     * @param index The index of the tile
-     * @return The x coordinate of the tile
-     */
-    public int getPosX(int index) {
-        if (index >= 0 && index < this.posX.length) {
-            return this.posX[index];
-        }
-        else {
-            return (-1);
-        }
-    }
-
-    /**
-     * Returns the y coordinate of the specified tile
-     *
-     * @param index The index of the tile
-     * @return The y coordinate of the tile
-     */
-    public int getPosY(int index) {
-        if (index >= 0 && index < this.posX.length) {
-            return this.posY[index];
-        }
-        else {
-            return (-1);
-        }
-    }
-
-    /**
      * Returns the number of tiles affected by the collision
      *
      * @return The number of affected tiles
      */
     public int getAffectedCount() {
-        return this.posX.length;
+        return this.tileTypes.length;
     }
 
     /**
@@ -162,15 +124,6 @@ public class StaticCollEvent {
     }
 
     /**
-     * Returns the invoker object of the collision
-     *
-     * @return The invoker object
-     */
-    public BasicGameObject getInvoker() {
-        return this.invoker;
-    }
-
-    /**
      * invokes the collide method in the invoker object,
      * with this object as parameter.
      */
@@ -186,14 +139,12 @@ public class StaticCollEvent {
      * @return Is there a tile of the specified type among the affected tiles?
      */
     public boolean hasTileType(int tileType) {
-        boolean foundTile = false;
-        for (int i = 0; i < this.posX.length; i++) {
-            if (this.tileType[i] == tileType) {
-                foundTile = true;
-                break;
+        for (byte tt : this.tileTypes) {
+            if (tt == tileType) {
+                return true;
             }
         }
-        return foundTile;
+        return false;
     }
 
     /**

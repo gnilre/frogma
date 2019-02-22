@@ -792,7 +792,7 @@ public final class CollDetect {
             }
 
             compactAff(); //Remove empty array cells
-            result.initialize(obj, affX, affY, affType, invCollType, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
+            result.initialize(obj, affType, invCollType, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
             return true;
         } else {
             // No collision:
@@ -834,11 +834,6 @@ public final class CollDetect {
         }
 
         // Set as current arrays:
-        this.affX = null;
-        this.affY = null;
-        this.affType = null;
-        this.affCollType = null;
-
         this.affX = newAffX;
         this.affY = newAffY;
         this.affType = newAffType;
@@ -1117,7 +1112,7 @@ public final class CollDetect {
                 index++;
             }
         }
-        return new StaticCollEvent(obj, stile_x, stile_y, stile_type, (byte) 0, x, y);
+        return new StaticCollEvent(obj, stile_type, (byte) 0, x, y);
     }
 
     private boolean isAllSTilesInAreaOfType(int x, int y, int w, int h, byte[] sTType) {
