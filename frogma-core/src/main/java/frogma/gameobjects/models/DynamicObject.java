@@ -322,11 +322,11 @@ public abstract class DynamicObject implements BasicGameObject {
     public void collide(DynamicCollEvent dce, int collRole) {
         //System.out.println("Object has collided with player.");
         if (collRole == DynamicCollEvent.COLL_INVOKER) {
-            this.newX = dce.getInvNewX();
-            this.newY = dce.getInvNewY();
+            this.newX = dce.getInvokerNewX();
+            this.newY = dce.getInvokerNewY();
         } else {
-            this.newX = dce.getAffNewX();
-            this.newY = dce.getAffNewY();
+            this.newX = dce.getAffectedNewX();
+            this.newY = dce.getAffectedNewY();
         }
     }
 

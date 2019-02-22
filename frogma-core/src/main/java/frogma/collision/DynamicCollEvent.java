@@ -29,12 +29,12 @@ public class DynamicCollEvent {
     private BasicGameObject affected;
     private byte invokerCollType;
 
-    private int invNewX;
-    private int invNewY;
-    private int affNewX;
-    private int affNewY;
+    private int invokerNewX;
+    private int invokerNewY;
+    private int affectedNewX;
+    private int affectedNewY;
 
-    private float collTime;
+    private float timeUntilCollision;
 
     /**
      * The standard constructor.
@@ -43,128 +43,110 @@ public class DynamicCollEvent {
      * @param invoker              The first object involved in the collision
      * @param affected             The second object involved in the collisions
      * @param invokerCollisionType what type of collision the invoker got (which side(s) of the object collided)
-     * @param invNewX              The new x position of the first object (to avoid collision)
-     * @param invNewY              The new y position of the first object (to avoid collision)
-     * @param affNewX              The new x position of the second object (to avoid collision)
-     * @param affNewY              The new y position of the second object (to avoid collision)
-     * @param collTime             The time before the collision occurs (not used anymore, use 0)
+     * @param invokerNewX          The new x position of the first object (to avoid collision)
+     * @param invokerNewY          The new y position of the first object (to avoid collision)
+     * @param affectedNewX         The new x position of the second object (to avoid collision)
+     * @param affectedNewY         The new y position of the second object (to avoid collision)
+     * @param timeUntilCollision   The time before the collision occurs
      */
-    public DynamicCollEvent(BasicGameObject invoker, BasicGameObject affected, byte invokerCollisionType, int invNewX, int invNewY, int affNewX, int affNewY, float collTime) {
+    public DynamicCollEvent(BasicGameObject invoker,
+                            BasicGameObject affected,
+                            byte invokerCollisionType,
+                            int invokerNewX,
+                            int invokerNewY,
+                            int affectedNewX,
+                            int affectedNewY,
+                            float timeUntilCollision) {
         this.invoker = invoker;
         this.affected = affected;
         this.invokerCollType = invokerCollisionType;
-        this.collTime = collTime;
-        this.invNewX = invNewX;
-        this.invNewY = invNewY;
-        this.affNewX = affNewX;
-        this.affNewY = affNewY;
+        this.timeUntilCollision = timeUntilCollision;
+        this.invokerNewX = invokerNewX;
+        this.invokerNewY = invokerNewY;
+        this.affectedNewX = affectedNewX;
+        this.affectedNewY = affectedNewY;
     }
 
     /**
-     * Method that returns the first object involved.
-     *
      * @return The first object involved
      */
     public BasicGameObject getInvoker() {
-        return this.invoker;
+        return invoker;
     }
 
     /**
-     * Method that returns the second object involved.
-     *
      * @return The second object involved
      */
     public BasicGameObject getAffected() {
-        return this.affected;
+        return affected;
     }
 
     /**
-     * Returns the new X position of the first object
-     *
-     * @return The new X pos of object 1
+     * @return The new X position of the first object
      */
-    public int getInvNewX() {
-        return this.invNewX;
+    public int getInvokerNewX() {
+        return invokerNewX;
     }
 
     /**
-     * Returns the new Y position of the first object
-     *
-     * @return The new Y pos of object 1
+     * @return The new Y position of the first object
      */
-    public int getInvNewY() {
-        return this.invNewY;
+    public int getInvokerNewY() {
+        return invokerNewY;
     }
 
     /**
-     * Returns the new X position of the second object
-     *
-     * @return The new X pos of object 2
+     * @return The new X position of the second object
      */
-    public int getAffNewX() {
-        return this.affNewX;
+    public int getAffectedNewX() {
+        return affectedNewX;
     }
 
     /**
-     * Returns the new Y position of the second object
-     *
-     * @return The new Y pos of object 2
+     * @return The new Y position of the second object
      */
-    public int getAffNewY() {
-        return this.affNewY;
+    public int getAffectedNewY() {
+        return affectedNewY;
     }
 
     /**
-     * Returns the collision type of the first object.
-     *
      * @return The collision type of the first object
      */
     public byte getInvokerCollType() {
-        return this.invokerCollType;
+        return invokerCollType;
     }
 
     /**
-     * Returns the collision type of the second object.
-     *
      * @return The collision type of the second object
      */
     public byte getAffectedCollType() {
-        return (byte) ((this.invokerCollType + 4) % 8);
+        return (byte) ((invokerCollType + 4) % 8);
     }
 
     /**
-     * Returns the collision time (not used any more)
-     *
-     * @return The time before the collision (not in use)
+     * @return The time before the collision occurs
      */
-    public float getTime() {
-        return this.collTime;
+    float getTimeUntilCollision() {
+        return timeUntilCollision;
     }
 
     /**
      * This method invokes the collide() methods in the two
      * objects involved.
      */
-    public void doCollision() {
-        //System.out.println("doCollision method has been invoked..");
-        this.invoker.collide(this, COLL_INVOKER);
-        this.affected.collide(this, COLL_AFFECTED);
+    void doCollision() {
+        invoker.collide(this, COLL_INVOKER);
+        affected.collide(this, COLL_AFFECTED);
     }
 
-    public BasicGameObject getOtherObj(int myCollRole) {
-        if (myCollRole == COLL_INVOKER) {
-            return affected;
-        } else {
-            return invoker;
-        }
-    }
-
-    public BasicGameObject getOtherObj(BasicGameObject me) {
+    public BasicGameObject getOtherGameObject(BasicGameObject me) {
         if (me == affected) {
             return invoker;
-        } else if (me == invoker) {
+        }
+        else if (me == invoker) {
             return affected;
-        } else {
+        }
+        else {
             return null;
         }
     }

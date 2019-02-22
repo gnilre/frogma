@@ -473,14 +473,14 @@ public class Player extends DynamicObject implements PlayerInterface {
                 //this.newX = dce.getInvNewX();
                 //this.newY = dce.getInvNewY();
                 if (collType == DynamicCollEvent.COLL_LEFT || collType == DynamicCollEvent.COLL_RIGHT) {
-                    this.newX = dce.getInvNewX();
+                    this.newX = dce.getInvokerNewX();
                     this.velX = 0;
                 } else if (collType == DynamicCollEvent.COLL_TOP || collType == DynamicCollEvent.COLL_BOTTOM) {
-                    this.newY = dce.getInvNewY();
+                    this.newY = dce.getInvokerNewY();
                     this.velY = 0;
                 } else {
-                    this.newX = dce.getInvNewX();
-                    this.newY = dce.getInvNewY();
+                    this.newX = dce.getInvokerNewX();
+                    this.newY = dce.getInvokerNewY();
                     this.velX = 0;
                     this.velY = 0;
                 }
@@ -507,8 +507,8 @@ public class Player extends DynamicObject implements PlayerInterface {
             }
 
             if (!skip) {
-                this.newX = dce.getAffNewX();
-                this.newY = dce.getAffNewY();
+                this.newX = dce.getAffectedNewX();
+                this.newY = dce.getAffectedNewY();
                 if (collType == DynamicCollEvent.COLL_BOTTOM) {
                     this.action = WALKING;
                 }

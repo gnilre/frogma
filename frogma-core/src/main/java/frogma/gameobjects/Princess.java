@@ -100,8 +100,8 @@ public class Princess extends DynamicObject implements MidiPlayerListener {
     @Override
     public void collide(DynamicCollEvent dce, int collRole) {
         if (collRole == DynamicCollEvent.COLL_INVOKER) {
-            this.newX = dce.getInvNewX();
-            this.newY = dce.getInvNewY();
+            this.newX = dce.getInvokerNewX();
+            this.newY = dce.getInvokerNewY();
         } else if (aniCount == 0) {
             aniCount = 1;
             setProp(ObjectProps.PROP_DYNAMICCOLLIDABLE, false);

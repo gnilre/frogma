@@ -136,8 +136,8 @@ public class Slurm extends DynamicObject {
 
         if (collRole == DynamicCollEvent.COLL_INVOKER) {
 
-            newX = dce.getInvNewX();
-            newY = dce.getInvNewY();
+            newX = dce.getInvokerNewX();
+            newY = dce.getInvokerNewY();
             changeDirection();
 
         }
@@ -179,7 +179,7 @@ public class Slurm extends DynamicObject {
 
             if (frontHit) {
                 changeDirection();
-                newX = dce.getAffNewX();
+                newX = dce.getAffectedNewX();
             }
 
             if (getOut) {

@@ -266,7 +266,7 @@ public final class CollDetect {
                 if (((Bullet) bullet[i]).getCreator() != player) {
                     dce = checkDynamicCollision(bullet[i], player);
                     if (dce != null) {
-                        minTime = dce.getTime();
+                        minTime = dce.getTimeUntilCollision();
                         minTimeObj = player;
                     }
                 }
@@ -290,8 +290,8 @@ public final class CollDetect {
 
                     dce = checkDynamicCollision(bullet[i], bullet[j]);
                     if (dce != null) {
-                        if (minTimeObj == null || dce.getTime() < minTime) {
-                            minTime = dce.getTime();
+                        if (minTimeObj == null || dce.getTimeUntilCollision() < minTime) {
+                            minTime = dce.getTimeUntilCollision();
                             minTimeObj = bullet[j];
                         }
                     }

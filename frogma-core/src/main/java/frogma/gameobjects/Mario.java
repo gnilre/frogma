@@ -186,11 +186,11 @@ public class Mario extends DynamicObject {
                     System.out.println("Undefined collision between Monster and Player. ERROR 30");
                 }
             }
-            this.newX = dce.getAffNewX();
-            this.newY = dce.getAffNewY();
+            this.newX = dce.getAffectedNewX();
+            this.newY = dce.getAffectedNewY();
         } else {
-            this.newX = dce.getInvNewX();
-            this.newY = dce.getInvNewY();
+            this.newX = dce.getInvokerNewX();
+            this.newY = dce.getInvokerNewY();
         }
     }
 

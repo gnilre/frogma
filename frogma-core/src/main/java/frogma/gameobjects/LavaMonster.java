@@ -116,8 +116,8 @@ public class LavaMonster extends DynamicObject {
         // Decrease the player's health:
         referrer.getPlayer().decreaseHealth(25);
         // Set new position according to collision:
-        this.newX = dce.getAffNewX();
-        this.newY = dce.getAffNewY();
+        this.newX = dce.getAffectedNewX();
+        this.newY = dce.getAffectedNewY();
     }
 
     public void advanceCycle() {

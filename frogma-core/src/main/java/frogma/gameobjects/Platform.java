@@ -115,18 +115,18 @@ public class Platform extends DynamicObject {
                 newVelY = 0;
             }
             this.referrer.getPlayer().setVelocity(newVelX, newVelY);
-            if (this.velY > 0 && !referrer.getCollDetect().isStaticCollision(this, this.newX, dce.getAffNewY() + this.velY)) {
-                this.newY = dce.getAffNewY() + this.velY;
+            if (this.velY > 0 && !referrer.getCollDetect().isStaticCollision(this, this.newX, dce.getAffectedNewY() + this.velY)) {
+                this.newY = dce.getAffectedNewY() + this.velY;
             } else {
-                this.newY = dce.getAffNewY();
+                this.newY = dce.getAffectedNewY();
                 if (referrer.getCollDetect().isStaticCollision(referrer.getPlayer(), referrer.getPlayer().getNewX() + this.velX, referrer.getPlayer().getNewY() + this.velY)) {
                     // Unable to move player, so change direction
                     this.velY = -this.velY;
                 }
             }
         } else {
-            this.newX = dce.getAffNewX();
-            this.newY = dce.getAffNewY();
+            this.newX = dce.getAffectedNewX();
+            this.newY = dce.getAffectedNewY();
         }
     }
 

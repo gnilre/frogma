@@ -133,7 +133,7 @@ public class FlyingRobot extends MovingObject {
             return;
         }
 
-        BasicGameObject obj = dce.getOtherObj(this);
+        BasicGameObject obj = dce.getOtherGameObject(this);
 
         if (obj instanceof Player) {
             player.decreaseHealth(10);

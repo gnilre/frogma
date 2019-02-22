@@ -68,9 +68,9 @@ public class MapPlayer extends MovingObject implements PlayerInterface {
 
     public void collide(DynamicCollEvent dce, int collRole) {
         if (collRole == DynamicCollEvent.COLL_AFFECTED) {
-            setNewPosition(dce.getAffNewX(), dce.getAffNewY());
+            setNewPosition(dce.getAffectedNewX(), dce.getAffectedNewY());
         } else {
-            setNewPosition(dce.getInvNewX(), dce.getInvNewY());
+            setNewPosition(dce.getInvokerNewX(), dce.getInvokerNewY());
         }
     }
 
