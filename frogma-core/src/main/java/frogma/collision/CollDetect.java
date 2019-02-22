@@ -303,7 +303,7 @@ public final class CollDetect {
                     if (staticColl[i] == 1) {
                         // It also has a static collision. Check what comes first:
                         checkStaticCollision(bullet[i], sce);
-                        if (sce.getTime() < minTime) {
+                        if (0 < minTime) { // TODO: Remove if statement
                             // Do Static collision:
                             checkStaticCollision(bullet[i], sce);
                             bullet[i].collide(sce);
@@ -792,7 +792,7 @@ public final class CollDetect {
             }
 
             compactAff(); //Remove empty array cells
-            result.initialize(obj, affX, affY, affType, affCollType, invCollType, t, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
+            result.initialize(obj, affX, affY, affType, invCollType, prevX, prevY);//(float)(curStep/nSteps), prevX, prevY);
             return true;
         } else {
             // No collision:
@@ -1117,7 +1117,7 @@ public final class CollDetect {
                 index++;
             }
         }
-        return new StaticCollEvent(obj, stile_x, stile_y, stile_type, new byte[0], (byte) 0, (float) 0, x, y);
+        return new StaticCollEvent(obj, stile_x, stile_y, stile_type, (byte) 0, x, y);
     }
 
     private boolean isAllSTilesInAreaOfType(int x, int y, int w, int h, byte[] sTType) {
