@@ -1,12 +1,5 @@
 package frogma;
 
-import frogma.gameobjects.PlayerInterface;
-import frogma.gameobjects.models.BasicGameObject;
-import frogma.input.Input;
-import frogma.misc.Misc;
-import frogma.resources.ImageLoader;
-
-import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -19,13 +12,19 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JFrame;
+
+import frogma.gameobjects.PlayerInterface;
+import frogma.gameobjects.models.BasicGameObject;
+import frogma.input.Input;
+import frogma.resources.ImageLoader;
 
 
 /**
@@ -90,7 +89,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private Image stillScreenImage;
 
     private GraphicsState state;
-    private Rectangle scrRect = new Rectangle();
 
     GraphicsEngineImpl(int screenWidth, int screenHeight, boolean fullscreen, Input input, GameEngine referrer) {
         super("Frogma");
@@ -470,7 +468,6 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         int objSX, objSY;
         int renderX, renderY;
 
-        Misc.setRect(scrRect, x, y, w, h);
         for (BasicGameObject o : obj) {
             if (objectRenderable(o, zPos)) {
                 // Check if it's on screen:

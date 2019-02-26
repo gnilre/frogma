@@ -1260,7 +1260,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                     y = monsterStartPosY[i];
                     objW = dynObjs[monsterType[i]].getSolidWidth() * 8;
                     objH = dynObjs[monsterType[i]].getSolidHeight() * 8;
-                    Misc.setRect(rect, x, y, objW, objH);
+                    rect.setBounds(x, y, objW, objH);
                     if (rect.contains(e.getX(), e.getY())) {
                         newObjSelection[i] = true;
                         selCount++;
@@ -1439,7 +1439,7 @@ public class LevelEditor extends JFrame implements ActionListener {
                     objY = objSelOrigObjPosY;//monsterStartPosY[i];
                     objW = dynObjs[monsterType[i]].getSolidWidth() * 8;
                     objH = dynObjs[monsterType[i]].getSolidHeight() * 8;
-                    Misc.setRect(rect, objX, objY, objW, objH);
+                    rect.setBounds(objX, objY, objW, objH);
                     if (rect.contains(objSelClickX, objSelClickY)) {
                         // Move the object:
                         int cx, cy;

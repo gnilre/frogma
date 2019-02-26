@@ -9,7 +9,6 @@ import frogma.ObjectProps;
 import frogma.gameobjects.Bullet;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.models.BasicGameObject;
-import frogma.misc.Misc;
 import frogma.tiles.TileType;
 
 /**
@@ -110,10 +109,10 @@ public final class CollDetect {
         boolean fixedCollision;
 
         DynamicCollEvent ret;
-        Misc.setRect(objRect1, 0, 0, 0, 0);
-        Misc.setRect(objRect2, 0, 0, 0, 0);
-        Misc.setRect(playerRect, player.getPosX(), player.getPosY(), player.getSolidWidth() * STILE_SIZE, player.getSolidHeight() * STILE_SIZE);
-        Misc.setRect(rect, player.getNewX(), player.getNewY(), player.getSolidWidth() * STILE_SIZE, player.getSolidHeight() * STILE_SIZE);
+        objRect1.setBounds(0, 0, 0, 0);
+        objRect2.setBounds(0, 0, 0, 0);
+        playerRect.setBounds(player.getPosX(), player.getPosY(), player.getSolidWidth() * STILE_SIZE, player.getSolidHeight() * STILE_SIZE);
+        rect.setBounds(player.getNewX(), player.getNewY(), player.getSolidWidth() * STILE_SIZE, player.getSolidHeight() * STILE_SIZE);
 
         // --------------------------------------------------------
 
@@ -556,8 +555,8 @@ public final class CollDetect {
      * @return Whether the objects intersect at given positions.
      */
     public boolean objIntersect(BasicGameObject obj1, BasicGameObject obj2, int x1, int y1, int x2, int y2) {
-        Misc.setRect(objIntersect_rect1, x1, y1, obj1.getSolidWidth() * STILE_SIZE, obj1.getSolidHeight() * STILE_SIZE);
-        Misc.setRect(objIntersect_rect2, x2, y2, obj2.getSolidWidth() * STILE_SIZE, obj2.getSolidHeight() * STILE_SIZE);
+        objIntersect_rect1.setBounds(x1, y1, obj1.getSolidWidth() * STILE_SIZE, obj1.getSolidHeight() * STILE_SIZE);
+        objIntersect_rect2.setBounds(x2, y2, obj2.getSolidWidth() * STILE_SIZE, obj2.getSolidHeight() * STILE_SIZE);
 
         // The objects intersect at this position.
         // The objects don't intersect.
@@ -1176,20 +1175,20 @@ public final class CollDetect {
         int playerMaxX = playerMinX + Math.abs(player.getNewX() - player.getPosX()) + player.getSolidWidth() * 8;
         int playerMaxY = playerMinY + Math.abs(player.getNewY() - player.getPosY()) + player.getSolidHeight() * 8;
 
-        Misc.setRect(playerRect, playerMinX, playerMinY, playerMaxX - playerMinX, playerMaxY - playerMinY);
-        Misc.setRect(playerCurrentPosRect, player.getPosX(), player.getPosY(), player.getSolidWidth() * 8, player.getSolidHeight() * 8);
+        playerRect.setBounds(playerMinX, playerMinY, playerMaxX - playerMinX, playerMaxY - playerMinY);
+        playerCurrentPosRect.setBounds(player.getPosX(), player.getPosY(), player.getSolidWidth() * 8, player.getSolidHeight() * 8);
         BasicGameObject obj;
 
         possCount = 0;
         for (int i = 0; i < objs.length; i++) {
             if (objActive[i] == 1 && objs[i].getProp(ObjectProps.PROP_DYNAMICCOLLIDABLE) && objs[i].getProp(ObjectProps.PROP_SOLIDTOPLAYER) && !(player.getProp(ObjectProps.PROP_BLINKING) && (!objs[i].getProp(ObjectProps.PROP_SOLIDTOBLINKINGPLAYER) && objIntersect(player, objs[i], player.getPosX(), player.getPosY(), objs[i].getPosX(), objs[i].getPosY())))) {
                 obj = objs[i];
-                Misc.setRect(rect, Math.min(obj.getPosX(), obj.getNewX()), Math.min(obj.getPosY(), obj.getNewY()), Math.abs(obj.getNewX() - obj.getPosX()) + objs[i].getSolidWidth() * 8, Math.abs(obj.getNewY() - obj.getPosY()) + objs[i].getSolidHeight() * 8);
+                rect.setBounds(Math.min(obj.getPosX(), obj.getNewX()), Math.min(obj.getPosY(), obj.getNewY()), Math.abs(obj.getNewX() - obj.getPosX()) + objs[i].getSolidWidth() * 8, Math.abs(obj.getNewY() - obj.getPosY()) + objs[i].getSolidHeight() * 8);
                 if (playerRect.intersects(rect)) {
                     // Determine whether the player is stuck in this object at the current position
                     // (if so, ignore it. let him fall through, and avoid erroneous collision
                     // detection with the other objects):
-                    Misc.setRect(rect, obj.getPosX(), obj.getPosY(), obj.getSolidWidth() * 8, obj.getSolidHeight() * 8);
+                    rect.setBounds(obj.getPosX(), obj.getPosY(), obj.getSolidWidth() * 8, obj.getSolidHeight() * 8);
                     if (!playerCurrentPosRect.intersects(rect)) {
                         // Possible collision:
                         possColl[i] = 1;
