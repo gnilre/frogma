@@ -1,15 +1,17 @@
 package frogma.gameobjects;
 
-import frogma.*;
-import frogma.gameobjects.models.Animation;
+import java.awt.Image;
+
+import frogma.Const;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
+import frogma.ObjectProps;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
+import frogma.gameobjects.models.Animation;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.DynamicObject;
-import frogma.misc.Misc;
 import frogma.soundsystem.SoundFX;
-
-import java.awt.*;
 
 
 /**
@@ -73,13 +75,6 @@ public class BigShyGuy extends DynamicObject {
     /**
      * Initialize the monster.
      */
-    public BigShyGuy(GameEngine referrer, Integer subType, Integer objIndex, Integer[] param) {
-        this(12, 12, referrer, referrer.getImgLoader().get(Const.IMG_MMONSTER), subType.intValue());
-        this.objIndex = objIndex.intValue();
-        this.param = Misc.unwrapIntegerArray(param);
-        this.setProp(ObjectProps.PROP_AFFECTEDBYBULLETS, true);
-    }
-
     public BigShyGuy(int tW, int tH, GameEngine referrer, Image monsterImage, int type) {
         super(tW, tH, true, true, true, true, false, referrer);
         this.type = type;

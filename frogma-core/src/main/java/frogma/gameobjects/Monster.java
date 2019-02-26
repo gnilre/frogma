@@ -1,15 +1,17 @@
 package frogma.gameobjects;
 
-import frogma.*;
-import frogma.gameobjects.models.Animation;
+import java.awt.Image;
+
+import frogma.Const;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
+import frogma.ObjectProps;
 import frogma.collision.DynamicCollEvent;
 import frogma.collision.StaticCollEvent;
+import frogma.gameobjects.models.Animation;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.DynamicObject;
-import frogma.misc.Misc;
 import frogma.soundsystem.SoundFX;
-
-import java.awt.*;
 
 
 /**
@@ -74,18 +76,9 @@ public final class Monster extends DynamicObject {
         return Monster.oparInfo;
     }
 
-
     /**
      * Initialize the monster.
      */
-
-    public Monster(GameEngine referrer, Integer subType, Integer objIndex, Integer[] param) {
-        this(6, 6, referrer, referrer.getImgLoader().get(Const.IMG_MMONSTER), subType.intValue());
-        this.objIndex = objIndex.intValue();
-        this.param = Misc.unwrapIntegerArray(param);
-        this.setProp(ObjectProps.PROP_AFFECTEDBYBULLETS, true);
-    }
-
     public Monster(int tW, int tH, GameEngine referrer, Image monsterImage, int type) {
         super(tW, tH, true, true, true, true, false, referrer);
 
