@@ -1,4 +1,4 @@
-package frogma.collision;
+package frogma.gameobjects.models;
 
 import frogma.gameobjects.models.DynamicObject;
 
