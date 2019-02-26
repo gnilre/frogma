@@ -46,7 +46,6 @@ public final class CollDetect {
     private byte[] tilesSolid = new byte[]{TileType.TILE_ALL_SOLID, TileType.TILE_MONSTERSTOP};
 
     private static final boolean DEBUG = false;
-    private static final boolean RECYCLE_COLLISIONS = true;
     private GameEngine referrer;
 
     public static final int STILE_SIZE = 8;
@@ -155,7 +154,7 @@ public final class CollDetect {
                     fixedCollision = true;
                 }
 
-                if (velY <= 8 && velY >= 0 && sy % STILE_SIZE == 0 && RECYCLE_COLLISIONS) {
+                if (velY <= 8 && velY >= 0 && sy % STILE_SIZE == 0) {
                     if ((Math.abs(velX) <= 8) && (!isStaticCollision(objs[i], newX, newY))) {
                         fixedCollision = true; // Falling
                     }
@@ -976,33 +975,38 @@ public final class CollDetect {
      */
     private boolean isSolid(int x, int y, int velX, int velY, int topX, int topY, int objW, int objH, boolean objectIsPlayer) {
 
-        if (x < 0 || x >= levelWidth || y < 0 || y >= levelHeight) {
+        if (isOutsideLevelBounds(x, y)) {
+            // Coordinates outside the level boundary are considered solid:
             return true;
         }
 
-        int isSolid_tileType = this.sTiles[y * levelWidth + x];
-        if (isSolid_tileType == TileType.TILE_ALL_SOLID || isSolid_tileType == TileType.TILE_BOUNCE_ALL || isSolid_tileType == TileType.TILE_DAMAGE_SOLID || isSolid_tileType == TileType.TILE_DEATH_SOLID) {
+        int tileType = this.sTiles[y * levelWidth + x];
+        if (tileType == TileType.TILE_ALL_SOLID ||
+                tileType == TileType.TILE_BOUNCE_ALL ||
+                tileType == TileType.TILE_DAMAGE_SOLID ||
+                tileType == TileType.TILE_DEATH_SOLID) {
+
             return true;
         }
-        if (isSolid_tileType == TileType.TILE_MONSTERSTOP && !objectIsPlayer) {
+        if (tileType == TileType.TILE_MONSTERSTOP && !objectIsPlayer) {
             return true;
         }
 
-        switch (isSolid_tileType) {
+        switch (tileType) {
             case TileType.TILE_TOP_SOLID: {
-                if (velY > 0 && (topY / 8 + objH + (topY % 8 == 0 ? 0 : 1) <= y)) {//isAbove(topY,objH,y)){
+                if (velY > 0 && (topY / 8 + objH + (topY % 8 == 0 ? 0 : 1) <= y)) {
                     return true;
                 }
                 break;
             }
             case TileType.TILE_BOTTOM_SOLID: {
-                if (velY < 0 && (topY / 8 >= y + 1)) {//isBelow(topY,y)){
+                if (velY < 0 && (topY / 8 >= y + 1)) {
                     return true;
                 }
                 break;
             }
             case TileType.TILE_LEFT_SOLID: {
-                if (velX > 0 && (topX / 8 >= x + 1)) {//isRightOf(topX,x)){
+                if (velX > 0 && (topX / 8 >= x + 1)) {
                     return true;
                 }
                 break;
@@ -1016,6 +1020,10 @@ public final class CollDetect {
         }
 
         return false;
+    }
+
+    private boolean isOutsideLevelBounds(int x, int y) {
+        return x < 0 || x >= levelWidth || y < 0 || y >= levelHeight;
     }
 
     /**

@@ -10,6 +10,9 @@ public class TileType {
     public static final byte TILE_MONSTERSTOP = 6;
     public static final byte TILE_WATER = 7;
     public static final byte TILE_DAMAGE_SOLID = 10;
+    public static final byte TILE_DAMAGE_NO_SOLID = 11;
     public static final byte TILE_DEATH_SOLID = 12;
+    public static final byte TILE_DEATH_NO_SOLID = 13;
     public static final byte TILE_BOUNCE_ALL = 20;
+
 }

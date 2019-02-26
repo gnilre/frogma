@@ -1,6 +1,7 @@
 package frogma.collision;
 
 import frogma.gameobjects.models.BasicGameObject;
+import frogma.tiles.TileType;
 
 /**
  * <p>Title: StaticCollEvent</p>
@@ -30,13 +31,6 @@ public class StaticCollEvent {
     public static final byte COLL_BOTTOMRIGHT = 5;
     public static final byte COLL_BOTTOM = 6;
     public static final byte COLL_BOTTOMLEFT = 7;
-
-    // Tile types:
-    private static final byte TILE_DAMAGE_SOLID = 10;
-    private static final byte TILE_DAMAGE_NO_SOLID = 11;
-    private static final byte TILE_DEATH_SOLID = 12;
-    private static final byte TILE_DEATH_NO_SOLID = 13;
-    private static final byte TILE_BOUNCE_ALL = 20;
 
     private BasicGameObject invoker;
     private byte[] tileTypes;
@@ -153,7 +147,7 @@ public class StaticCollEvent {
      * @return Is there a sudden death tile involved?
      */
     public boolean hasSuddenDeathTile() {
-        return hasTileType(TILE_DEATH_SOLID) || hasTileType(TILE_DEATH_NO_SOLID);
+        return hasTileType(TileType.TILE_DEATH_SOLID) || hasTileType(TileType.TILE_DEATH_NO_SOLID);
     }
 
     /**
@@ -162,7 +156,7 @@ public class StaticCollEvent {
      * @return Is a damage tile involved?
      */
     public boolean hasDamageTile() {
-        return hasTileType(TILE_DAMAGE_SOLID) || hasTileType(TILE_DAMAGE_NO_SOLID);
+        return hasTileType(TileType.TILE_DAMAGE_SOLID) || hasTileType(TileType.TILE_DAMAGE_NO_SOLID);
     }
 
     /**
@@ -171,7 +165,7 @@ public class StaticCollEvent {
      * @return Is there any bounce tile involved?
      */
     public boolean hasBounceTile() {
-        return hasTileType(TILE_BOUNCE_ALL);
+        return hasTileType(TileType.TILE_BOUNCE_ALL);
     }
 
 }
