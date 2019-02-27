@@ -1,5 +1,10 @@
 package frogma.gameobjects;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+
 import frogma.Const;
 import frogma.GameEngine;
 import frogma.ObjectClassParams;
@@ -7,9 +12,6 @@ import frogma.ObjectProps;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.StaticObject;
 import frogma.gameobjects.models.Triggable;
-import frogma.misc.Misc;
-
-import java.awt.*;
 
 public class LineTrigger extends StaticObject implements Triggable {
 
@@ -55,7 +57,7 @@ public class LineTrigger extends StaticObject implements Triggable {
     public void render(Graphics g, int scrX, int scrY, int scrW, int scrH) {
 
         // This object should only be visible in the level editor.
-        if (!Misc.isInGame()) {
+        if (referrer == null) {
 
             int orientation = getParam(0);
             int length = getParam(1);

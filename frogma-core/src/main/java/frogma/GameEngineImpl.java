@@ -1,19 +1,18 @@
 package frogma;
 
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+
 import frogma.collision.CollDetect;
 import frogma.effects.Credits;
 import frogma.gameobjects.Player;
 import frogma.gameobjects.Stars;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.input.Input;
-import frogma.misc.Misc;
 import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
-
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.event.KeyEvent;
 
 /**
  * <p>Title: Game Engine</p>
@@ -92,9 +91,6 @@ public final class GameEngineImpl implements GameEngine {
      * This is the standard constructor of GameEngine.
      */
     GameEngineImpl(int screenWidth, int screenHeight, int targetFps, boolean fullscreen) {
-
-        // Set in-game state to true:
-        Misc.setInGame(true);
 
         this.lang = 1;
         this.screenWidth = screenWidth;

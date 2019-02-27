@@ -64,7 +64,6 @@ import frogma.ObjectClassParams;
 import frogma.ObjectProducer;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.IndexGenerator;
-import frogma.misc.Misc;
 import frogma.resources.ByteBuffer;
 import frogma.resources.ImageLoader;
 
@@ -178,9 +177,6 @@ public class LevelEditor extends JFrame implements ActionListener {
      */
     public LevelEditor() {
         super("LevelEditor 1.0");
-
-        // Set in-game state to false:
-        Misc.setInGame(false);
 
         layerVisible = new boolean[5];
         layerLocked = new boolean[5];
