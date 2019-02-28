@@ -1,15 +1,18 @@
 package frogma.gameobjects;
 
-import frogma.*;
+import frogma.Const;
+import frogma.GameEngine;
+import frogma.ObjectClassParams;
+import frogma.ObjectProps;
 import frogma.gameobjects.models.BasicGameObject;
 import frogma.gameobjects.models.StaticObject;
 import frogma.resources.ImageLoader;
 
-import java.awt.*;
+import java.awt.Image;
 
 public class RainController extends StaticObject {
-    BasicGameObject[] drop;
-    ImageLoader imgLoader;
+    private BasicGameObject[] drop;
+    private ImageLoader imgLoader;
 
     // Static initialization of object parameter info:
     static ObjectClassParams oparInfo;
@@ -19,6 +22,7 @@ public class RainController extends StaticObject {
         oparInfo.setParam(0, Const.PARAM_TYPE_VALUE, new int[0], "Raindrop Count", new String[0]);
     }
 
+    @Override
     public ObjectClassParams getParamInfo(int subType) {
         return RainController.oparInfo;
     }
@@ -28,9 +32,8 @@ public class RainController extends StaticObject {
         this.imgLoader = imgLoader;
     }
 
+    @Override
     public void init() {
-        //System.out.println("Creating rain controller..");
-        //System.out.println("rain drop count = "+getParam(0));
         if (getParam(0) >= 0) {
             drop = new BasicGameObject[getParam(0)];
             Image dropImg = imgLoader.get(Const.IMG_RAINDROP);
@@ -66,6 +69,7 @@ public class RainController extends StaticObject {
         }
     }
 
+    @Override
     public void calcNewPos() {
         int dropX, dropY;
         for (int i = 0; i < drop.length; i++) {
@@ -81,11 +85,13 @@ public class RainController extends StaticObject {
     }
 
     private int getRandomizedY() {
-        return (int) (Math.random() * (referrer.getScreenHeight() + 200)) - 100;
+        double range = referrer.getScreenHeight() * 1.2;
+        return (int) (Math.random() * range - range / 2);
     }
 
     private int getRandomizedX() {
-        return (int) (Math.random() * (referrer.getScreenWidth() + 200)) - 100;
+        double range = referrer.getScreenWidth() * 1.2;
+        return (int) (Math.random() * range - range / 2);
     }
 
     public static int[] getInitParams(int subType) {
@@ -94,6 +100,7 @@ public class RainController extends StaticObject {
         return param;
     }
 
+    @Override
     public String getName() {
         return "RainController";
     }

@@ -1,9 +1,5 @@
 package frogma;
 
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.event.KeyEvent;
-
 import frogma.collision.CollDetect;
 import frogma.effects.Credits;
 import frogma.gameobjects.Player;
@@ -13,6 +9,10 @@ import frogma.input.Input;
 import frogma.resources.ImageLoader;
 import frogma.soundsystem.MidiPlayer;
 import frogma.soundsystem.SoundFX;
+
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
 
 /**
  * <p>Title: Game Engine</p>
@@ -1128,12 +1128,12 @@ public final class GameEngineImpl implements GameEngine {
 
     @Override
     public int getScreenWidth() {
-        return 640;
+        return screenWidth;
     }
 
     @Override
     public int getScreenHeight() {
-        return 480;
+        return screenHeight;
     }
 
     @Override
