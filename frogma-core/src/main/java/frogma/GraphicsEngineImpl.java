@@ -1,5 +1,12 @@
 package frogma;
 
+import frogma.gameobjects.PlayerInterface;
+import frogma.gameobjects.models.BasicGameObject;
+import frogma.input.Input;
+import frogma.resources.ImageLoader;
+
+import javax.swing.JFrame;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -18,13 +25,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JFrame;
-
-import frogma.gameobjects.PlayerInterface;
-import frogma.gameobjects.models.BasicGameObject;
-import frogma.input.Input;
-import frogma.resources.ImageLoader;
 
 
 /**
@@ -51,6 +51,7 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     private GraphicsDevice graphicsDevice;
     private BufferStrategy myStrategy;
     private Image windowBuffer;
+    private Canvas canvas;
 
     private int imageOffsetX;
     private int imageOffsetY;
@@ -103,7 +104,11 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
         addListeners();
         setIgnoreRepaint(true);
 
-        this.windowBuffer = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
+
+        this.windowBuffer = referrer.getImgLoader().createCompatibleImage(screenWidth, screenHeight);
+        this.canvas = new Canvas(referrer.getImgLoader().getGraphicsConfiguration());
+        this.canvas.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        getContentPane().add(canvas);
 
         GraphicsEnvironment myEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         this.graphicsDevice = myEnvironment.getDefaultScreenDevice();
@@ -194,7 +199,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             this.myStrategy = this.getBufferStrategy();
             if (debug) System.out.println("Bufferstrategy opprettet");
 
-        } else {
+        }
+        else {
             // Run windowed:
             currentlyInFullscreen = false;
             sW = screenWidth;
@@ -474,7 +480,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
                 if (o.customRender()) {
                     o.render(g, x, y, w, h);
-                } else {
+                }
+                else {
 
                     objW = o.getSpriteWidth();
                     objH = o.getSpriteHeight();
@@ -495,7 +502,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
                         objX -= renderX;
                         objY -= renderY;
 
-                    } else {
+                    }
+                    else {
                         // Position is screen coordinates:
                         if (objX > w) continue;
                         if (objX + objW < 0) continue;
@@ -622,7 +630,8 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
             Graphics g;
             if (currentlyInFullscreen) {
                 g = myStrategy.getDrawGraphics();
-            } else {
+            }
+            else {
                 g = windowBuffer.getGraphics();
             }
 
@@ -630,20 +639,24 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 //do nothing..
-            } else if (this.state == GraphicsState.IMAGE) {
+            }
+            else if (this.state == GraphicsState.IMAGE) {
                 g.setColor(Color.black);
                 g.drawImage(this.stillScreenImage, imageOffsetX, imageOffsetY, this.screenWidth, this.screenHeight, this);
-            } else if (this.state == GraphicsState.IMAGE_MENU) {
+            }
+            else if (this.state == GraphicsState.IMAGE_MENU) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 g.drawImage(this.stillScreenImage, imageOffsetX, imageOffsetY, this.screenWidth, this.screenHeight, this);
                 this.drawGameMenu(g);
-            } else if (this.state == GraphicsState.LEVEL) {
+            }
+            else if (this.state == GraphicsState.LEVEL) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 BasicGameObject player = referrer.getPlayer();
                 renderLevel(g, referrer.getCurrentLevel(), referrer.getLevelRenderX(), referrer.getLevelRenderY(), screenWidth, screenHeight, player, monsters, referrer.getImgLoader());
-            } else if (this.state == GraphicsState.LEVEL_MENU) {
+            }
+            else if (this.state == GraphicsState.LEVEL_MENU) {
                 g.setColor(Color.black);
                 g.fillRect(0, 0, this.sW, this.sH);
                 BasicGameObject player = referrer.getPlayer();
@@ -653,10 +666,11 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
 
             if (currentlyInFullscreen) {
                 myStrategy.show();
-            } else {
-                g = this.getContentPane().getGraphics();
+            }
+            else {
+                g = this.canvas.getGraphics();
                 if (g != null) {
-                    g.drawImage(windowBuffer, 0, 0, this);
+                    g.drawImage(windowBuffer, 0, 0, this.canvas);
                 }
             }
 
@@ -681,22 +695,27 @@ public final class GraphicsEngineImpl extends JFrame implements GraphicsEngine {
     public void setState(GraphicsState state) {
         if (state == GraphicsState.NOTHING) {
             this.state = state;
-        } else if (state == GraphicsState.IMAGE) {
+        }
+        else if (state == GraphicsState.IMAGE) {
             if (this.stillScreenImage != null) {
                 this.state = state;
-            } else {
+            }
+            else {
                 System.out.println("Missing image..");
             }
-        } else if (state == GraphicsState.IMAGE_MENU) {
+        }
+        else if (state == GraphicsState.IMAGE_MENU) {
             if (this.stillScreenImage != null && this.myGameMenu != null) {
                 this.state = state;
             }
-        } else if (state == GraphicsState.LEVEL) {
+        }
+        else if (state == GraphicsState.LEVEL) {
             if (this.fgHeight != 0) {
                 if (debug) System.out.println("Satte state til tegn level");
                 this.state = state;
             }
-        } else if (state == GraphicsState.LEVEL_MENU) {
+        }
+        else if (state == GraphicsState.LEVEL_MENU) {
             if (this.fgHeight != 0 && this.myGameMenu != null) {
                 if (debug) System.out.println("Satte state til tegn level meny");
                 this.state = state;

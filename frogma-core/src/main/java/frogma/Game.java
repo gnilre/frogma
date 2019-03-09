@@ -440,7 +440,7 @@ public class Game {
 
     private boolean loadImages() {
 
-        ImageLoader imageLoader = new ImageLoader(this.component);
+        ImageLoader imageLoader = new ImageLoader();
         imageLoader.add(0, "/images/" + fgTileSet);
         imageLoader.add(1, "/images/" + bgTileSet);
         imageLoader.loadAll();

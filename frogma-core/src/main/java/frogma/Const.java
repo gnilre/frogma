@@ -142,8 +142,8 @@ public class Const {
 
     public static final int OBJECT_TYPE_COUNT = 44;
 
-    public static ImageLoader createStandardImageLoader(Component component) {
-        ImageLoader imgLoader = new ImageLoader(component);
+    public static ImageLoader createStandardImageLoader() {
+        ImageLoader imgLoader = new ImageLoader();
         addAllImages(imgLoader);
         return imgLoader;
     }

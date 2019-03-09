@@ -1,24 +1,20 @@
 package frogma.resources;
 
-import java.awt.Component;
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ImageLoader {
-
     private final Map<Integer, ImageState> images = new HashMap<>();
-    private final Component component;
-    private final Toolkit toolkit;
-
-    public ImageLoader(Component component) {
-        this.component = component;
-        this.toolkit = Toolkit.getDefaultToolkit();
-    }
 
     public void add(int id, String filename) {
         images.put(id, new ImageState(id, filename));
@@ -33,34 +29,41 @@ public class ImageLoader {
     }
 
     private boolean load(Collection<ImageState> imagesToLoad) {
-        MediaTracker tracker = new MediaTracker(this.component);
-
-        imagesToLoad.forEach(imageState -> {
-            if (imageState.image == null && !imageState.failed) {
-                try {
-                    Image image = getImage(imageState);
-                    imageState.image = image;
-                    tracker.addImage(image, imageState.id);
-                } catch (Exception e) {
-                    imageState.failed = true;
-                    System.out.println("Unable to load image " + imageState.filename);
-                }
-            }
-        });
-
-        try {
-            tracker.waitForAll();
-        } catch (Exception e) {
-            System.out.println("ImageLoader: Couldn't load all the images.");
-            imagesToLoad.forEach(imageState -> imageState.failed = imageState.image == null);
-            return false;
+        for (ImageState imageState : imagesToLoad) {
+            imageState.image = loadImage(imageState.filename);
         }
-
         return true;
     }
 
-    private Image getImage(ImageState imageState) {
-        return toolkit.getImage(getClass().getResource(imageState.filename));
+    private BufferedImage loadImage(String filename) {
+        try {
+            BufferedImage image = ImageIO.read(getClass().getResource(filename));
+            BufferedImage compatibleImage = createCompatibleImage(image.getWidth(), image.getHeight(), image.getTransparency());
+            Graphics2D g2d = compatibleImage.createGraphics();
+            g2d.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+            g2d.dispose();
+            return compatibleImage;
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("Unable to load image " + filename, e);
+        }
+    }
+
+    public BufferedImage createCompatibleImage(int width, int height) {
+        return createCompatibleImage(width, height, Transparency.OPAQUE);
+    }
+
+    private BufferedImage createCompatibleImage(int width, int height, int transparency) {
+        GraphicsConfiguration gc = getGraphicsConfiguration();
+        BufferedImage compatibleImage = gc.createCompatibleImage(width, height, transparency);
+        compatibleImage.setAccelerationPriority(1.0f);
+        return compatibleImage;
+    }
+
+    public GraphicsConfiguration getGraphicsConfiguration() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        return gd.getDefaultConfiguration();
     }
 
     public Image get(int id) {
@@ -76,7 +79,6 @@ public class ImageLoader {
         final int id;
         final String filename;
         Image image;
-        boolean failed;
 
         ImageState(int id, String filename) {
             this.id = id;

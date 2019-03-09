@@ -232,7 +232,7 @@ public class LevelEditor extends JFrame implements ActionListener {
         objectParam = new int[0][];
 
         // Create an image loader with all the standard images:
-        ImageLoader iLoader = Const.createStandardImageLoader(this);
+        ImageLoader iLoader = Const.createStandardImageLoader();
 
         // Remove some images that won't be used:
         iLoader.remove(Const.IMG_LOGO);
@@ -2857,7 +2857,7 @@ public class LevelEditor extends JFrame implements ActionListener {
 
             this.setSize(160, 325);
 
-            iLoader = new ImageLoader(this.lEdit);
+            iLoader = new ImageLoader();
             iLoader.add(0, "/leveleditor/layerlock.png");
             iLoader.add(1, "/leveleditor/layervisible.png");
             iLoader.loadAll();

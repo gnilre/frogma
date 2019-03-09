@@ -100,11 +100,11 @@ public final class GameEngineImpl implements GameEngine {
         input.addKey(KeyEvent.VK_W, "w");
         input.addKey(KeyEvent.VK_Q, "q");
 
-        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, fullscreen, input, this);
-
-        imgLoader = Const.createStandardImageLoader(gfxEng);
+        imgLoader = Const.createStandardImageLoader();
         imgLoader.load(Const.IMG_LOGO);
         imgLoader.load(Const.IMG_LOADING);
+
+        gfxEng = new GraphicsEngineImpl(screenWidth, screenHeight, fullscreen, input, this);
 
         this.objProducer = new ObjectProducer(this, gfxEng, this.imgLoader);
         playBgm = PLAY_BGM;
